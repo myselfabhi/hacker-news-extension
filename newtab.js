@@ -1,28 +1,23 @@
-// This is like your React component logic, but in vanilla JavaScript
-class HackerNewsReader {
+// New Tab Hacker News Reader
+class NewTabHackerNewsReader {
     constructor() {
         this.stories = [];
         this.init();
     }
 
-    // Initialize the extension - like componentDidMount in React
+    // Initialize the new tab page
     init() {
         this.setupEventListeners();
         this.loadStories();
         this.loadSettings();
     }
 
-    // Set up event listeners - like onClick handlers in React
+    // Set up event listeners
     setupEventListeners() {
+        // Refresh button
         const refreshBtn = document.getElementById('refreshBtn');
         refreshBtn.addEventListener('click', () => {
             this.loadStories();
-        });
-
-        // New tab button
-        const openNewTabBtn = document.getElementById('openNewTabBtn');
-        openNewTabBtn.addEventListener('click', () => {
-            this.openNewTabPage();
         });
 
         // Settings button
@@ -59,13 +54,13 @@ class HackerNewsReader {
         });
     }
 
-    // Main function to load stories from Hacker News API
+    // Load stories from Hacker News API
     async loadStories() {
         try {
             this.showLoading();
             this.hideError();
 
-            // Step 1: Get the list of top story IDs
+            // Get the list of top story IDs
             const response = await fetch('https://hacker-news.firebaseio.com/v0/topstories.json');
             
             if (!response.ok) {
@@ -74,8 +69,8 @@ class HackerNewsReader {
             
             const storyIds = await response.json();
 
-            // Step 2: Get details for the first 10 stories
-            const topStoryIds = storyIds.slice(0, 10);
+            // Get details for the first 20 stories (more for new tab page)
+            const topStoryIds = storyIds.slice(0, 20);
             
             // Fetch stories one by one to avoid rate limiting
             this.stories = [];
@@ -89,7 +84,7 @@ class HackerNewsReader {
                 await new Promise(resolve => setTimeout(resolve, 100));
             }
             
-            // Step 3: Display the stories
+            // Display the stories
             this.displayStories();
             
         } catch (error) {
@@ -97,7 +92,7 @@ class HackerNewsReader {
         }
     }
 
-    // Fetch individual story details - like a separate API call in your backend
+    // Fetch individual story details
     async fetchStoryDetails(storyId) {
         try {
             const response = await fetch(`https://hacker-news.firebaseio.com/v0/item/${storyId}.json`);
@@ -113,14 +108,14 @@ class HackerNewsReader {
         }
     }
 
-    // Display stories in the UI - like rendering a list in React
+    // Display stories in the UI
     displayStories() {
         const storiesContainer = document.getElementById('stories');
         const loadingElement = document.getElementById('loading');
         
         // Hide loading
         loadingElement.style.display = 'none';
-        storiesContainer.style.display = 'block';
+        storiesContainer.style.display = 'grid';
         
         // Clear previous stories
         storiesContainer.innerHTML = '';
@@ -133,19 +128,19 @@ class HackerNewsReader {
             return;
         }
 
-        // Create HTML for each story - like mapping over an array in React
+        // Create HTML for each story
         validStories.forEach((story, index) => {
             const storyElement = this.createStoryElement(story);
             storiesContainer.appendChild(storyElement);
         });
     }
 
-    // Create HTML element for a single story - like a React component
+    // Create HTML element for a single story
     createStoryElement(story) {
         const storyDiv = document.createElement('div');
         storyDiv.className = 'story';
         
-        // Format the time - like date formatting in your apps
+        // Format the time
         const timeAgo = this.formatTimeAgo(story.time);
         
         // Create the HTML structure
@@ -168,7 +163,7 @@ class HackerNewsReader {
         return storyDiv;
     }
 
-    // Format timestamp to "X hours ago" - like date-fns in your React apps
+    // Format timestamp to "X hours ago"
     formatTimeAgo(timestamp) {
         const now = Date.now() / 1000; // Convert to seconds
         const diff = now - timestamp;
@@ -180,28 +175,6 @@ class HackerNewsReader {
         } else {
             return `${Math.floor(diff / 86400)} days ago`;
         }
-    }
-
-    // UI state management - like useState in React
-    showLoading() {
-        document.getElementById('loading').style.display = 'block';
-        document.getElementById('stories').style.display = 'none';
-        document.getElementById('error').style.display = 'none';
-    }
-
-    showError() {
-        document.getElementById('loading').style.display = 'none';
-        document.getElementById('stories').style.display = 'none';
-        document.getElementById('error').style.display = 'block';
-    }
-
-    hideError() {
-        document.getElementById('error').style.display = 'none';
-    }
-
-    // Open new tab page
-    openNewTabPage() {
-        chrome.tabs.create({ url: 'newtab.html' });
     }
 
     // Settings functionality
@@ -280,10 +253,26 @@ class HackerNewsReader {
             saveBtn.style.background = 'linear-gradient(135deg, #ff6600 0%, #ff8533 100%)';
         }, 3000);
     }
+
+    // UI state management
+    showLoading() {
+        document.getElementById('loading').style.display = 'block';
+        document.getElementById('stories').style.display = 'none';
+        document.getElementById('error').style.display = 'none';
+    }
+
+    showError() {
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('stories').style.display = 'none';
+        document.getElementById('error').style.display = 'block';
+    }
+
+    hideError() {
+        document.getElementById('error').style.display = 'none';
+    }
 }
 
-// Initialize the extension when the popup loads
-// This is like React's main App component
+// Initialize the new tab page when it loads
 document.addEventListener('DOMContentLoaded', () => {
-    new HackerNewsReader();
+    new NewTabHackerNewsReader();
 });

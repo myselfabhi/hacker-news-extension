@@ -3,17 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hacker News Reader</title>
-    <link rel="stylesheet" href="popup.css">
+    <title>Hacker News - New Tab</title>
+    <link rel="stylesheet" href="newtab.css">
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>🚀 Hacker News</h1>
-            <div class="header-actions">
-                <button id="refreshBtn">🔄 Refresh</button>
-                <button id="openNewTabBtn">🆕 New Tab</button>
-                <button id="settingsBtn">⚙️</button>
+            <div class="header-content">
+                <h1>🚀 Hacker News</h1>
+                <div class="header-actions">
+                    <button id="refreshBtn" class="refresh-btn">🔄 Refresh</button>
+                    <button id="settingsBtn" class="settings-btn">⚙️ Settings</button>
+                </div>
             </div>
         </header>
         
@@ -52,6 +53,6 @@
         </div>
     </div>
     
-    <script src="popup.js"></script>
+    <script src="newtab.js"></script>
 </body>
 </html>
