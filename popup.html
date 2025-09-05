@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hacker News Reader</title>
+    <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🔥 Hacker News</h1>
+            <button id="refreshBtn">Refresh</button>
+        </header>
+        
+        <div id="loading" class="loading">
+            Loading stories...
+        </div>
+        
+        <div id="stories" class="stories">
+            <!-- Stories will be loaded here by JavaScript -->
+        </div>
+        
+        <div id="error" class="error" style="display: none;">
+            Failed to load stories. Please try again.
+        </div>
+    </div>
+    
+    <script src="popup.js"></script>
+</body>
+</html>

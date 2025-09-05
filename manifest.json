@@ -1,0 +1,13 @@
+{
+  "manifest_version": 3,
+  "name": "Hacker News Reader",
+  "version": "1.0",
+  "description": "A simple Chrome extension to read Hacker News stories",
+  "permissions": [
+    "storage"
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Hacker News Reader"
+  }
+}
