@@ -154,7 +154,6 @@ class NewTabHackerNewsReader {
         storyDiv.innerHTML = `
             <div class="story-title">
                 <a href="${story.url || `https://news.ycombinator.com/item?id=${story.id}`}" 
-                   target="_blank" 
                    rel="noopener noreferrer">
                     ${story.title || 'No title'}
                 </a>
@@ -292,12 +291,15 @@ class NewTabHackerNewsReader {
                     if (e.key === 'Enter') {
                         const query = searchInput.value.trim();
                         if (query) {
+                            // Check if it's a valid URL or domain
                             if (this.isValidUrl(query)) {
-                                window.open(query, '_blank');
+                                // Add protocol if missing
+                                const url = query.startsWith('http') ? query : `https://${query}`;
+                                window.location.href = url;
                             } else {
-                                window.open(`https://www.google.com/search?q=${encodeURIComponent(query)}`, '_blank');
+                                // Treat as search query
+                                window.location.href = `https://www.google.com/search?q=${encodeURIComponent(query)}`;
                             }
-                            searchInput.value = '';
                         }
                     }
                 });
@@ -312,7 +314,7 @@ class NewTabHackerNewsReader {
                 card.addEventListener('click', () => {
                     const url = card.getAttribute('data-url');
                     if (url) {
-                        window.open(url, '_blank');
+                        window.location.href = url;
                     }
                 });
             });
@@ -341,12 +343,25 @@ class NewTabHackerNewsReader {
 
     // Helper function to check if input is a valid URL
     isValidUrl(string) {
+        // First, try to parse as a complete URL
         try {
             new URL(string);
             return true;
         } catch (_) {
-            return /^[a-zA-Z0-9][a-zA-Z0-9-]{1,61}[a-zA-Z0-9]\.[a-zA-Z]{2,}$/.test(string) ||
-                   /^[a-zA-Z0-9][a-zA-Z0-9-]{1,61}[a-zA-Z0-9]$/.test(string);
+            // If that fails, check if it looks like a domain name with TLD
+            // Must have a dot and valid TLD (at least 2 characters)
+            const domainPattern = /^[a-zA-Z0-9][a-zA-Z0-9-]{0,61}[a-zA-Z0-9]\.[a-zA-Z]{2,}$/;
+            
+            // Additional check: make sure it's not a common search term
+            const commonSearchTerms = [
+                'chatgpt', 'youtube', 'facebook', 'twitter', 'instagram', 'linkedin',
+                'reddit', 'github', 'stackoverflow', 'wikipedia', 'amazon', 'netflix',
+                'spotify', 'discord', 'slack', 'zoom', 'teams', 'whatsapp', 'telegram'
+            ];
+            
+            const isCommonSearchTerm = commonSearchTerms.includes(string.toLowerCase());
+            
+            return domainPattern.test(string) && !isCommonSearchTerm;
         }
     }
 
