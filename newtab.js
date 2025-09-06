@@ -10,6 +10,7 @@ class NewTabHackerNewsReader {
         this.setupEventListeners();
         this.loadStories();
         this.loadSettings();
+        this.initChromeFunctionality();
     }
 
     // Set up event listeners
@@ -24,6 +25,12 @@ class NewTabHackerNewsReader {
         const settingsBtn = document.getElementById('settingsBtn');
         settingsBtn.addEventListener('click', () => {
             this.openSettings();
+        });
+
+        // Toggle button (minimize/expand)
+        const toggleBtn = document.getElementById('toggleBtn');
+        toggleBtn.addEventListener('click', () => {
+            this.toggleWidget();
         });
 
         // Close modal
@@ -115,7 +122,7 @@ class NewTabHackerNewsReader {
         
         // Hide loading
         loadingElement.style.display = 'none';
-        storiesContainer.style.display = 'grid';
+        storiesContainer.style.display = 'flex';
         
         // Clear previous stories
         storiesContainer.innerHTML = '';
@@ -272,6 +279,91 @@ class NewTabHackerNewsReader {
 
     hideError() {
         document.getElementById('error').style.display = 'none';
+    }
+
+    // Initialize Chrome functionality
+    initChromeFunctionality() {
+        // Wait for DOM to be fully loaded
+        setTimeout(() => {
+            // Search functionality
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) {
+                searchInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        const query = searchInput.value.trim();
+                        if (query) {
+                            if (this.isValidUrl(query)) {
+                                window.open(query, '_blank');
+                            } else {
+                                window.open(`https://www.google.com/search?q=${encodeURIComponent(query)}`, '_blank');
+                            }
+                            searchInput.value = '';
+                        }
+                    }
+                });
+                
+                // Focus search on page load
+                searchInput.focus();
+            }
+
+            // Quick links functionality
+            const shortcutCards = document.querySelectorAll('.shortcut-card');
+            shortcutCards.forEach(card => {
+                card.addEventListener('click', () => {
+                    const url = card.getAttribute('data-url');
+                    if (url) {
+                        window.open(url, '_blank');
+                    }
+                });
+            });
+
+            // Voice search functionality
+            const voiceSearch = document.querySelector('.voice-search');
+            if (voiceSearch) {
+                voiceSearch.addEventListener('click', () => {
+                    if (searchInput) {
+                        searchInput.focus();
+                    }
+                });
+            }
+
+            // Lens search functionality
+            const lensSearch = document.querySelector('.lens-search');
+            if (lensSearch) {
+                lensSearch.addEventListener('click', () => {
+                    if (searchInput) {
+                        searchInput.focus();
+                    }
+                });
+            }
+        }, 100);
+    }
+
+    // Helper function to check if input is a valid URL
+    isValidUrl(string) {
+        try {
+            new URL(string);
+            return true;
+        } catch (_) {
+            return /^[a-zA-Z0-9][a-zA-Z0-9-]{1,61}[a-zA-Z0-9]\.[a-zA-Z]{2,}$/.test(string) ||
+                   /^[a-zA-Z0-9][a-zA-Z0-9-]{1,61}[a-zA-Z0-9]$/.test(string);
+        }
+    }
+
+    // Toggle widget minimize/expand
+    toggleWidget() {
+        const widget = document.getElementById('hnWidget');
+        const toggleBtn = document.getElementById('toggleBtn');
+        
+        if (widget.classList.contains('minimized')) {
+            widget.classList.remove('minimized');
+            toggleBtn.textContent = '−';
+            toggleBtn.title = 'Minimize';
+        } else {
+            widget.classList.add('minimized');
+            toggleBtn.textContent = '+';
+            toggleBtn.title = 'Expand';
+        }
     }
 }
 
