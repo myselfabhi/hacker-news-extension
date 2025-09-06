@@ -242,13 +242,16 @@ class HackerNewsReader {
             
             await chrome.storage.sync.set({ newTabEnabled: newTabEnabled });
             
-            // Show success message
-            this.showSuccessMessage('Settings saved successfully!');
+            // Show success message with specific feedback
+            const message = newTabEnabled 
+                ? 'New tab override enabled! New tabs will show Hacker News.'
+                : 'New tab override disabled! New tabs will show Chrome default.';
+            this.showSuccessMessage(message);
             
             // Close modal after a short delay
             setTimeout(() => {
                 this.closeSettings();
-            }, 1000);
+            }, 1500);
             
         } catch (error) {
             this.showErrorMessage('Failed to save settings. Please try again.');
