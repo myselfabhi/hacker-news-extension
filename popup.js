@@ -155,21 +155,10 @@ class HackerNewsReader {
 
     // Set up event listeners - like onClick handlers in React
     setupEventListeners() {
-        const refreshBtn = document.getElementById('refreshBtn');
-        refreshBtn.addEventListener('click', () => {
-            this.loadStories();
-        });
-
         // Force refresh button
         const forceRefreshBtn = document.getElementById('forceRefreshBtn');
         forceRefreshBtn.addEventListener('click', () => {
             this.forceRefresh();
-        });
-
-        // New tab button
-        const openNewTabBtn = document.getElementById('openNewTabBtn');
-        openNewTabBtn.addEventListener('click', () => {
-            this.openNewTabPage();
         });
 
         // Settings button
@@ -371,10 +360,6 @@ class HackerNewsReader {
         document.getElementById('error').style.display = 'none';
     }
 
-    // Open new tab page
-    openNewTabPage() {
-        chrome.tabs.create({ url: 'newtab.html' });
-    }
 
     // Settings functionality
     openSettings() {

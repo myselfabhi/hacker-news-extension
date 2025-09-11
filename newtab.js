@@ -157,12 +157,6 @@ class NewTabHackerNewsReader {
 
     // Set up event listeners
     setupEventListeners() {
-        // Refresh button
-        const refreshBtn = document.getElementById('refreshBtn');
-        refreshBtn.addEventListener('click', () => {
-            this.loadStories();
-        });
-
         // Force refresh button
         const forceRefreshBtn = document.getElementById('forceRefreshBtn');
         forceRefreshBtn.addEventListener('click', () => {

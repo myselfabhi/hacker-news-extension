@@ -49,7 +49,7 @@ h1 {
     align-items: center;
 }
 
-#refreshBtn, #forceRefreshBtn, #openNewTabBtn, #settingsBtn {
+#forceRefreshBtn, #settingsBtn {
     background: linear-gradient(135deg, #ff6600 0%, #ff8533 100%);
     color: white;
     border: none;
@@ -70,10 +70,6 @@ h1 {
     padding: 10px 12px;
 }
 
-#openNewTabBtn {
-    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-    box-shadow: 0 2px 4px rgba(40, 167, 69, 0.3);
-}
 
 #settingsBtn {
     background: linear-gradient(135deg, #6c757d 0%, #868e96 100%);
@@ -81,26 +77,26 @@ h1 {
     padding: 10px 12px;
 }
 
-#refreshBtn:hover, #openNewTabBtn:hover, #settingsBtn:hover {
+#forceRefreshBtn:hover, #settingsBtn:hover {
     transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(255, 102, 0, 0.4);
 }
 
-#openNewTabBtn:hover {
-    box-shadow: 0 4px 12px rgba(40, 167, 69, 0.4);
+#forceRefreshBtn:hover {
+    box-shadow: 0 4px 12px rgba(23, 162, 184, 0.4);
 }
 
 #settingsBtn:hover {
     box-shadow: 0 4px 12px rgba(108, 117, 125, 0.4);
 }
 
-#refreshBtn:active, #openNewTabBtn:active, #settingsBtn:active {
+#forceRefreshBtn:active, #settingsBtn:active {
     transform: translateY(0);
     box-shadow: 0 2px 4px rgba(255, 102, 0, 0.3);
 }
 
-#openNewTabBtn:active {
-    box-shadow: 0 2px 4px rgba(40, 167, 69, 0.3);
+#forceRefreshBtn:active {
+    box-shadow: 0 2px 4px rgba(23, 162, 184, 0.3);
 }
 
 #settingsBtn:active {
@@ -394,8 +390,8 @@ h1 {
 }
 
 /* Focus states for accessibility */
-#refreshBtn:focus {
-    outline: 2px solid #ff6600;
+#forceRefreshBtn:focus {
+    outline: 2px solid #17a2b8;
     outline-offset: 2px;
 }
 
