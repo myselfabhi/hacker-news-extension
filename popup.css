@@ -7,11 +7,12 @@
 
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-    background: linear-gradient(135deg, #0f0f10 0%, #1a1a1d 100%);
+    background: linear-gradient(135deg, #431407 0%, #1f2937 50%, #000000 100%);
     color: #ffffff;
     width: 420px;
     min-height: 600px;
     line-height: 1.6;
+    overflow-x: hidden;
 }
 
 .container {
@@ -26,17 +27,20 @@ header {
     align-items: center;
     margin-bottom: 24px;
     padding: 16px 20px;
-    background: rgba(30, 30, 34, 0.8);
-    border-radius: 12px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-    border: 1px solid rgba(255, 102, 0, 0.2);
-    backdrop-filter: blur(20px);
+    background: linear-gradient(90deg, rgba(154, 52, 18, 0.8) 0%, rgba(31, 41, 55, 0.8) 50%, rgba(0, 0, 0, 0.8) 100%);
+    border-radius: 16px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    border: 1px solid rgba(194, 65, 12, 0.3);
+    backdrop-filter: blur(8px);
 }
 
 h1 {
-    color: #ff6600;
-    font-size: 22px;
-    font-weight: 700;
+    font-size: 24px;
+    font-weight: bold;
+    background: linear-gradient(90deg, #fb923c, #fed7aa);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
     letter-spacing: -0.5px;
     display: flex;
     align-items: center;
@@ -50,73 +54,69 @@ h1 {
 }
 
 #forceRefreshBtn, #settingsBtn {
-    background: linear-gradient(135deg, #ff6600 0%, #ff8533 100%);
+    background: rgba(17, 24, 39, 0.6);
+    backdrop-filter: blur(12px);
     color: white;
-    border: none;
-    padding: 10px 18px;
-    border-radius: 8px;
+    border: 1px solid rgba(194, 65, 12, 0.3);
+    padding: 12px 16px;
+    border-radius: 12px;
     cursor: pointer;
     font-size: 13px;
     font-weight: 600;
-    transition: all 0.2s ease;
-    box-shadow: 0 2px 4px rgba(255, 102, 0, 0.3);
+    transition: all 0.3s ease;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
     position: relative;
     overflow: hidden;
 }
 
 #forceRefreshBtn {
-    background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
-    box-shadow: 0 2px 4px rgba(23, 162, 184, 0.3);
-    padding: 10px 12px;
+    background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+    border-color: rgba(249, 115, 22, 0.5);
+    box-shadow: 0 10px 15px -3px rgba(154, 52, 18, 0.2);
 }
 
 
 #settingsBtn {
-    background: linear-gradient(135deg, #6c757d 0%, #868e96 100%);
-    box-shadow: 0 2px 4px rgba(108, 117, 125, 0.3);
-    padding: 10px 12px;
+    background: rgba(31, 41, 55, 0.6);
+    border-color: rgba(75, 85, 99, 0.3);
+    color: rgba(251, 146, 60, 0.7);
 }
 
 #forceRefreshBtn:hover, #settingsBtn:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(255, 102, 0, 0.4);
+    transform: translateY(-2px);
+    box-shadow: 0 25px 50px -12px rgba(154, 52, 18, 0.3);
 }
 
 #forceRefreshBtn:hover {
-    box-shadow: 0 4px 12px rgba(23, 162, 184, 0.4);
+    background: linear-gradient(135deg, #fb923c 0%, #f97316 100%);
+    border-color: rgba(249, 115, 22, 0.7);
 }
 
 #settingsBtn:hover {
-    box-shadow: 0 4px 12px rgba(108, 117, 125, 0.4);
+    background: rgba(31, 41, 55, 0.8);
+    border-color: rgba(75, 85, 99, 0.5);
+    color: #fed7aa;
 }
 
 #forceRefreshBtn:active, #settingsBtn:active {
     transform: translateY(0);
-    box-shadow: 0 2px 4px rgba(255, 102, 0, 0.3);
-}
-
-#forceRefreshBtn:active {
-    box-shadow: 0 2px 4px rgba(23, 162, 184, 0.3);
-}
-
-#settingsBtn:active {
-    box-shadow: 0 2px 4px rgba(108, 117, 125, 0.3);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
 }
 
 /* Loading state */
 .loading {
     text-align: center;
     padding: 60px 20px;
-    color: #888;
+    color: rgba(254, 215, 170, 0.7);
     font-size: 15px;
     font-weight: 500;
-    background: rgba(30, 30, 34, 0.8);
-    border-radius: 12px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    background: rgba(17, 24, 39, 0.4);
+    border-radius: 16px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
     position: relative;
     overflow: hidden;
-    backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(194, 65, 12, 0.3);
 }
 
 .loading::before {
@@ -126,7 +126,7 @@ h1 {
     left: -100%;
     width: 100%;
     height: 2px;
-    background: linear-gradient(90deg, transparent, #ff6600, transparent);
+    background: linear-gradient(90deg, transparent, #f97316, transparent);
     animation: loading-shimmer 2s infinite;
 }
 
@@ -143,15 +143,15 @@ h1 {
 }
 
 .story {
-    background: rgba(30, 30, 34, 0.8);
-    padding: 18px;
-    border-radius: 12px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    background: rgba(17, 24, 39, 0.4);
+    padding: 20px;
+    border-radius: 16px;
+    border: 1px solid rgba(194, 65, 12, 0.3);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
     transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
-    backdrop-filter: blur(20px);
+    backdrop-filter: blur(12px);
 }
 
 .story::before {
@@ -161,15 +161,15 @@ h1 {
     left: 0;
     width: 4px;
     height: 100%;
-    background: linear-gradient(180deg, #ff6600 0%, #ff8533 100%);
+    background: linear-gradient(180deg, #f97316 0%, #ea580c 100%);
     transition: width 0.3s ease;
 }
 
 .story:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.4);
-    border-color: rgba(255, 102, 0, 0.3);
-    background: rgba(30, 30, 34, 0.9);
+    transform: translateY(-4px);
+    box-shadow: 0 25px 50px -12px rgba(154, 52, 18, 0.2);
+    border-color: rgba(234, 88, 12, 0.5);
+    background: rgba(31, 41, 55, 0.5);
 }
 
 .story:hover::before {
@@ -192,12 +192,12 @@ h1 {
 }
 
 .story-title a:hover {
-    color: #ff6600;
+    color: #fed7aa;
 }
 
 .story-meta {
     font-size: 12px;
-    color: #888;
+    color: rgba(254, 215, 170, 0.6);
     display: flex;
     gap: 16px;
     margin-left: 8px;
@@ -211,9 +211,9 @@ h1 {
 }
 
 .story-score {
-    color: #ff6600;
+    color: #f97316;
     font-weight: 700;
-    background: rgba(255, 102, 0, 0.1);
+    background: rgba(249, 115, 22, 0.2);
     padding: 2px 8px;
     border-radius: 12px;
     font-size: 11px;
@@ -221,17 +221,17 @@ h1 {
 
 /* Error state */
 .error {
-    background: rgba(30, 30, 34, 0.8);
-    color: #ff6b6b;
+    background: rgba(17, 24, 39, 0.4);
+    color: #f87171;
     padding: 24px;
-    border-radius: 12px;
+    border-radius: 16px;
     text-align: center;
-    border: 1px solid rgba(255, 107, 107, 0.3);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(248, 113, 113, 0.3);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
     font-weight: 500;
     position: relative;
     overflow: hidden;
-    backdrop-filter: blur(20px);
+    backdrop-filter: blur(12px);
 }
 
 .error::before {
@@ -248,24 +248,24 @@ h1 {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.5);
+    background: rgba(0, 0, 0, 0.7);
     display: flex;
     justify-content: center;
     align-items: center;
     z-index: 1000;
-    backdrop-filter: blur(4px);
+    backdrop-filter: blur(8px);
 }
 
 .modal-content {
-    background: rgba(30, 30, 34, 0.95);
-    border-radius: 12px;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    background: rgba(17, 24, 39, 0.95);
+    border-radius: 16px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
     max-width: 400px;
     width: 90%;
     max-height: 80vh;
     overflow-y: auto;
-    backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(194, 65, 12, 0.3);
 }
 
 .modal-header {
@@ -273,20 +273,24 @@ h1 {
     justify-content: space-between;
     align-items: center;
     padding: 20px 24px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    border-bottom: 1px solid rgba(194, 65, 12, 0.3);
 }
 
 .modal-header h2 {
     color: #ffffff;
     font-size: 20px;
     font-weight: 700;
+    background: linear-gradient(90deg, #fb923c, #fed7aa);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
 }
 
 .close-btn {
     background: none;
     border: none;
     font-size: 24px;
-    color: #888;
+    color: rgba(254, 215, 170, 0.7);
     cursor: pointer;
     padding: 0;
     width: 28px;
@@ -299,8 +303,8 @@ h1 {
 }
 
 .close-btn:hover {
-    background: rgba(255, 255, 255, 0.1);
-    color: #ffffff;
+    background: rgba(154, 52, 18, 0.5);
+    color: #fed7aa;
 }
 
 .modal-body {
@@ -323,7 +327,7 @@ h1 {
 .setting-item input[type="checkbox"] {
     width: 18px;
     height: 18px;
-    accent-color: #ff6600;
+    accent-color: #f97316;
     cursor: pointer;
 }
 
@@ -334,7 +338,7 @@ h1 {
 
 .setting-description {
     margin-top: 6px;
-    color: #888;
+    color: rgba(254, 215, 170, 0.6);
     font-size: 12px;
     line-height: 1.5;
     margin-left: 28px;
@@ -342,27 +346,28 @@ h1 {
 
 .modal-footer {
     padding: 20px 24px;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    border-top: 1px solid rgba(194, 65, 12, 0.3);
     display: flex;
     justify-content: flex-end;
 }
 
 .save-btn {
-    background: linear-gradient(135deg, #ff6600 0%, #ff8533 100%);
+    background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
     color: white;
     border: none;
-    padding: 10px 20px;
-    border-radius: 8px;
+    padding: 12px 20px;
+    border-radius: 12px;
     cursor: pointer;
     font-size: 13px;
     font-weight: 600;
-    transition: all 0.2s ease;
-    box-shadow: 0 2px 4px rgba(255, 102, 0, 0.3);
+    transition: all 0.3s ease;
+    box-shadow: 0 10px 15px -3px rgba(154, 52, 18, 0.2);
 }
 
 .save-btn:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(255, 102, 0, 0.4);
+    transform: translateY(-2px);
+    box-shadow: 0 25px 50px -12px rgba(154, 52, 18, 0.3);
+    background: linear-gradient(135deg, #fb923c 0%, #f97316 100%);
 }
 
 /* Scrollbar styling */
@@ -376,12 +381,12 @@ h1 {
 }
 
 .stories::-webkit-scrollbar-thumb {
-    background: rgba(255, 102, 0, 0.4);
+    background: rgba(249, 115, 22, 0.4);
     border-radius: 3px;
 }
 
 .stories::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 102, 0, 0.7);
+    background: rgba(249, 115, 22, 0.7);
 }
 
 /* Smooth transitions for all interactive elements */

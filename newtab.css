@@ -8,7 +8,7 @@
 
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-    background: linear-gradient(135deg, #0f0f10 0%, #1a1a1d 100%);
+    background: linear-gradient(135deg, #431407 0%, #1f2937 50%, #000000 100%);
     color: #ffffff;
     min-height: 100vh;
     overflow-x: hidden;
@@ -29,7 +29,7 @@ body {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    background: linear-gradient(135deg, #0f0f10 0%, #1a1a1d 100%);
+    background: linear-gradient(135deg, #431407 0%, #1f2937 50%, #000000 100%);
 }
 
 /* Search Section */
@@ -47,23 +47,23 @@ body {
     position: relative;
     width: 100%;
     height: 56px;
-    background: rgba(30, 30, 34, 0.8);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(17, 24, 39, 0.6);
+    border: 1px solid rgba(194, 65, 12, 0.3);
     border-radius: 28px;
     display: flex;
     align-items: center;
     padding: 0 20px;
-    backdrop-filter: blur(20px);
+    backdrop-filter: blur(12px);
     box-shadow: 
-        0 8px 32px rgba(0, 0, 0, 0.3),
+        0 25px 50px -12px rgba(0, 0, 0, 0.25),
         inset 0 1px 0 rgba(255, 255, 255, 0.1);
     transition: all 0.3s ease;
 }
 
 .search-box:hover {
-    border-color: rgba(255, 255, 255, 0.2);
+    border-color: rgba(234, 88, 12, 0.5);
     box-shadow: 
-        0 12px 40px rgba(0, 0, 0, 0.4),
+        0 25px 50px -12px rgba(154, 52, 18, 0.2),
         inset 0 1px 0 rgba(255, 255, 255, 0.15);
     transform: translateY(-2px);
 }
@@ -93,7 +93,7 @@ body {
 }
 
 .search-input::placeholder {
-    color: #aaa;
+    color: rgba(254, 215, 170, 0.5);
 }
 
 .search-actions {
@@ -286,14 +286,14 @@ body {
 .hn-widget {
     width: 100%;
     height: 100%;
-    background: #1e1e22;
+    background: rgba(17, 24, 39, 0.4);
     border-radius: 20px;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    border: 1px solid rgba(194, 65, 12, 0.3);
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    backdrop-filter: blur(20px);
+    backdrop-filter: blur(12px);
     position: relative;
 }
 
@@ -307,7 +307,7 @@ body {
 }
 
 .widget-header {
-    background: linear-gradient(135deg, #ff6600 0%, #ff8533 100%);
+    background: linear-gradient(90deg, rgba(154, 52, 18, 0.8) 0%, rgba(31, 41, 55, 0.8) 50%, rgba(0, 0, 0, 0.8) 100%);
     color: white;
     padding: 16px 20px;
     display: flex;
@@ -316,6 +316,7 @@ body {
     border-radius: 20px 20px 0 0;
     flex-shrink: 0;
     position: sticky;
+    backdrop-filter: blur(8px);
     top: 0;
     z-index: 10;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
@@ -326,6 +327,10 @@ body {
     font-weight: 700;
     margin: 0;
     letter-spacing: -0.5px;
+    background: linear-gradient(90deg, #fb923c, #fed7aa);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
 }
 
 .widget-actions {
@@ -350,13 +355,16 @@ body {
 }
 
 .force-refresh-btn {
-    background: rgba(23, 162, 184, 0.3);
-    border: 1px solid rgba(23, 162, 184, 0.4);
+    background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+    border: 1px solid rgba(249, 115, 22, 0.5);
+    box-shadow: 0 10px 15px -3px rgba(154, 52, 18, 0.2);
 }
 
 .force-refresh-btn:hover {
-    background: rgba(23, 162, 184, 0.5);
+    background: linear-gradient(135deg, #fb923c 0%, #f97316 100%);
+    border-color: rgba(249, 115, 22, 0.7);
     transform: scale(1.1);
+    box-shadow: 0 25px 50px -12px rgba(154, 52, 18, 0.3);
 }
 
 .widget-btn:hover {
@@ -404,7 +412,7 @@ body {
 
 .story {
     padding: 16px 0;
-    border-bottom: 1px solid #2a2a2d;
+    border-bottom: 1px solid rgba(194, 65, 12, 0.2);
     transition: all 0.3s ease;
     cursor: pointer;
 }
@@ -433,7 +441,7 @@ body {
 }
 
 .story-title a:hover {
-    color: #ff6600;
+    color: #fed7aa;
 }
 
 .story-title a::after {
@@ -443,7 +451,7 @@ body {
     left: 0;
     width: 0;
     height: 2px;
-    background: #ff6600;
+    background: #f97316;
     transition: width 0.3s ease;
 }
 
@@ -456,18 +464,18 @@ body {
     align-items: center;
     gap: 12px;
     font-size: 12px;
-    color: #888;
+    color: rgba(254, 215, 170, 0.6);
     flex-wrap: wrap;
 }
 
 .story-score {
-    background: #ff6600;
+    background: #f97316;
     color: white;
     padding: 2px 8px;
     border-radius: 12px;
     font-weight: 600;
     font-size: 11px;
-    box-shadow: 0 2px 8px rgba(255, 102, 0, 0.3);
+    box-shadow: 0 2px 8px rgba(249, 115, 22, 0.3);
 }
 
 /* Loading and Error States */
