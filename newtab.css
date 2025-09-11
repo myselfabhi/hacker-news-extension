@@ -349,6 +349,16 @@ body {
     backdrop-filter: blur(10px);
 }
 
+.force-refresh-btn {
+    background: rgba(23, 162, 184, 0.3);
+    border: 1px solid rgba(23, 162, 184, 0.4);
+}
+
+.force-refresh-btn:hover {
+    background: rgba(23, 162, 184, 0.5);
+    transform: scale(1.1);
+}
+
 .widget-btn:hover {
     background: rgba(255, 255, 255, 0.3);
     transform: scale(1.1);
