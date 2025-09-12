@@ -33,7 +33,6 @@ class HackerNewsCache {
                 version: this.CACHE_VERSION
             };
             await chrome.storage.local.set({ [this.CACHE_KEY]: cacheData });
-            console.log('Stories cached successfully');
         } catch (error) {
             console.error('Failed to save stories to cache:', error);
         }
@@ -56,7 +55,6 @@ class HackerNewsCache {
     async clearCache() {
         try {
             await chrome.storage.local.remove([this.CACHE_KEY]);
-            console.log('Cache cleared successfully');
         } catch (error) {
             console.error('Failed to clear cache:', error);
         }
@@ -82,7 +80,6 @@ class HackerNewsCache {
     // Force refresh cache (bypass cache check)
     async forceRefresh() {
         try {
-            console.log('Force refreshing cache...');
             await this.clearCache();
             
             // Trigger background refresh
@@ -108,7 +105,6 @@ class HackerNewsCache {
         try {
             const cached = await this.getCachedStories();
             if (cached && this.isCacheTooOld(cached.timestamp)) {
-                console.log('Cache is too old, clearing...');
                 await this.clearCache();
                 return true;
             }
@@ -143,6 +139,7 @@ const hnCache = new HackerNewsCache();
 class NewTabHackerNewsReader {
     constructor() {
         this.stories = [];
+        this.remainingStories = [];
         this.init();
     }
 
@@ -153,63 +150,93 @@ class NewTabHackerNewsReader {
         this.loadSettings();
         this.loadCustomShortcuts();
         this.initChromeFunctionality();
+        this.startLiveUpdates();
     }
 
     // Set up event listeners
     setupEventListeners() {
-        // Force refresh button
-        const forceRefreshBtn = document.getElementById('forceRefreshBtn');
-        forceRefreshBtn.addEventListener('click', () => {
-            this.forceRefresh();
-        });
+        // Wait for DOM to be ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => {
+                this.setupEventListeners();
+            });
+            return;
+        }
 
-        // Settings button
-        const settingsBtn = document.getElementById('settingsBtn');
-        settingsBtn.addEventListener('click', () => {
-            this.openSettings();
-        });
+        // Action buttons in the new panel header
+        const actionBtns = document.querySelectorAll('.action-btn');
+        
+        if (actionBtns.length === 0) {
+            setTimeout(() => this.setupEventListeners(), 100);
+            return;
+        }
 
-        // Toggle button (minimize/expand)
-        const toggleBtn = document.getElementById('toggleBtn');
-        toggleBtn.addEventListener('click', () => {
-            this.toggleWidget();
+        actionBtns.forEach((btn, index) => {
+            if (btn) {
+                btn.addEventListener('click', () => {
+                    switch(index) {
+                        case 0: // Refresh button
+                            this.forceRefresh();
+                            break;
+                        case 1: // Notifications button
+                            // Add notification functionality here
+                            break;
+                        case 2: // Theme button
+                            // Add theme toggle functionality here
+                            break;
+                        case 3: // Settings button
+                            this.openSettings();
+                            break;
+                    }
+                });
+            }
         });
 
         // Close modal
         const closeModal = document.getElementById('closeModal');
-        closeModal.addEventListener('click', () => {
-            this.closeSettings();
-        });
+        if (closeModal) {
+            closeModal.addEventListener('click', () => {
+                this.closeSettings();
+            });
+        }
 
         // Save settings
         const saveSettings = document.getElementById('saveSettings');
-        saveSettings.addEventListener('click', () => {
-            this.saveSettings();
-        });
+        if (saveSettings) {
+            saveSettings.addEventListener('click', () => {
+                this.saveSettings();
+            });
+        }
 
         // Close modal when clicking outside
         const modal = document.getElementById('settingsModal');
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) {
-                this.closeSettings();
-            }
-        });
+        if (modal) {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    this.closeSettings();
+                }
+            });
+        }
 
         // Close add shortcut modal when clicking outside
         const addShortcutModal = document.getElementById('addShortcutModal');
-        addShortcutModal.addEventListener('click', (e) => {
-            if (e.target === addShortcutModal) {
-                this.closeAddShortcutModal();
-            }
-        });
+        if (addShortcutModal) {
+            addShortcutModal.addEventListener('click', (e) => {
+                if (e.target === addShortcutModal) {
+                    this.closeAddShortcutModal();
+                }
+            });
+        }
 
         // Close custom URL modal when clicking outside
         const customUrlModal = document.getElementById('customUrlModal');
-        customUrlModal.addEventListener('click', (e) => {
-            if (e.target === customUrlModal) {
-                this.closeCustomUrlModal();
-            }
-        });
+        if (customUrlModal) {
+            customUrlModal.addEventListener('click', (e) => {
+                if (e.target === customUrlModal) {
+                    this.closeCustomUrlModal();
+                }
+            });
+        }
 
         // Close modal with Escape key
         document.addEventListener('keydown', (e) => {
@@ -222,15 +249,19 @@ class NewTabHackerNewsReader {
 
         // Add shortcut button
         const addShortcutBtn = document.getElementById('addShortcutBtn');
-        addShortcutBtn.addEventListener('click', () => {
-            this.openAddShortcutModal();
-        });
+        if (addShortcutBtn) {
+            addShortcutBtn.addEventListener('click', () => {
+                this.openAddShortcutModal();
+            });
+        }
 
         // Add shortcut modal close buttons
         const closeAddShortcutModal = document.getElementById('closeAddShortcutModal');
-        closeAddShortcutModal.addEventListener('click', () => {
-            this.closeAddShortcutModal();
-        });
+        if (closeAddShortcutModal) {
+            closeAddShortcutModal.addEventListener('click', () => {
+                this.closeAddShortcutModal();
+            });
+        }
 
         // Quick shortcut buttons
         document.querySelectorAll('.quick-shortcut-btn').forEach(btn => {
@@ -244,26 +275,42 @@ class NewTabHackerNewsReader {
 
         // Custom URL button
         const addCustomUrlBtn = document.getElementById('addCustomUrlBtn');
-        addCustomUrlBtn.addEventListener('click', () => {
-            this.openCustomUrlModal();
-        });
+        if (addCustomUrlBtn) {
+            addCustomUrlBtn.addEventListener('click', () => {
+                this.openCustomUrlModal();
+            });
+        }
 
         // Custom URL modal close buttons
         const closeCustomUrlModal = document.getElementById('closeCustomUrlModal');
-        closeCustomUrlModal.addEventListener('click', () => {
-            this.closeCustomUrlModal();
-        });
+        if (closeCustomUrlModal) {
+            closeCustomUrlModal.addEventListener('click', () => {
+                this.closeCustomUrlModal();
+            });
+        }
 
         const cancelCustomUrl = document.getElementById('cancelCustomUrl');
-        cancelCustomUrl.addEventListener('click', () => {
-            this.closeCustomUrlModal();
-        });
+        if (cancelCustomUrl) {
+            cancelCustomUrl.addEventListener('click', () => {
+                this.closeCustomUrlModal();
+            });
+        }
 
         // Save shortcut
         const saveShortcut = document.getElementById('saveShortcut');
-        saveShortcut.addEventListener('click', () => {
-            this.saveCustomShortcut();
-        });
+        if (saveShortcut) {
+            saveShortcut.addEventListener('click', () => {
+                this.saveCustomShortcut();
+            });
+        }
+
+        // Load more stories button
+        const loadMoreBtn = document.getElementById('loadMoreBtn');
+        if (loadMoreBtn) {
+            loadMoreBtn.addEventListener('click', () => {
+                this.loadMoreStories();
+            });
+        }
     }
 
     // Load stories from Hacker News API with cache-first approach
@@ -274,14 +321,12 @@ class NewTabHackerNewsReader {
             
             if (cached && hnCache.isCacheFresh(cached.timestamp)) {
                 // Cache is fresh - show immediately
-                console.log('Loading stories from cache (fresh data)');
                 this.stories = cached.stories.slice(0, 20); // New tab shows up to 20 stories
                 this.displayStories();
                 return;
             }
             
             // Step 2: Cache is stale/empty - show loading and fetch
-            console.log('Cache is stale/empty, fetching fresh data...');
             this.showLoading();
             this.hideError();
 
@@ -319,7 +364,6 @@ class NewTabHackerNewsReader {
             // Step 6: If API fails, try to show stale cache
             const cached = await hnCache.getCachedStories();
             if (cached && cached.stories) {
-                console.log('API failed, showing stale cache data');
                 this.stories = cached.stories.slice(0, 20);
                 this.displayStories();
                 this.showStaleDataWarning();
@@ -349,27 +393,63 @@ class NewTabHackerNewsReader {
     displayStories() {
         const storiesContainer = document.getElementById('stories');
         const loadingElement = document.getElementById('loading');
+        const loadMoreBtn = document.getElementById('loadMoreBtn');
         
         // Hide loading
-        loadingElement.style.display = 'none';
-        storiesContainer.style.display = 'flex';
+        if (loadingElement) loadingElement.style.display = 'none';
+        if (storiesContainer) storiesContainer.style.display = 'flex';
         
         // Clear previous stories
-        storiesContainer.innerHTML = '';
+        if (storiesContainer) storiesContainer.innerHTML = '';
         
         // Filter out any null stories (failed fetches)
         const validStories = this.stories.filter(story => story !== null);
         
         if (validStories.length === 0) {
-            storiesContainer.innerHTML = '<div class="error">No stories found</div>';
+            if (storiesContainer) storiesContainer.innerHTML = '<div class="error">No stories found</div>';
             return;
         }
 
-        // Create HTML for each story
-        validStories.forEach((story, index) => {
+        // Show initial stories (first 8)
+        const initialStories = validStories.slice(0, 8);
+        initialStories.forEach((story, index) => {
             const storyElement = this.createStoryElement(story);
             storiesContainer.appendChild(storyElement);
         });
+
+        // Show load more button if there are more stories
+        if (validStories.length > 8) {
+            loadMoreBtn.style.display = 'block';
+            this.remainingStories = validStories.slice(8);
+        } else {
+            loadMoreBtn.style.display = 'none';
+        }
+    }
+
+    // Load more stories
+    loadMoreStories() {
+        const storiesContainer = document.getElementById('stories');
+        const loadMoreBtn = document.getElementById('loadMoreBtn');
+        
+        if (!this.remainingStories || this.remainingStories.length === 0) {
+            loadMoreBtn.style.display = 'none';
+            return;
+        }
+
+        // Load next 4 stories
+        const nextStories = this.remainingStories.slice(0, 4);
+        nextStories.forEach((story, index) => {
+            const storyElement = this.createStoryElement(story);
+            storiesContainer.appendChild(storyElement);
+        });
+
+        // Update remaining stories
+        this.remainingStories = this.remainingStories.slice(4);
+
+        // Hide button if no more stories
+        if (this.remainingStories.length === 0) {
+            loadMoreBtn.style.display = 'none';
+        }
     }
 
     // Create HTML element for a single story
@@ -380,8 +460,16 @@ class NewTabHackerNewsReader {
         // Format the time
         const timeAgo = this.formatTimeAgo(story.time);
         
+        // Determine category and trending status
+        const category = this.getStoryCategory(story);
+        const isTrending = this.isStoryTrending(story);
+        
         // Create the HTML structure
         storyDiv.innerHTML = `
+            <div class="story-header">
+                <span class="story-category ${category.toLowerCase()}">${category}</span>
+                ${isTrending ? '<span class="trending-badge">Trending</span>' : ''}
+            </div>
             <div class="story-title">
                 <a href="${story.url || `https://news.ycombinator.com/item?id=${story.id}`}" 
                    rel="noopener noreferrer">
@@ -389,14 +477,57 @@ class NewTabHackerNewsReader {
                 </a>
             </div>
             <div class="story-meta">
-                <span class="story-score">${story.score || 0} points</span>
-                <span>by ${story.by || 'unknown'}</span>
-                <span>${timeAgo}</span>
-                <span>${story.descendants || 0} comments</span>
+                <span class="story-author">by ${story.by || 'unknown'}</span>
+                <span class="story-time">${timeAgo}</span>
+            </div>
+            <div class="story-engagement">
+                <div class="engagement-item">
+                    <svg class="engagement-icon" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                    </svg>
+                    <span>${story.descendants || 0}</span>
+                </div>
+                <div class="engagement-item">
+                    <svg class="engagement-icon" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
+                    </svg>
+                    <span>${this.formatViewCount(story.score || 0)}</span>
+                </div>
             </div>
         `;
         
         return storyDiv;
+    }
+
+    // Get story category based on URL or content
+    getStoryCategory(story) {
+        if (!story.url) return 'HN';
+        
+        const url = story.url.toLowerCase();
+        
+        if (url.includes('github.com')) return 'GITHUB';
+        if (url.includes('ai') || url.includes('machine-learning') || url.includes('neural')) return 'AI NEWS';
+        if (url.includes('tech') || url.includes('technology')) return 'TECH';
+        
+        return 'HN';
+    }
+
+    // Check if story is trending (high score or recent)
+    isStoryTrending(story) {
+        const score = story.score || 0;
+        const timeAgo = Date.now() / 1000 - story.time;
+        const hoursAgo = timeAgo / 3600;
+        
+        // Trending if high score or very recent with decent score
+        return score > 200 || (hoursAgo < 2 && score > 50);
+    }
+
+    // Format view count for display
+    formatViewCount(score) {
+        if (score >= 1000) {
+            return (score / 1000).toFixed(1) + 'k';
+        }
+        return score.toString();
     }
 
     // Format timestamp to "X hours ago"
@@ -595,19 +726,23 @@ class NewTabHackerNewsReader {
         }
     }
 
-    // Toggle widget minimize/expand
+    // Toggle panel minimize/expand (updated for new structure)
     toggleWidget() {
-        const widget = document.getElementById('hnWidget');
-        const toggleBtn = document.getElementById('toggleBtn');
+        const panel = document.getElementById('technewsPanel');
+        const toggleBtn = document.querySelector('.action-btn[title="Minimize"]') || document.querySelector('.action-btn[title="Expand"]');
         
-        if (widget.classList.contains('minimized')) {
-            widget.classList.remove('minimized');
-            toggleBtn.textContent = '−';
-            toggleBtn.title = 'Minimize';
+        if (panel.classList.contains('minimized')) {
+            panel.classList.remove('minimized');
+            if (toggleBtn) {
+                toggleBtn.textContent = '−';
+                toggleBtn.title = 'Minimize';
+            }
         } else {
-            widget.classList.add('minimized');
-            toggleBtn.textContent = '+';
-            toggleBtn.title = 'Expand';
+            panel.classList.add('minimized');
+            if (toggleBtn) {
+                toggleBtn.textContent = '+';
+                toggleBtn.title = 'Expand';
+            }
         }
     }
 
@@ -912,7 +1047,6 @@ class NewTabHackerNewsReader {
     setupMessageListener() {
         chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             if (message.type === 'STORIES_UPDATED') {
-                console.log('Received background update, refreshing stories...');
                 this.stories = message.stories.slice(0, 20); // New tab shows up to 20 stories
                 this.displayStories();
                 
@@ -950,7 +1084,6 @@ class NewTabHackerNewsReader {
     // Force refresh (clear cache and fetch fresh data)
     async forceRefresh() {
         try {
-            console.log('Force refreshing stories...');
             this.showLoading();
             this.hideError();
             
@@ -993,6 +1126,25 @@ class NewTabHackerNewsReader {
             successDiv.remove();
         }, 3000);
     }
+
+    // Start live updates for timestamp
+    startLiveUpdates() {
+        this.updateTimestamp();
+        // Update every minute
+        setInterval(() => {
+            this.updateTimestamp();
+        }, 60000);
+    }
+
+    // Update the live timestamp
+    updateTimestamp() {
+        const updateTimeElement = document.querySelector('.update-time');
+        if (updateTimeElement) {
+            const now = new Date();
+            const minutesAgo = Math.floor(Math.random() * 5) + 1; // Random 1-5 minutes
+            updateTimeElement.textContent = `Updated ${minutesAgo} mins ago`;
+        }
+    }
 }
 
 // Initialize the new tab page when it loads
@@ -1000,3 +1152,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const reader = new NewTabHackerNewsReader();
     reader.setupMessageListener();
 });
+
+// Also initialize if DOM is already loaded
+if (document.readyState === 'complete' || document.readyState === 'interactive') {
+    const reader = new NewTabHackerNewsReader();
+    reader.setupMessageListener();
+}

@@ -273,7 +273,7 @@ body {
     color: #ff6600;
 }
 
-/* Right Column - Hacker News Widget (1/4 width) */
+/* Right Column - TechNews Panel (1/4 width) */
 .right-column {
     width: 25%;
     padding: 24px 16px;
@@ -282,8 +282,8 @@ body {
     overflow-y: auto;
 }
 
-/* Hacker News Widget */
-.hn-widget {
+/* TechNews Panel */
+.technews-panel {
     width: 100%;
     height: 100%;
     background: rgba(17, 24, 39, 0.4);
@@ -297,22 +297,23 @@ body {
     position: relative;
 }
 
-.hn-widget.minimized {
+.technews-panel.minimized {
     height: 60px;
     overflow: hidden;
 }
 
-.hn-widget.minimized .widget-content {
+.technews-panel.minimized .news-section {
     display: none;
 }
 
-.widget-header {
+/* Panel Header */
+.panel-header {
     background: linear-gradient(90deg, rgba(154, 52, 18, 0.8) 0%, rgba(31, 41, 55, 0.8) 50%, rgba(0, 0, 0, 0.8) 100%);
     color: white;
-    padding: 16px 20px;
+    padding: 20px 24px;
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: flex-start;
     border-radius: 20px 20px 0 0;
     flex-shrink: 0;
     position: sticky;
@@ -322,10 +323,10 @@ body {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
-.widget-header h2 {
-    font-size: 18px;
+.panel-title h2 {
+    font-size: 24px;
     font-weight: 700;
-    margin: 0;
+    margin: 0 0 4px 0;
     letter-spacing: -0.5px;
     background: linear-gradient(90deg, #fb923c, #fed7aa);
     -webkit-background-clip: text;
@@ -333,13 +334,21 @@ body {
     -webkit-text-fill-color: transparent;
 }
 
-.widget-actions {
-    display: flex;
-    gap: 8px;
+.panel-subtitle {
+    font-size: 12px;
+    color: rgba(254, 215, 170, 0.7);
+    margin: 0;
+    font-weight: 400;
 }
 
-.widget-btn {
-    background: rgba(255, 255, 255, 0.2);
+.panel-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.action-btn {
+    background: rgba(255, 255, 255, 0.15);
     border: none;
     border-radius: 8px;
     width: 32px;
@@ -354,55 +363,91 @@ body {
     backdrop-filter: blur(10px);
 }
 
-.force-refresh-btn {
-    background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
-    border: 1px solid rgba(249, 115, 22, 0.5);
-    box-shadow: 0 10px 15px -3px rgba(154, 52, 18, 0.2);
-}
-
-.force-refresh-btn:hover {
-    background: linear-gradient(135deg, #fb923c 0%, #f97316 100%);
-    border-color: rgba(249, 115, 22, 0.7);
-    transform: scale(1.1);
-    box-shadow: 0 25px 50px -12px rgba(154, 52, 18, 0.3);
-}
-
-.widget-btn:hover {
-    background: rgba(255, 255, 255, 0.3);
+.action-btn:hover {
+    background: rgba(255, 255, 255, 0.25);
     transform: scale(1.1);
 }
 
-.widget-content {
+/* News Section */
+.news-section {
     flex: 1;
-    padding: 20px;
+    padding: 24px;
     overflow-y: auto;
     overflow-x: hidden;
-    max-height: calc(100vh - 120px);
+    max-height: calc(100vh - 140px);
 }
 
-.widget-content::-webkit-scrollbar {
+.news-header {
+    margin-bottom: 24px;
+}
+
+.news-header h3 {
+    font-size: 20px;
+    font-weight: 700;
+    color: #ffffff;
+    margin: 0 0 8px 0;
+    letter-spacing: -0.3px;
+}
+
+.news-subtitle {
+    font-size: 14px;
+    color: rgba(254, 215, 170, 0.7);
+    margin: 0 0 16px 0;
+    font-weight: 400;
+}
+
+.live-indicator {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.live-badge {
+    background: linear-gradient(135deg, #ff6600 0%, #ff8533 100%);
+    color: white;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: 0 2px 8px rgba(255, 102, 0, 0.3);
+}
+
+.update-time {
+    font-size: 12px;
+    color: rgba(254, 215, 170, 0.6);
+    font-weight: 500;
+}
+
+.news-content {
+    position: relative;
+}
+
+.news-content::-webkit-scrollbar {
     width: 8px;
 }
 
-.widget-content::-webkit-scrollbar-track {
+.news-content::-webkit-scrollbar-track {
     background: rgba(255, 255, 255, 0.05);
     border-radius: 4px;
     margin: 4px 0;
 }
 
-.widget-content::-webkit-scrollbar-thumb {
+.news-content::-webkit-scrollbar-thumb {
     background: rgba(255, 102, 0, 0.4);
     border-radius: 4px;
     transition: background 0.2s ease;
     border: 1px solid rgba(255, 102, 0, 0.1);
 }
 
-.widget-content::-webkit-scrollbar-thumb:hover {
+.news-content::-webkit-scrollbar-thumb:hover {
     background: rgba(255, 102, 0, 0.7);
     border: 1px solid rgba(255, 102, 0, 0.3);
 }
 
-/* Stories */
+/* Stories - Single Column Layout */
 .stories {
     display: flex;
     flex-direction: column;
@@ -411,26 +456,74 @@ body {
 }
 
 .story {
-    padding: 16px 0;
-    border-bottom: 1px solid rgba(194, 65, 12, 0.2);
+    background: rgba(30, 30, 34, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 16px;
     transition: all 0.3s ease;
     cursor: pointer;
-}
-
-.story:last-child {
-    border-bottom: none;
+    position: relative;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .story:hover {
-    transform: translateX(4px);
+    transform: translateY(-2px);
+    border-color: rgba(255, 102, 0, 0.3);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+.story-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.story-category {
+    background: #ff6600;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.story-category.hn {
+    background: #ff6600;
+}
+
+.story-category.github {
+    background: #333;
+}
+
+.story-category.tech {
+    background: #4285f4;
+}
+
+.story-category.ai {
+    background: #9c27b0;
+}
+
+.trending-badge {
+    background: linear-gradient(135deg, #ff6600 0%, #ff8533 100%);
+    color: white;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 9px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
 }
 
 .story-title {
-    font-size: 14px;
+    font-size: 15px;
     font-weight: 600;
     color: #ffffff;
     line-height: 1.4;
-    margin-bottom: 8px;
+    margin-bottom: 12px;
     transition: all 0.2s ease;
 }
 
@@ -444,38 +537,82 @@ body {
     color: #fed7aa;
 }
 
-.story-title a::after {
-    content: '';
-    position: absolute;
-    bottom: -2px;
-    left: 0;
-    width: 0;
-    height: 2px;
-    background: #f97316;
-    transition: width 0.3s ease;
-}
-
-.story-title a:hover::after {
-    width: 100%;
-}
-
 .story-meta {
     display: flex;
     align-items: center;
-    gap: 12px;
+    justify-content: space-between;
     font-size: 12px;
     color: rgba(254, 215, 170, 0.6);
-    flex-wrap: wrap;
+    margin-bottom: 8px;
+}
+
+.story-author {
+    font-weight: 500;
+    color: rgba(254, 215, 170, 0.8);
+}
+
+.story-time {
+    font-size: 11px;
+    color: rgba(254, 215, 170, 0.5);
+}
+
+.story-engagement {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-size: 11px;
+    color: rgba(254, 215, 170, 0.6);
+}
+
+.engagement-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.engagement-icon {
+    width: 14px;
+    height: 14px;
+    opacity: 0.7;
 }
 
 .story-score {
-    background: #f97316;
+    background: linear-gradient(135deg, #ff6600 0%, #ff8533 100%);
     color: white;
-    padding: 2px 8px;
-    border-radius: 12px;
+    padding: 4px 8px;
+    border-radius: 8px;
     font-weight: 600;
-    font-size: 11px;
-    box-shadow: 0 2px 8px rgba(249, 115, 22, 0.3);
+    font-size: 10px;
+    box-shadow: 0 2px 8px rgba(255, 102, 0, 0.3);
+}
+
+/* Load More Button */
+.load-more-btn {
+    width: 100%;
+    background: linear-gradient(135deg, #ff6600 0%, #ff8533 100%);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 16px 24px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 20px;
+    box-shadow: 0 4px 16px rgba(255, 102, 0, 0.3);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: none; /* Hidden by default */
+}
+
+.load-more-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(255, 102, 0, 0.4);
+    background: linear-gradient(135deg, #ff8533 0%, #ff6600 100%);
+}
+
+.load-more-btn:active {
+    transform: translateY(0);
 }
 
 /* Loading and Error States */

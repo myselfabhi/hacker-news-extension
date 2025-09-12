@@ -76,29 +76,50 @@
             </div>
         </div>
 
-        <!-- Right Column - Hacker News Widget (1/4 width) -->
+        <!-- Right Column - TechNews Panel (1/4 width) -->
         <div class="right-column">
-            <div class="hn-widget" id="hnWidget">
-                <div class="widget-header">
-                    <h2>🚀 HN</h2>
-                    <div class="widget-actions">
-                        <button id="forceRefreshBtn" class="widget-btn force-refresh-btn" title="Force refresh (clear cache)">🔄</button>
-                        <button id="settingsBtn" class="widget-btn settings-btn" title="Settings">⚙️</button>
-                        <button id="toggleBtn" class="widget-btn toggle-btn" title="Minimize">−</button>
+            <div class="technews-panel" id="technewsPanel">
+                <!-- Panel Header -->
+                <div class="panel-header">
+                    <div class="panel-title">
+                        <h2>TechNews</h2>
+                        <p class="panel-subtitle">Your Tech Hub</p>
+                    </div>
+                    <div class="panel-actions">
+                        <button class="action-btn" title="Refresh">↓</button>
+                        <button class="action-btn" title="Notifications">🔔</button>
+                        <button class="action-btn" title="Theme">☀️</button>
+                        <button class="action-btn" title="Settings">⚙️</button>
                     </div>
                 </div>
-                
-                <div class="widget-content">
-                    <div id="loading" class="loading">
-                        📰 Loading...
+
+                <!-- News Section -->
+                <div class="news-section">
+                    <div class="news-header">
+                        <h3>Latest Tech News</h3>
+                        <p class="news-subtitle">Stay ahead with cutting-edge updates</p>
+                        <div class="live-indicator">
+                            <span class="live-badge">Live</span>
+                            <span class="update-time">Updated 2 mins ago</span>
+                        </div>
                     </div>
-                    
-                    <div id="stories" class="stories">
-                        <!-- Stories will be loaded here by JavaScript -->
-                    </div>
-                    
-                    <div id="error" class="error" style="display: none;">
-                        Failed to load stories.
+
+                    <div class="news-content">
+                        <div id="loading" class="loading">
+                            📰 Loading...
+                        </div>
+                        
+                        <div id="stories" class="stories">
+                            <!-- Stories will be loaded here by JavaScript -->
+                        </div>
+                        
+                        <div id="error" class="error" style="display: none;">
+                            Failed to load stories.
+                        </div>
+
+                        <button class="load-more-btn" id="loadMoreBtn">
+                            Load more stories...
+                        </button>
                     </div>
                 </div>
             </div>

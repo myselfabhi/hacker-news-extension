@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Hacker News Reader",
+  "name": "TechNews - Hacker News Reader",
   "version": "1.2",
-  "description": "A simple Chrome extension to read Hacker News stories",
+  "description": "A modern Chrome extension to read Hacker News stories with a beautiful interface",
   "permissions": [
     "storage",
     "activeTab",
@@ -16,7 +16,10 @@
   },
   "action": {
     "default_popup": "popup.html",
-    "default_title": "Hacker News Reader"
+    "default_title": "TechNews - Hacker News Reader"
+  },
+  "chrome_url_overrides": {
+    "newtab": "newtab.html"
   },
   "icons": {
     "16": "icons/icon16.png",
