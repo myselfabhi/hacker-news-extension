@@ -986,7 +986,7 @@ class NewTabHackerNewsReader {
             box-shadow: 0 4px 16px rgba(23, 162, 184, 0.3);
             max-width: 300px;
         `;
-        successDiv.textContent = '🔄💨 Cache cleared & refreshed';
+        successDiv.textContent = '🔄 Cache cleared & refreshed';
         document.body.appendChild(successDiv);
         
         setTimeout(() => {

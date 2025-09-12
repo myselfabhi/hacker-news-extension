@@ -545,7 +545,7 @@ class HackerNewsReader {
             box-shadow: 0 4px 12px rgba(23, 162, 184, 0.3);
             max-width: 200px;
         `;
-        successDiv.textContent = '🔄💨 Cache cleared & refreshed';
+        successDiv.textContent = '🔄 Cache cleared & refreshed';
         document.body.appendChild(successDiv);
         
         setTimeout(() => {
