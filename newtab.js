@@ -33,8 +33,28 @@ class HackerNewsCache {
                 version: this.CACHE_VERSION
             };
             await chrome.storage.local.set({ [this.CACHE_KEY]: cacheData });
+            
+            // Update the display timestamp
+            this.updateDisplayTimestamp(cacheData.timestamp);
         } catch (error) {
             console.error('Failed to save stories to cache:', error);
+        }
+    }
+
+    // Update the display timestamp
+    updateDisplayTimestamp(timestamp) {
+        const updateTimeElement = document.querySelector('.update-time');
+        if (updateTimeElement) {
+            const now = Date.now();
+            const minutesAgo = Math.floor((now - timestamp) / (60 * 1000));
+            
+            if (minutesAgo < 1) {
+                updateTimeElement.textContent = 'Updated just now';
+            } else if (minutesAgo === 1) {
+                updateTimeElement.textContent = 'Updated 1 min ago';
+            } else {
+                updateTimeElement.textContent = `Updated ${minutesAgo} mins ago`;
+            }
         }
     }
 
@@ -323,6 +343,8 @@ class NewTabHackerNewsReader {
                 // Cache is fresh - show immediately
                 this.stories = cached.stories.slice(0, 20); // New tab shows up to 20 stories
                 this.displayStories();
+                // Update timestamp display with real cache time
+                hnCache.updateDisplayTimestamp(cached.timestamp);
                 return;
             }
             
@@ -366,6 +388,8 @@ class NewTabHackerNewsReader {
             if (cached && cached.stories) {
                 this.stories = cached.stories.slice(0, 20);
                 this.displayStories();
+                // Update timestamp display with real cache time
+                hnCache.updateDisplayTimestamp(cached.timestamp);
                 this.showStaleDataWarning();
             } else {
                 this.showError();
@@ -1050,6 +1074,11 @@ class NewTabHackerNewsReader {
                 this.stories = message.stories.slice(0, 20); // New tab shows up to 20 stories
                 this.displayStories();
                 
+                // Update timestamp with real update time
+                if (message.timestamp) {
+                    hnCache.updateDisplayTimestamp(message.timestamp);
+                }
+                
                 // Show subtle update notification
                 this.showUpdateNotification();
             }
@@ -1136,13 +1165,11 @@ class NewTabHackerNewsReader {
         }, 60000);
     }
 
-    // Update the live timestamp
-    updateTimestamp() {
-        const updateTimeElement = document.querySelector('.update-time');
-        if (updateTimeElement) {
-            const now = new Date();
-            const minutesAgo = Math.floor(Math.random() * 5) + 1; // Random 1-5 minutes
-            updateTimeElement.textContent = `Updated ${minutesAgo} mins ago`;
+    // Update the live timestamp with real cache time
+    async updateTimestamp() {
+        const cached = await hnCache.getCachedStories();
+        if (cached && cached.timestamp) {
+            hnCache.updateDisplayTimestamp(cached.timestamp);
         }
     }
 }
