@@ -339,16 +339,21 @@ class NewTabHackerNewsReader {
     // Load stories from Hacker News API with cache-first approach
     async loadStories() {
         try {
+            console.log('Starting to load stories...');
+            
             // Step 1: Check cache first
             const cached = await hnCache.getCachedStories();
             
             if (cached && hnCache.isCacheFresh(cached.timestamp)) {
+                console.log('Using fresh cached stories');
                 // Cache is fresh - show immediately
                 this.stories = cached.stories.slice(0, 20);
                 this.displayStories();
                 hnCache.updateDisplayTimestamp(cached.timestamp);
                 return;
             }
+            
+            console.log('Cache is stale or empty, fetching fresh data...');
             
             // Step 2: Cache is stale/empty - show loading and fetch
             this.showLoading();
@@ -358,36 +363,102 @@ class NewTabHackerNewsReader {
             const stories = await this.fetchStoriesWithRetry();
             
             if (stories && stories.length > 0) {
+                console.log(`Successfully loaded ${stories.length} stories`);
                 this.stories = stories.slice(0, 20);
                 await hnCache.saveStoriesToCache(this.stories);
                 this.displayStories();
             } else {
-                throw new Error('No stories received from API');
+                throw new Error('No stories received from API - empty response');
             }
             
         } catch (error) {
             console.error('Failed to load stories:', error);
             
             // Step 4: If API fails, try to show stale cache
+            console.log('API failed, checking for stale cache...');
             const cached = await hnCache.getCachedStories();
-            if (cached && cached.stories) {
+            if (cached && cached.stories && cached.stories.length > 0) {
+                console.log('Showing stale cached stories');
                 this.stories = cached.stories.slice(0, 20);
                 this.displayStories();
                 hnCache.updateDisplayTimestamp(cached.timestamp);
                 this.showStaleDataWarning();
             } else {
-                this.showError();
+                console.log('No cache available, showing sample stories');
+                this.showSampleStories();
             }
         }
+    }
+
+    // Show sample stories when API is not available
+    showSampleStories() {
+        this.stories = [
+            {
+                id: 1,
+                title: "Welcome to VU Tech Hacker News Reader",
+                by: "vutech",
+                time: Date.now() / 1000,
+                score: 100,
+                url: "#",
+                type: "story"
+            },
+            {
+                id: 2,
+                title: "Extension is working! Check your internet connection for live updates.",
+                by: "system",
+                time: Date.now() / 1000,
+                score: 50,
+                url: "#",
+                type: "story"
+            },
+            {
+                id: 3,
+                title: "VU Tech theme successfully applied with blue color scheme",
+                by: "designer",
+                time: Date.now() / 1000,
+                score: 75,
+                url: "#",
+                type: "story"
+            }
+        ];
+        this.displayStories();
+        this.showOfflineMessage();
+    }
+
+    // Show offline message
+    showOfflineMessage() {
+        const messageDiv = document.createElement('div');
+        messageDiv.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #ffa500 0%, #ff8c00 100%);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            z-index: 10000;
+            box-shadow: 0 4px 16px rgba(255, 165, 0, 0.3);
+            max-width: 300px;
+        `;
+        messageDiv.textContent = '⚠️ Offline mode - showing sample stories';
+        document.body.appendChild(messageDiv);
+        
+        setTimeout(() => {
+            messageDiv.remove();
+        }, 5000);
     }
 
     // Fetch stories with retry mechanism and timeout
     async fetchStoriesWithRetry(maxRetries = 3) {
         for (let attempt = 1; attempt <= maxRetries; attempt++) {
             try {
+                console.log(`Fetch attempt ${attempt} for Hacker News stories...`);
+                
                 // Create abort controller for timeout
                 const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+                const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
                 
                 // Get the list of top story IDs
                 const response = await fetch('https://hacker-news.firebaseio.com/v0/topstories.json', {
@@ -395,20 +466,24 @@ class NewTabHackerNewsReader {
                     method: 'GET',
                     headers: {
                         'Accept': 'application/json',
-                    }
+                        'Cache-Control': 'no-cache'
+                    },
+                    mode: 'cors'
                 });
                 
                 clearTimeout(timeoutId);
                 
                 if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
+                    throw new Error(`HTTP error! status: ${response.status} - ${response.statusText}`);
                 }
                 
                 const storyIds = await response.json();
                 
                 if (!Array.isArray(storyIds)) {
-                    throw new Error('Invalid response format');
+                    throw new Error('Invalid response format - expected array of story IDs');
                 }
+                
+                console.log(`Successfully fetched ${storyIds.length} story IDs`);
                 
                 // Get details for the first 20 stories
                 const topStoryIds = storyIds.slice(0, 20);
@@ -418,27 +493,30 @@ class NewTabHackerNewsReader {
                     const storyId = topStoryIds[i];
                     try {
                         const story = await this.fetchStoryDetails(storyId);
-                        if (story) {
+                        if (story && story.title) {
                             stories.push(story);
                         }
-                        // Small delay between requests
-                        await new Promise(resolve => setTimeout(resolve, 50));
+                        // Small delay between requests to avoid rate limiting
+                        await new Promise(resolve => setTimeout(resolve, 100));
                     } catch (error) {
+                        console.warn(`Failed to fetch story ${storyId}:`, error.message);
                         // Continue with other stories
                     }
                 }
                 
+                console.log(`Successfully fetched ${stories.length} story details`);
                 return stories;
                 
             } catch (error) {
                 console.error(`Fetch attempt ${attempt} failed:`, error);
                 
                 if (attempt === maxRetries) {
-                    throw error;
+                    throw new Error(`Failed to fetch stories after ${maxRetries} attempts. Last error: ${error.message}`);
                 }
                 
                 // Wait before retry (exponential backoff)
                 const delay = Math.pow(2, attempt) * 1000;
+                console.log(`Waiting ${delay}ms before retry...`);
                 await new Promise(resolve => setTimeout(resolve, delay));
             }
         }
@@ -447,15 +525,35 @@ class NewTabHackerNewsReader {
     // Fetch individual story details
     async fetchStoryDetails(storyId) {
         try {
-            const response = await fetch(`https://hacker-news.firebaseio.com/v0/item/${storyId}.json`);
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout per story
+            
+            const response = await fetch(`https://hacker-news.firebaseio.com/v0/item/${storyId}.json`, {
+                signal: controller.signal,
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                    'Cache-Control': 'no-cache'
+                },
+                mode: 'cors'
+            });
+            
+            clearTimeout(timeoutId);
             
             if (!response.ok) {
-                throw new Error(`Failed to fetch story ${storyId}`);
+                throw new Error(`Failed to fetch story ${storyId}: ${response.status} ${response.statusText}`);
             }
             
             const story = await response.json();
+            
+            // Validate story has required fields
+            if (!story || !story.title) {
+                throw new Error(`Invalid story data for ID ${storyId}`);
+            }
+            
             return story;
         } catch (error) {
+            console.warn(`Failed to fetch story ${storyId}:`, error.message);
             return null;
         }
     }
@@ -716,10 +814,17 @@ class NewTabHackerNewsReader {
         document.getElementById('error').style.display = 'none';
     }
 
-    showError() {
-        document.getElementById('loading').style.display = 'none';
-        document.getElementById('stories').style.display = 'none';
-        document.getElementById('error').style.display = 'block';
+    showError(errorMessage = 'Failed to load stories. Please check your internet connection and try again.') {
+        const loadingElement = document.getElementById('loading');
+        const storiesElement = document.getElementById('stories');
+        const errorElement = document.getElementById('error');
+        
+        if (loadingElement) loadingElement.style.display = 'none';
+        if (storiesElement) storiesElement.style.display = 'none';
+        if (errorElement) {
+            errorElement.style.display = 'block';
+            errorElement.textContent = errorMessage;
+        }
     }
 
     hideError() {
@@ -1446,7 +1551,11 @@ class NewTabHackerNewsReader {
             }
         } catch (error) {
             console.error('Login error:', error);
-            this.showAuthError(`Network error: ${error.message}. Please make sure the backend server is running on localhost:3000`);
+            if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
+                this.showAuthError('Network error: Unable to connect to the server. Please check your internet connection and ensure the backend server is running on localhost:3000');
+            } else {
+                this.showAuthError(`Login failed: ${error.message}`);
+            }
         } finally {
             this.hideAuthLoading();
         }
@@ -1504,7 +1613,11 @@ class NewTabHackerNewsReader {
             }
         } catch (error) {
             console.error('Register error:', error);
-            this.showAuthError(`Network error: ${error.message}. Please make sure the backend server is running on localhost:3000`);
+            if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
+                this.showAuthError('Network error: Unable to connect to the server. Please check your internet connection and ensure the backend server is running on localhost:3000');
+            } else {
+                this.showAuthError(`Registration failed: ${error.message}`);
+            }
         } finally {
             this.hideAuthLoading();
         }
