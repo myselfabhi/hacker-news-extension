@@ -9,7 +9,8 @@
     "tabs"
   ],
   "host_permissions": [
-    "https://hacker-news.firebaseio.com/*"
+    "https://hacker-news.firebaseio.com/*",
+    "http://localhost:3000/*"
   ],
   "background": {
     "service_worker": "background.js"

@@ -11,6 +11,28 @@
     <div class="main-container">
         <!-- Left Column - Search and Shortcuts (3/4 width) -->
         <div class="left-column">
+            <!-- User Section -->
+            <div class="user-section" id="userSection">
+                <div class="user-info" id="userInfo" style="display: none;">
+                    <div class="user-avatar">
+                        <span id="userInitials">U</span>
+                    </div>
+                    <div class="user-details">
+                        <span class="user-name" id="userName">User Name</span>
+                        <span class="user-email" id="userEmail">user@example.com</span>
+                    </div>
+                    <button class="user-menu-btn" id="userMenuBtn" title="Profile">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                        </svg>
+                    </button>
+                </div>
+                <div class="auth-actions" id="authActions">
+                    <button class="auth-btn" id="loginBtnHeader">Sign In</button>
+                    <button class="auth-btn secondary" id="registerBtnHeader">Sign Up</button>
+                </div>
+            </div>
+
             <!-- Search Section -->
             <div class="search-section">
                 <div class="search-container">
@@ -119,6 +141,100 @@
                             Load more stories...
                         </button>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Authentication Modal -->
+    <div class="modal" id="authModal" style="display: none;">
+        <div class="modal-content auth-modal">
+            <div class="modal-header">
+                <h2 id="authTitle">Welcome to Hacker News Reader</h2>
+                <button class="close-btn" id="closeAuthModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <!-- Login Form -->
+                <div class="auth-form" id="loginForm">
+                    <div class="form-group">
+                        <label for="loginEmail">Email</label>
+                        <input type="email" id="loginEmail" placeholder="Enter your email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="loginPassword">Password</label>
+                        <input type="password" id="loginPassword" placeholder="Enter your password" required>
+                    </div>
+                    <button class="auth-btn primary" id="loginBtn">Sign In</button>
+                    <p class="auth-switch">
+                        Don't have an account? 
+                        <a href="#" id="showRegister">Create one here</a>
+                    </p>
+                </div>
+
+                <!-- Register Form -->
+                <div class="auth-form" id="registerForm" style="display: none;">
+                    <div class="form-group">
+                        <label for="registerName">Full Name</label>
+                        <input type="text" id="registerName" placeholder="Enter your full name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerEmail">Email</label>
+                        <input type="email" id="registerEmail" placeholder="Enter your email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerPassword">Password</label>
+                        <input type="password" id="registerPassword" placeholder="Create a password (min 6 characters)" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="confirmPassword">Confirm Password</label>
+                        <input type="password" id="confirmPassword" placeholder="Confirm your password" required>
+                    </div>
+                    <button class="auth-btn primary" id="registerBtn">Create Account</button>
+                    <p class="auth-switch">
+                        Already have an account? 
+                        <a href="#" id="showLogin">Sign in here</a>
+                    </p>
+                </div>
+
+                <!-- Loading State -->
+                <div class="auth-loading" id="authLoading" style="display: none;">
+                    <div class="loading-spinner"></div>
+                    <p>Please wait...</p>
+                </div>
+
+                <!-- Error Message -->
+                <div class="auth-error" id="authError" style="display: none;">
+                    <p id="authErrorMessage"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Profile Modal -->
+    <div class="modal" id="profileModal" style="display: none;">
+        <div class="modal-content profile-modal">
+            <div class="modal-header">
+                <h2>Profile</h2>
+                <button class="close-btn" id="closeProfileModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="profile-info">
+                    <div class="profile-avatar">
+                        <span id="profileInitials">U</span>
+                    </div>
+                    <div class="profile-details">
+                        <h3 id="profileName">User Name</h3>
+                        <p id="profileEmail">user@example.com</p>
+                        <p class="profile-stats">
+                            <span id="savedCount">0</span> saved • 
+                            <span id="readLaterCount">0</span> read later
+                        </p>
+                    </div>
+                </div>
+                <div class="profile-actions">
+                    <button class="profile-btn" id="viewSavedBtn">View Saved Articles</button>
+                    <button class="profile-btn" id="viewReadLaterBtn">View Read Later</button>
+                    <button class="profile-btn secondary" id="logoutBtn">Sign Out</button>
                 </div>
             </div>
         </div>

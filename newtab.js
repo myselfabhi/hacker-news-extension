@@ -331,6 +331,9 @@ class NewTabHackerNewsReader {
                 this.loadMoreStories();
             });
         }
+
+        // Authentication event listeners
+        this.setupAuthEventListeners();
     }
 
     // Load stories from Hacker News API with cache-first approach
@@ -341,9 +344,8 @@ class NewTabHackerNewsReader {
             
             if (cached && hnCache.isCacheFresh(cached.timestamp)) {
                 // Cache is fresh - show immediately
-                this.stories = cached.stories.slice(0, 20); // New tab shows up to 20 stories
+                this.stories = cached.stories.slice(0, 20);
                 this.displayStories();
-                // Update timestamp display with real cache time
                 hnCache.updateDisplayTimestamp(cached.timestamp);
                 return;
             }
@@ -352,47 +354,92 @@ class NewTabHackerNewsReader {
             this.showLoading();
             this.hideError();
 
-            // Step 3: Get the list of top story IDs
-            const response = await fetch('https://hacker-news.firebaseio.com/v0/topstories.json');
+            // Step 3: Try to fetch from API with timeout and retry
+            const stories = await this.fetchStoriesWithRetry();
             
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+            if (stories && stories.length > 0) {
+                this.stories = stories.slice(0, 20);
+                await hnCache.saveStoriesToCache(this.stories);
+                this.displayStories();
+            } else {
+                throw new Error('No stories received from API');
             }
-            
-            const storyIds = await response.json();
-
-            // Step 4: Get details for the first 20 stories (more for new tab page)
-            const topStoryIds = storyIds.slice(0, 20);
-            
-            // Fetch stories one by one to avoid rate limiting
-            this.stories = [];
-            for (let i = 0; i < topStoryIds.length; i++) {
-                const storyId = topStoryIds[i];
-                const story = await this.fetchStoryDetails(storyId);
-                if (story) {
-                    this.stories.push(story);
-                }
-                // Small delay between requests
-                await new Promise(resolve => setTimeout(resolve, 100));
-            }
-            
-            // Step 5: Save to cache and display
-            await hnCache.saveStoriesToCache(this.stories);
-            this.displayStories();
             
         } catch (error) {
             console.error('Failed to load stories:', error);
             
-            // Step 6: If API fails, try to show stale cache
+            // Step 4: If API fails, try to show stale cache
             const cached = await hnCache.getCachedStories();
             if (cached && cached.stories) {
                 this.stories = cached.stories.slice(0, 20);
                 this.displayStories();
-                // Update timestamp display with real cache time
                 hnCache.updateDisplayTimestamp(cached.timestamp);
                 this.showStaleDataWarning();
             } else {
                 this.showError();
+            }
+        }
+    }
+
+    // Fetch stories with retry mechanism and timeout
+    async fetchStoriesWithRetry(maxRetries = 3) {
+        for (let attempt = 1; attempt <= maxRetries; attempt++) {
+            try {
+                // Create abort controller for timeout
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+                
+                // Get the list of top story IDs
+                const response = await fetch('https://hacker-news.firebaseio.com/v0/topstories.json', {
+                    signal: controller.signal,
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json',
+                    }
+                });
+                
+                clearTimeout(timeoutId);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const storyIds = await response.json();
+                
+                if (!Array.isArray(storyIds)) {
+                    throw new Error('Invalid response format');
+                }
+                
+                // Get details for the first 20 stories
+                const topStoryIds = storyIds.slice(0, 20);
+                const stories = [];
+                
+                for (let i = 0; i < topStoryIds.length; i++) {
+                    const storyId = topStoryIds[i];
+                    try {
+                        const story = await this.fetchStoryDetails(storyId);
+                        if (story) {
+                            stories.push(story);
+                        }
+                        // Small delay between requests
+                        await new Promise(resolve => setTimeout(resolve, 50));
+                    } catch (error) {
+                        // Continue with other stories
+                    }
+                }
+                
+                return stories;
+                
+            } catch (error) {
+                console.error(`Fetch attempt ${attempt} failed:`, error);
+                
+                if (attempt === maxRetries) {
+                    throw error;
+                }
+                
+                // Wait before retry (exponential backoff)
+                const delay = Math.pow(2, attempt) * 1000;
+                await new Promise(resolve => setTimeout(resolve, delay));
             }
         }
     }
@@ -517,6 +564,20 @@ class NewTabHackerNewsReader {
                     </svg>
                     <span>${this.formatViewCount(story.score || 0)}</span>
                 </div>
+            </div>
+            <div class="story-actions" data-story-id="${story.id}">
+                <button class="action-btn save-btn" data-action="save" title="Save article">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M17 3H7c-1.1 0-1.99.9-1.99 2L5 21l7-3 7 3V5c0-1.1-.9-2-2-2z"/>
+                    </svg>
+                    <span>Save</span>
+                </button>
+                <button class="action-btn read-later-btn" data-action="read-later" title="Read later">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                    </svg>
+                    <span>Read Later</span>
+                </button>
             </div>
         `;
         
@@ -1171,6 +1232,556 @@ class NewTabHackerNewsReader {
         if (cached && cached.timestamp) {
             hnCache.updateDisplayTimestamp(cached.timestamp);
         }
+    }
+
+    // ==================== AUTHENTICATION METHODS ====================
+
+    // Setup authentication event listeners
+    setupAuthEventListeners() {
+        // Header auth buttons
+        const loginBtnHeader = document.getElementById('loginBtnHeader');
+        const registerBtnHeader = document.getElementById('registerBtnHeader');
+        const userMenuBtn = document.getElementById('userMenuBtn');
+
+        if (loginBtnHeader) {
+            loginBtnHeader.addEventListener('click', () => this.showAuthModal('login'));
+        }
+        if (registerBtnHeader) {
+            registerBtnHeader.addEventListener('click', () => this.showAuthModal('register'));
+        }
+        if (userMenuBtn) {
+            userMenuBtn.addEventListener('click', () => this.showProfileModal());
+        }
+
+        // Auth modal buttons
+        const closeAuthModal = document.getElementById('closeAuthModal');
+        const showRegister = document.getElementById('showRegister');
+        const showLogin = document.getElementById('showLogin');
+        const loginBtn = document.getElementById('loginBtn');
+        const registerBtn = document.getElementById('registerBtn');
+
+        if (closeAuthModal) {
+            closeAuthModal.addEventListener('click', () => this.hideAuthModal());
+        }
+        if (showRegister) {
+            showRegister.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.switchAuthForm('register');
+            });
+        }
+        if (showLogin) {
+            showLogin.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.switchAuthForm('login');
+            });
+        }
+        if (loginBtn) {
+            loginBtn.addEventListener('click', () => this.handleLogin());
+        }
+        if (registerBtn) {
+            registerBtn.addEventListener('click', () => this.handleRegister());
+        }
+
+        // Profile modal buttons
+        const closeProfileModal = document.getElementById('closeProfileModal');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const viewSavedBtn = document.getElementById('viewSavedBtn');
+        const viewReadLaterBtn = document.getElementById('viewReadLaterBtn');
+
+        if (closeProfileModal) {
+            closeProfileModal.addEventListener('click', () => this.hideProfileModal());
+        }
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', () => this.handleLogout());
+        }
+        if (viewSavedBtn) {
+            viewSavedBtn.addEventListener('click', () => this.viewSavedArticles());
+        }
+        if (viewReadLaterBtn) {
+            viewReadLaterBtn.addEventListener('click', () => this.viewReadLaterArticles());
+        }
+
+        // Story action buttons
+        document.addEventListener('click', (e) => {
+            if (e.target.closest('.story-actions .action-btn')) {
+                const btn = e.target.closest('.action-btn');
+                const action = btn.getAttribute('data-action');
+                const storyId = btn.closest('.story-actions').getAttribute('data-story-id');
+                const story = this.stories.find(s => s.id.toString() === storyId);
+                
+                if (story) {
+                    if (action === 'save') {
+                        this.handleSaveArticle(story);
+                    } else if (action === 'read-later') {
+                        this.handleReadLater(story);
+                    }
+                }
+            }
+        });
+
+        // Check authentication status on load
+        this.checkAuthStatus();
+    }
+
+    // Show authentication modal
+    showAuthModal(type = 'login') {
+        const modal = document.getElementById('authModal');
+        const loginForm = document.getElementById('loginForm');
+        const registerForm = document.getElementById('registerForm');
+        const authTitle = document.getElementById('authTitle');
+
+        if (modal) {
+            modal.style.display = 'flex';
+            this.switchAuthForm(type);
+        }
+    }
+
+    // Hide authentication modal
+    hideAuthModal() {
+        const modal = document.getElementById('authModal');
+        if (modal) {
+            modal.style.display = 'none';
+            this.clearAuthForms();
+        }
+    }
+
+    // Switch between login and register forms
+    switchAuthForm(type) {
+        const loginForm = document.getElementById('loginForm');
+        const registerForm = document.getElementById('registerForm');
+        const authTitle = document.getElementById('authTitle');
+
+        if (type === 'login') {
+            if (loginForm) loginForm.style.display = 'block';
+            if (registerForm) registerForm.style.display = 'none';
+            if (authTitle) authTitle.textContent = 'Sign In';
+        } else {
+            if (loginForm) loginForm.style.display = 'none';
+            if (registerForm) registerForm.style.display = 'block';
+            if (authTitle) authTitle.textContent = 'Create Account';
+        }
+    }
+
+    // Clear authentication forms
+    clearAuthForms() {
+        const inputs = document.querySelectorAll('#authModal input');
+        inputs.forEach(input => input.value = '');
+        this.hideAuthError();
+    }
+
+    // Show authentication error
+    showAuthError(message) {
+        const errorDiv = document.getElementById('authError');
+        const errorMessage = document.getElementById('authErrorMessage');
+        if (errorDiv && errorMessage) {
+            errorMessage.textContent = message;
+            errorDiv.style.display = 'block';
+        }
+    }
+
+    // Hide authentication error
+    hideAuthError() {
+        const errorDiv = document.getElementById('authError');
+        if (errorDiv) {
+            errorDiv.style.display = 'none';
+        }
+    }
+
+    // Show loading state
+    showAuthLoading() {
+        const loadingDiv = document.getElementById('authLoading');
+        const loginForm = document.getElementById('loginForm');
+        const registerForm = document.getElementById('registerForm');
+        
+        if (loadingDiv) loadingDiv.style.display = 'flex';
+        if (loginForm) loginForm.style.display = 'none';
+        if (registerForm) registerForm.style.display = 'none';
+    }
+
+    // Hide loading state
+    hideAuthLoading() {
+        const loadingDiv = document.getElementById('authLoading');
+        if (loadingDiv) {
+            loadingDiv.style.display = 'none';
+        }
+    }
+
+    // Handle login
+    async handleLogin() {
+        const email = document.getElementById('loginEmail').value;
+        const password = document.getElementById('loginPassword').value;
+
+        if (!email || !password) {
+            this.showAuthError('Please fill in all fields');
+            return;
+        }
+
+        this.showAuthLoading();
+        this.hideAuthError();
+
+        try {
+            const response = await fetch('http://localhost:3000/api/auth/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ email, password }),
+                mode: 'cors'
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                // Store user data and token
+                await chrome.storage.local.set({
+                    userToken: data.data.token,
+                    userData: data.data.user
+                });
+
+                this.updateUserInterface(data.data.user);
+                this.hideAuthModal();
+                this.showNotification('Welcome back!', 'success');
+            } else {
+                this.showAuthError(data.message || 'Login failed');
+            }
+        } catch (error) {
+            console.error('Login error:', error);
+            this.showAuthError(`Network error: ${error.message}. Please make sure the backend server is running on localhost:3000`);
+        } finally {
+            this.hideAuthLoading();
+        }
+    }
+
+    // Handle register
+    async handleRegister() {
+        const name = document.getElementById('registerName').value;
+        const email = document.getElementById('registerEmail').value;
+        const password = document.getElementById('registerPassword').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
+
+        if (!name || !email || !password || !confirmPassword) {
+            this.showAuthError('Please fill in all fields');
+            return;
+        }
+
+        if (password !== confirmPassword) {
+            this.showAuthError('Passwords do not match');
+            return;
+        }
+
+        if (password.length < 6) {
+            this.showAuthError('Password must be at least 6 characters');
+            return;
+        }
+
+        this.showAuthLoading();
+        this.hideAuthError();
+
+        try {
+            const response = await fetch('http://localhost:3000/api/auth/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ name, email, password }),
+                mode: 'cors'
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                // Store user data and token
+                await chrome.storage.local.set({
+                    userToken: data.data.token,
+                    userData: data.data.user
+                });
+
+                this.updateUserInterface(data.data.user);
+                this.hideAuthModal();
+                this.showNotification('Account created successfully!', 'success');
+            } else {
+                this.showAuthError(data.message || 'Registration failed');
+            }
+        } catch (error) {
+            console.error('Register error:', error);
+            this.showAuthError(`Network error: ${error.message}. Please make sure the backend server is running on localhost:3000`);
+        } finally {
+            this.hideAuthLoading();
+        }
+    }
+
+    // Handle logout
+    async handleLogout() {
+        try {
+            // Clear stored data
+            await chrome.storage.local.remove(['userToken', 'userData']);
+            
+            // Update UI
+            this.updateUserInterface(null);
+            this.hideProfileModal();
+            this.showNotification('Signed out successfully', 'info');
+        } catch (error) {
+            console.error('Logout error:', error);
+        }
+    }
+
+    // Check authentication status
+    async checkAuthStatus() {
+        try {
+            const result = await chrome.storage.local.get(['userToken', 'userData']);
+            
+            if (result.userToken && result.userData) {
+                // Verify token is still valid
+                const isValid = await this.verifyToken(result.userToken);
+                if (isValid) {
+                    this.updateUserInterface(result.userData);
+                } else {
+                    // Token expired, clear data
+                    await chrome.storage.local.remove(['userToken', 'userData']);
+                }
+            }
+        } catch (error) {
+            console.error('Auth check error:', error);
+        }
+    }
+
+    // Verify token with backend
+    async verifyToken(token) {
+        try {
+            const response = await fetch('http://localhost:3000/api/auth/me', {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                },
+                mode: 'cors'
+            });
+
+            return response.ok;
+        } catch (error) {
+            return false;
+        }
+    }
+
+    // Update user interface based on auth status
+    updateUserInterface(user) {
+        const userInfo = document.getElementById('userInfo');
+        const authActions = document.getElementById('authActions');
+        const userName = document.getElementById('userName');
+        const userEmail = document.getElementById('userEmail');
+        const userInitials = document.getElementById('userInitials');
+
+        if (user) {
+            // User is logged in
+            if (userInfo) userInfo.style.display = 'flex';
+            if (authActions) authActions.style.display = 'none';
+            if (userName) userName.textContent = user.name;
+            if (userEmail) userEmail.textContent = user.email;
+            if (userInitials) {
+                const initials = user.name.split(' ').map(n => n[0]).join('').toUpperCase();
+                userInitials.textContent = initials;
+            }
+        } else {
+            // User is not logged in
+            if (userInfo) userInfo.style.display = 'none';
+            if (authActions) authActions.style.display = 'flex';
+        }
+    }
+
+    // Show profile modal
+    showProfileModal() {
+        const modal = document.getElementById('profileModal');
+        if (modal) {
+            modal.style.display = 'flex';
+            this.loadUserStats();
+        }
+    }
+
+    // Hide profile modal
+    hideProfileModal() {
+        const modal = document.getElementById('profileModal');
+        if (modal) {
+            modal.style.display = 'none';
+        }
+    }
+
+    // Load user statistics
+    async loadUserStats() {
+        try {
+            const result = await chrome.storage.local.get(['userToken']);
+            if (!result.userToken) return;
+
+            const [savedResponse, readLaterResponse] = await Promise.all([
+                fetch('http://localhost:3000/api/articles/saved', {
+                    headers: { 'Authorization': `Bearer ${result.userToken}` },
+                    mode: 'cors'
+                }),
+                fetch('http://localhost:3000/api/articles/read-later', {
+                    headers: { 'Authorization': `Bearer ${result.userToken}` },
+                    mode: 'cors'
+                })
+            ]);
+
+            const savedData = await savedResponse.json();
+            const readLaterData = await readLaterResponse.json();
+
+            const savedCount = document.getElementById('savedCount');
+            const readLaterCount = document.getElementById('readLaterCount');
+
+            if (savedCount) savedCount.textContent = savedData.data?.pagination?.total || 0;
+            if (readLaterCount) readLaterCount.textContent = readLaterData.data?.pagination?.total || 0;
+        } catch (error) {
+            console.error('Error loading user stats:', error);
+        }
+    }
+
+    // Handle save article
+    async handleSaveArticle(story) {
+        try {
+            const result = await chrome.storage.local.get(['userToken']);
+            if (!result.userToken) {
+                this.showAuthModal('login');
+                return;
+            }
+
+            const response = await fetch('http://localhost:3000/api/articles/save', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${result.userToken}`
+                },
+                body: JSON.stringify({
+                    storyId: story.id.toString(),
+                    title: story.title,
+                    url: story.url || `https://news.ycombinator.com/item?id=${story.id}`,
+                    type: 'saved',
+                    score: story.score || 0,
+                    author: story.by || 'unknown',
+                    comments: story.descendants || 0
+                }),
+                mode: 'cors'
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                this.updateStoryButton(story.id, 'save', true);
+                this.showNotification('Article saved!', 'success');
+            } else {
+                this.showNotification(data.message || 'Failed to save article', 'error');
+            }
+        } catch (error) {
+            console.error('Save article error:', error);
+            this.showNotification('Network error. Please try again.', 'error');
+        }
+    }
+
+    // Handle read later
+    async handleReadLater(story) {
+        try {
+            const result = await chrome.storage.local.get(['userToken']);
+            if (!result.userToken) {
+                this.showAuthModal('login');
+                return;
+            }
+
+            const response = await fetch('http://localhost:3000/api/articles/save', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${result.userToken}`
+                },
+                body: JSON.stringify({
+                    storyId: story.id.toString(),
+                    title: story.title,
+                    url: story.url || `https://news.ycombinator.com/item?id=${story.id}`,
+                    type: 'read-later',
+                    score: story.score || 0,
+                    author: story.by || 'unknown',
+                    comments: story.descendants || 0
+                }),
+                mode: 'cors'
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                this.updateStoryButton(story.id, 'read-later', true);
+                this.showNotification('Added to read later!', 'success');
+            } else {
+                this.showNotification(data.message || 'Failed to add to read later', 'error');
+            }
+        } catch (error) {
+            console.error('Read later error:', error);
+            this.showNotification('Network error. Please try again.', 'error');
+        }
+    }
+
+    // Update story button state
+    updateStoryButton(storyId, action, isActive) {
+        const storyActions = document.querySelector(`[data-story-id="${storyId}"]`);
+        if (storyActions) {
+            const btn = storyActions.querySelector(`[data-action="${action}"]`);
+            if (btn) {
+                if (isActive) {
+                    btn.classList.add(action === 'save' ? 'saved' : 'read-later-saved');
+                    btn.innerHTML = `
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                        </svg>
+                        <span>${action === 'save' ? 'Saved' : 'Added'}</span>
+                    `;
+                } else {
+                    btn.classList.remove('saved', 'read-later-saved');
+                    btn.innerHTML = `
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M17 3H7c-1.1 0-1.99.9-1.99 2L5 21l7-3 7 3V5c0-1.1-.9-2-2-2z"/>
+                        </svg>
+                        <span>${action === 'save' ? 'Save' : 'Read Later'}</span>
+                    `;
+                }
+            }
+        }
+    }
+
+    // View saved articles
+    viewSavedArticles() {
+        this.showNotification('Saved articles feature coming soon!', 'info');
+    }
+
+    // View read later articles
+    viewReadLaterArticles() {
+        this.showNotification('Read later feature coming soon!', 'info');
+    }
+
+    // Show notification
+    showNotification(message, type = 'info') {
+        const notificationDiv = document.createElement('div');
+        const colors = {
+            success: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+            error: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+            info: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)'
+        };
+
+        notificationDiv.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: ${colors[type] || colors.info};
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            z-index: 10000;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+            max-width: 300px;
+            animation: slideIn 0.3s ease;
+        `;
+        notificationDiv.textContent = message;
+        document.body.appendChild(notificationDiv);
+        
+        setTimeout(() => {
+            notificationDiv.remove();
+        }, 3000);
     }
 }
 
