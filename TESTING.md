@@ -1,4 +1,4 @@
-# VU Tech Hacker News Extension - Testing Guide
+# VU tech Extension - Testing Guide
 
 ## 🚀 Quick Start
 
@@ -11,21 +11,21 @@
 
 ### 2. Test the New Tab Page
 1. Open a new tab (Ctrl/Cmd + T)
-2. You should see the VU Tech logo above the search bar
+2. You should see the VU tech logo above the search bar
 3. The page should show either:
    - Live Hacker News stories (if internet is working)
    - Sample stories (if offline/API issues)
 
 ### 3. Test the Popup
-1. Click the VU Tech extension icon in the toolbar
-2. You should see the popup with the VU Tech logo
+1. Click the VU tech extension icon in the toolbar
+2. You should see the popup with the VU tech logo
 3. Stories should load in the popup
 
 ## 🎨 Visual Features to Check
 
-### VU Tech Theme
+### VU tech Theme
 - ✅ Blue color scheme throughout (instead of orange)
-- ✅ VU Tech logo displayed prominently
+- ✅ VU tech logo displayed prominently
 - ✅ Modern, futuristic design
 - ✅ Glowing effects on interactive elements
 
@@ -69,8 +69,8 @@
 ## 📱 Testing Checklist
 
 - [ ] Extension loads without errors
-- [ ] VU Tech logo appears on new tab page
-- [ ] VU Tech logo appears in popup
+- [ ] VU tech logo appears on new tab page
+- [ ] VU tech logo appears in popup
 - [ ] Blue theme is applied throughout
 - [ ] Search functionality works
 - [ ] Stories display (live or sample)
@@ -87,4 +87,4 @@
 
 ## 🎉 Success!
 
-If you see the VU Tech logo and blue theme working, the extension is successfully implemented!
+If you see the VU tech logo and blue theme working, the extension is successfully implemented!

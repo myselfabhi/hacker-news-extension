@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "TechNews - Hacker News Reader",
+  "name": "VU tech",
   "version": "1.2",
   "description": "A modern Chrome extension to read Hacker News stories with a beautiful interface",
   "permissions": [
@@ -18,7 +18,7 @@
   },
   "action": {
     "default_popup": "popup.html",
-    "default_title": "TechNews - Hacker News Reader"
+    "default_title": "VU tech"
   },
   "chrome_url_overrides": {
     "newtab": "newtab.html"

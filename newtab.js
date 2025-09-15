@@ -395,7 +395,7 @@ class NewTabHackerNewsReader {
         this.stories = [
             {
                 id: 1,
-                title: "Welcome to VU Tech Hacker News Reader",
+                title: "Welcome to VU tech",
                 by: "vutech",
                 time: Date.now() / 1000,
                 score: 100,
@@ -413,7 +413,7 @@ class NewTabHackerNewsReader {
             },
             {
                 id: 3,
-                title: "VU Tech theme successfully applied with blue color scheme",
+                title: "VU tech theme successfully applied with blue color scheme",
                 by: "designer",
                 time: Date.now() / 1000,
                 score: 75,
