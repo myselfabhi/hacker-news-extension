@@ -205,7 +205,7 @@ class NewTabHackerNewsReader {
                             // Add theme toggle functionality here
                             break;
                         case 3: // Settings button
-                            this.openSettings();
+            this.openSettings();
                             break;
                     }
                 });
@@ -215,47 +215,47 @@ class NewTabHackerNewsReader {
         // Close modal
         const closeModal = document.getElementById('closeModal');
         if (closeModal) {
-            closeModal.addEventListener('click', () => {
-                this.closeSettings();
-            });
+        closeModal.addEventListener('click', () => {
+            this.closeSettings();
+        });
         }
 
         // Save settings
         const saveSettings = document.getElementById('saveSettings');
         if (saveSettings) {
-            saveSettings.addEventListener('click', () => {
-                this.saveSettings();
-            });
+        saveSettings.addEventListener('click', () => {
+            this.saveSettings();
+        });
         }
 
         // Close modal when clicking outside
         const modal = document.getElementById('settingsModal');
         if (modal) {
-            modal.addEventListener('click', (e) => {
-                if (e.target === modal) {
-                    this.closeSettings();
-                }
-            });
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                this.closeSettings();
+            }
+        });
         }
 
         // Close add shortcut modal when clicking outside
         const addShortcutModal = document.getElementById('addShortcutModal');
         if (addShortcutModal) {
-            addShortcutModal.addEventListener('click', (e) => {
-                if (e.target === addShortcutModal) {
-                    this.closeAddShortcutModal();
-                }
-            });
+        addShortcutModal.addEventListener('click', (e) => {
+            if (e.target === addShortcutModal) {
+                this.closeAddShortcutModal();
+            }
+        });
         }
 
         // Close custom URL modal when clicking outside
         const customUrlModal = document.getElementById('customUrlModal');
         if (customUrlModal) {
-            customUrlModal.addEventListener('click', (e) => {
-                if (e.target === customUrlModal) {
-                    this.closeCustomUrlModal();
-                }
-            });
+        customUrlModal.addEventListener('click', (e) => {
+            if (e.target === customUrlModal) {
+                this.closeCustomUrlModal();
+            }
+        });
         }
 
         // Close modal with Escape key
@@ -270,17 +270,17 @@ class NewTabHackerNewsReader {
         // Add shortcut button
         const addShortcutBtn = document.getElementById('addShortcutBtn');
         if (addShortcutBtn) {
-            addShortcutBtn.addEventListener('click', () => {
-                this.openAddShortcutModal();
-            });
+        addShortcutBtn.addEventListener('click', () => {
+            this.openAddShortcutModal();
+        });
         }
 
         // Add shortcut modal close buttons
         const closeAddShortcutModal = document.getElementById('closeAddShortcutModal');
         if (closeAddShortcutModal) {
-            closeAddShortcutModal.addEventListener('click', () => {
-                this.closeAddShortcutModal();
-            });
+        closeAddShortcutModal.addEventListener('click', () => {
+            this.closeAddShortcutModal();
+        });
         }
 
         // Quick shortcut buttons
@@ -296,32 +296,32 @@ class NewTabHackerNewsReader {
         // Custom URL button
         const addCustomUrlBtn = document.getElementById('addCustomUrlBtn');
         if (addCustomUrlBtn) {
-            addCustomUrlBtn.addEventListener('click', () => {
-                this.openCustomUrlModal();
-            });
+        addCustomUrlBtn.addEventListener('click', () => {
+            this.openCustomUrlModal();
+        });
         }
 
         // Custom URL modal close buttons
         const closeCustomUrlModal = document.getElementById('closeCustomUrlModal');
         if (closeCustomUrlModal) {
-            closeCustomUrlModal.addEventListener('click', () => {
-                this.closeCustomUrlModal();
-            });
+        closeCustomUrlModal.addEventListener('click', () => {
+            this.closeCustomUrlModal();
+        });
         }
 
         const cancelCustomUrl = document.getElementById('cancelCustomUrl');
         if (cancelCustomUrl) {
-            cancelCustomUrl.addEventListener('click', () => {
-                this.closeCustomUrlModal();
-            });
+        cancelCustomUrl.addEventListener('click', () => {
+            this.closeCustomUrlModal();
+        });
         }
 
         // Save shortcut
         const saveShortcut = document.getElementById('saveShortcut');
         if (saveShortcut) {
-            saveShortcut.addEventListener('click', () => {
-                this.saveCustomShortcut();
-            });
+        saveShortcut.addEventListener('click', () => {
+            this.saveCustomShortcut();
+        });
         }
 
         // Load more stories button
@@ -334,6 +334,30 @@ class NewTabHackerNewsReader {
 
         // Authentication event listeners
         this.setupAuthEventListeners();
+
+        // Setup crazy search bar
+        this.setupCrazySearchBar();
+
+        // Setup crazy shortcuts
+        this.setupCrazyShortcuts();
+
+        // Setup crazy left panel background
+        this.setupCrazyLeftPanelBackground();
+        
+        // Setup crazy data visualization
+        this.setupCrazyDataVisualization();
+        
+        // Setup crazy news feed
+        this.setupCrazyNewsFeed();
+        
+        // Setup floating AI assistant
+        this.setupFloatingAIAssistant();
+        
+        // Setup live activity monitor
+        this.setupLiveActivityMonitor();
+        
+        // Setup enhanced right panel
+        this.setupEnhancedRightPanel();
     }
 
     // Load stories from Hacker News API with cache-first approach
@@ -456,28 +480,54 @@ class NewTabHackerNewsReader {
             try {
                 console.log(`Fetch attempt ${attempt} for Hacker News stories...`);
                 
-                // Create abort controller for timeout
-                const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
-                
-                // Get the list of top story IDs
-                const response = await fetch('https://hacker-news.firebaseio.com/v0/topstories.json', {
-                    signal: controller.signal,
-                    method: 'GET',
-                    headers: {
-                        'Accept': 'application/json',
-                        'Cache-Control': 'no-cache'
-                    },
-                    mode: 'cors'
-                });
-                
-                clearTimeout(timeoutId);
-                
-                if (!response.ok) {
+                // Try direct fetch first
+                let response;
+                try {
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 10000);
+                    
+                    response = await fetch('https://hacker-news.firebaseio.com/v0/topstories.json', {
+                        signal: controller.signal,
+                        method: 'GET',
+                        headers: {
+                            'Accept': 'application/json'
+                        }
+                    });
+                    
+                    clearTimeout(timeoutId);
+                } catch (directError) {
+                    console.log('Direct fetch failed, trying CORS proxy...');
+                    
+                    // Try CORS proxy
+                    const proxyUrl = 'https://api.allorigins.win/get?url=' + encodeURIComponent('https://hacker-news.firebaseio.com/v0/topstories.json');
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 15000);
+                    
+                    response = await fetch(proxyUrl, {
+                        signal: controller.signal,
+                        method: 'GET',
+                        headers: {
+                            'Accept': 'application/json'
+                        }
+                    });
+                    
+                    clearTimeout(timeoutId);
+                }
+            
+            if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status} - ${response.statusText}`);
                 }
                 
-                const storyIds = await response.json();
+                let storyIds;
+                const responseText = await response.text();
+                
+                try {
+                    const data = JSON.parse(responseText);
+                    // Handle CORS proxy response format
+                    storyIds = data.contents ? JSON.parse(data.contents) : data;
+                } catch (parseError) {
+                    storyIds = JSON.parse(responseText);
+                }
                 
                 if (!Array.isArray(storyIds)) {
                     throw new Error('Invalid response format - expected array of story IDs');
@@ -486,28 +536,28 @@ class NewTabHackerNewsReader {
                 console.log(`Successfully fetched ${storyIds.length} story IDs`);
                 
                 // Get details for the first 20 stories
-                const topStoryIds = storyIds.slice(0, 20);
+            const topStoryIds = storyIds.slice(0, 20);
                 const stories = [];
-                
-                for (let i = 0; i < topStoryIds.length; i++) {
-                    const storyId = topStoryIds[i];
+            
+            for (let i = 0; i < topStoryIds.length; i++) {
+                const storyId = topStoryIds[i];
                     try {
-                        const story = await this.fetchStoryDetails(storyId);
+                const story = await this.fetchStoryDetails(storyId);
                         if (story && story.title) {
                             stories.push(story);
-                        }
+                }
                         // Small delay between requests to avoid rate limiting
-                        await new Promise(resolve => setTimeout(resolve, 100));
+                await new Promise(resolve => setTimeout(resolve, 100));
                     } catch (error) {
                         console.warn(`Failed to fetch story ${storyId}:`, error.message);
                         // Continue with other stories
                     }
-                }
-                
+            }
+            
                 console.log(`Successfully fetched ${stories.length} story details`);
                 return stories;
-                
-            } catch (error) {
+            
+        } catch (error) {
                 console.error(`Fetch attempt ${attempt} failed:`, error);
                 
                 if (attempt === maxRetries) {
@@ -525,26 +575,52 @@ class NewTabHackerNewsReader {
     // Fetch individual story details
     async fetchStoryDetails(storyId) {
         try {
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout per story
-            
-            const response = await fetch(`https://hacker-news.firebaseio.com/v0/item/${storyId}.json`, {
-                signal: controller.signal,
-                method: 'GET',
-                headers: {
-                    'Accept': 'application/json',
-                    'Cache-Control': 'no-cache'
-                },
-                mode: 'cors'
-            });
-            
-            clearTimeout(timeoutId);
+            let response;
+            try {
+                // Try direct fetch first
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 5000);
+                
+                response = await fetch(`https://hacker-news.firebaseio.com/v0/item/${storyId}.json`, {
+                    signal: controller.signal,
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
+                
+                clearTimeout(timeoutId);
+            } catch (directError) {
+                // Try CORS proxy
+                const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(`https://hacker-news.firebaseio.com/v0/item/${storyId}.json`)}`;
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 8000);
+                
+                response = await fetch(proxyUrl, {
+                    signal: controller.signal,
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
+                
+                clearTimeout(timeoutId);
+            }
             
             if (!response.ok) {
                 throw new Error(`Failed to fetch story ${storyId}: ${response.status} ${response.statusText}`);
             }
             
-            const story = await response.json();
+            const responseText = await response.text();
+            let story;
+            
+            try {
+                const data = JSON.parse(responseText);
+                // Handle CORS proxy response format
+                story = data.contents ? JSON.parse(data.contents) : data;
+            } catch (parseError) {
+                story = JSON.parse(responseText);
+            }
             
             // Validate story has required fields
             if (!story || !story.title) {
@@ -924,14 +1000,14 @@ class NewTabHackerNewsReader {
         if (panel.classList.contains('minimized')) {
             panel.classList.remove('minimized');
             if (toggleBtn) {
-                toggleBtn.textContent = '−';
-                toggleBtn.title = 'Minimize';
+            toggleBtn.textContent = '−';
+            toggleBtn.title = 'Minimize';
             }
         } else {
             panel.classList.add('minimized');
             if (toggleBtn) {
-                toggleBtn.textContent = '+';
-                toggleBtn.title = 'Expand';
+            toggleBtn.textContent = '+';
+            toggleBtn.title = 'Expand';
             }
         }
     }
@@ -1895,6 +1971,2339 @@ class NewTabHackerNewsReader {
         setTimeout(() => {
             notificationDiv.remove();
         }, 3000);
+    }
+
+    // ==================== CRAZY SEARCH BAR METHODS ====================
+
+    // Setup crazy search bar with all animations and interactions
+    setupCrazySearchBar() {
+        const searchInput = document.getElementById('searchInput');
+        const searchIcon = document.getElementById('searchIconAnimated');
+        const typingIndicator = document.getElementById('typingIndicator');
+        const searchSuggestions = document.getElementById('searchSuggestions');
+        const searchParticles = document.getElementById('searchParticles');
+        const searchEnergyRipples = document.getElementById('searchEnergyRipples');
+        const voiceBtn = document.getElementById('voiceBtn');
+        const cameraBtn = document.getElementById('cameraBtn');
+        const aiBtn = document.getElementById('aiBtn');
+
+        if (!searchInput) return;
+
+        let isTyping = false;
+        let typingTimeout = null;
+        let isFocused = false;
+
+        // Search suggestions
+        const suggestions = [
+            "AI breakthrough neural networks",
+            "Quantum computing latest news", 
+            "Blockchain technology updates",
+            "Space exploration missions",
+            "Cybersecurity threats 2024"
+        ];
+
+        // Create floating particles
+        this.createSearchParticles();
+
+        // Input event handlers
+        searchInput.addEventListener('input', (e) => {
+            const value = e.target.value;
+            isTyping = true;
+            
+            // Show typing indicator
+            if (typingIndicator) {
+                typingIndicator.classList.add('active');
+            }
+
+            // Rotate search icon
+            if (searchIcon) {
+                searchIcon.classList.add('rotating');
+                setTimeout(() => {
+                    searchIcon.classList.remove('rotating');
+                }, 500);
+            }
+
+            // Clear previous timeout
+            if (typingTimeout) {
+                clearTimeout(typingTimeout);
+            }
+
+            // Hide typing indicator after delay
+            typingTimeout = setTimeout(() => {
+                isTyping = false;
+                if (typingIndicator) {
+                    typingIndicator.classList.remove('active');
+                }
+            }, 1000);
+
+            // Show suggestions if there's text and focused
+            if (value.length > 0 && isFocused) {
+                this.showSearchSuggestions(value, suggestions);
+            } else {
+                this.hideSearchSuggestions();
+            }
+        });
+
+        // Focus event handlers
+        searchInput.addEventListener('focus', () => {
+            isFocused = true;
+            this.createEnergyRipples();
+            
+            if (searchInput.value.length > 0) {
+                this.showSearchSuggestions(searchInput.value, suggestions);
+            }
+        });
+
+        searchInput.addEventListener('blur', () => {
+            isFocused = false;
+            // Delay hiding suggestions to allow clicking
+            setTimeout(() => {
+                this.hideSearchSuggestions();
+            }, 200);
+        });
+
+        // Action button handlers
+        if (voiceBtn) {
+            voiceBtn.addEventListener('click', () => {
+                this.handleVoiceSearch();
+            });
+        }
+
+        if (cameraBtn) {
+            cameraBtn.addEventListener('click', () => {
+                this.handleCameraSearch();
+            });
+        }
+
+        if (aiBtn) {
+            aiBtn.addEventListener('click', () => {
+                this.handleAISearch();
+            });
+        }
+
+        // Search on Enter
+        searchInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                this.performSearch(searchInput.value);
+            }
+        });
+    }
+
+    // Create floating particles around search bar
+    createSearchParticles() {
+        const particlesContainer = document.getElementById('searchParticles');
+        if (!particlesContainer) return;
+
+        // Clear existing particles
+        particlesContainer.innerHTML = '';
+
+        // Create 8 particles
+        for (let i = 0; i < 8; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'search-particle';
+            particle.style.left = `${20 + i * 10}%`;
+            particle.style.top = `${30 + (i % 3) * 20}%`;
+            particle.style.animationDelay = `${i * 0.3}s`;
+            particlesContainer.appendChild(particle);
+        }
+    }
+
+    // Create energy ripples when focused
+    createEnergyRipples() {
+        const ripplesContainer = document.getElementById('searchEnergyRipples');
+        if (!ripplesContainer) return;
+
+        // Clear existing ripples
+        ripplesContainer.innerHTML = '';
+
+        // Create 3 ripples
+        for (let i = 0; i < 3; i++) {
+            const ripple = document.createElement('div');
+            ripple.className = 'energy-ripple';
+            ripple.style.animationDelay = `${i * 0.7}s`;
+            ripplesContainer.appendChild(ripple);
+        }
+    }
+
+    // Show search suggestions
+    showSearchSuggestions(query, suggestions) {
+        const suggestionsContainer = document.getElementById('searchSuggestions');
+        if (!suggestionsContainer) return;
+
+        const filteredSuggestions = suggestions.filter(s => 
+            s.toLowerCase().includes(query.toLowerCase())
+        ).slice(0, 3);
+
+        if (filteredSuggestions.length === 0) {
+            this.hideSearchSuggestions();
+            return;
+        }
+
+        suggestionsContainer.innerHTML = '';
+        
+        filteredSuggestions.forEach((suggestion, index) => {
+            const suggestionElement = document.createElement('div');
+            suggestionElement.className = 'search-suggestion';
+            suggestionElement.style.animationDelay = `${index * 0.1}s`;
+            
+            suggestionElement.innerHTML = `
+                <svg class="search-suggestion-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1 .34-4.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 1.98-3A2.5 2.5 0 0 1 9.5 2Z"></path>
+                    <path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0-.34-4.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-1.98-3A2.5 2.5 0 0 0 14.5 2Z"></path>
+                </svg>
+                <span>${suggestion}</span>
+            `;
+
+            suggestionElement.addEventListener('click', () => {
+                document.getElementById('searchInput').value = suggestion;
+                this.performSearch(suggestion);
+                this.hideSearchSuggestions();
+            });
+
+            suggestionsContainer.appendChild(suggestionElement);
+        });
+
+        suggestionsContainer.classList.add('active');
+    }
+
+    // Hide search suggestions
+    hideSearchSuggestions() {
+        const suggestionsContainer = document.getElementById('searchSuggestions');
+        if (suggestionsContainer) {
+            suggestionsContainer.classList.remove('active');
+        }
+    }
+
+    // Handle voice search
+    handleVoiceSearch() {
+        // Add visual feedback
+        const voiceBtn = document.getElementById('voiceBtn');
+        if (voiceBtn) {
+            voiceBtn.style.background = 'rgba(59, 130, 246, 0.3)';
+            setTimeout(() => {
+                voiceBtn.style.background = 'transparent';
+            }, 2000);
+        }
+
+        // Simulate voice search (in real implementation, use Web Speech API)
+        setTimeout(() => {
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) {
+                searchInput.value = "What are the latest AI developments?";
+                this.performSearch(searchInput.value);
+            }
+        }, 1500);
+    }
+
+    // Handle camera search
+    handleCameraSearch() {
+        // Add visual feedback
+        const cameraBtn = document.getElementById('cameraBtn');
+        if (cameraBtn) {
+            cameraBtn.style.background = 'rgba(59, 130, 246, 0.3)';
+            setTimeout(() => {
+                cameraBtn.style.background = 'transparent';
+            }, 1000);
+        }
+
+        // In real implementation, access camera and process image
+        console.log('Camera search activated');
+    }
+
+    // Handle AI search
+    handleAISearch() {
+        // Add visual feedback
+        const aiBtn = document.getElementById('aiBtn');
+        if (aiBtn) {
+            aiBtn.style.background = 'rgba(59, 130, 246, 0.3)';
+            setTimeout(() => {
+                aiBtn.style.background = 'transparent';
+            }, 1000);
+        }
+
+        // Simulate AI search
+        setTimeout(() => {
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) {
+                searchInput.value = "AI-powered tech news summary";
+                this.performSearch(searchInput.value);
+            }
+        }, 1000);
+    }
+
+    // Perform search
+    performSearch(query) {
+        if (!query.trim()) return;
+
+        // Add search animation
+        const searchContainer = document.getElementById('crazySearchContainer');
+        if (searchContainer) {
+            searchContainer.style.transform = 'scale(0.98)';
+            setTimeout(() => {
+                searchContainer.style.transform = 'scale(1)';
+            }, 150);
+        }
+
+        // In real implementation, perform actual search
+        console.log('Searching for:', query);
+        
+        // For now, just show a message
+        this.showSearchNotification(`Searching for: ${query}`, 'info');
+    }
+
+    // Show search notification
+    showSearchNotification(message, type = 'info') {
+        // Create notification element
+        const notification = document.createElement('div');
+        notification.className = `notification notification-${type}`;
+        notification.textContent = message;
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(30, 30, 34, 0.9);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            backdrop-filter: blur(12px);
+            z-index: 1000;
+            opacity: 0;
+            transform: translateX(100px);
+            transition: all 0.3s ease;
+        `;
+
+        document.body.appendChild(notification);
+
+        // Animate in
+        setTimeout(() => {
+            notification.style.opacity = '1';
+            notification.style.transform = 'translateX(0)';
+        }, 100);
+
+        // Remove after delay
+        setTimeout(() => {
+            notification.style.opacity = '0';
+            notification.style.transform = 'translateX(100px)';
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.parentNode.removeChild(notification);
+                }
+            }, 300);
+        }, 3000);
+    }
+
+    // ==================== CRAZY SHORTCUTS METHODS ====================
+
+    // Setup crazy shortcuts with all animations and interactions
+    setupCrazyShortcuts() {
+        const shortcutsGrid = document.getElementById('shortcutsGrid');
+        if (!shortcutsGrid) return;
+
+        // Create background elements
+        this.createShortcutsBackgroundElements();
+
+        // Setup shortcut cards
+        const shortcutCards = shortcutsGrid.querySelectorAll('.crazy-shortcut-card');
+        shortcutCards.forEach((card, index) => {
+            this.setupShortcutCard(card, index);
+        });
+    }
+
+    // Setup individual shortcut card
+    setupShortcutCard(card, index) {
+        const particlesContainer = card.querySelector('.shortcut-particles');
+        const button = card.querySelector('.shortcut-button');
+        const iconContainer = card.querySelector('.shortcut-icon-container');
+        const url = card.getAttribute('data-url');
+
+        // Create floating particles for this card
+        this.createShortcutParticles(particlesContainer);
+
+        // Add staggered animation delay
+        card.style.animationDelay = `${index * 0.1}s`;
+
+        // Click handler
+        card.addEventListener('click', (e) => {
+            e.preventDefault();
+            this.handleShortcutClick(card, url);
+        });
+
+        // Hover effects
+        card.addEventListener('mouseenter', () => {
+            this.handleShortcutHover(card, true);
+        });
+
+        card.addEventListener('mouseleave', () => {
+            this.handleShortcutHover(card, false);
+        });
+
+        // Add click animation
+        card.addEventListener('mousedown', () => {
+            this.handleShortcutPress(card, true);
+        });
+
+        card.addEventListener('mouseup', () => {
+            this.handleShortcutPress(card, false);
+        });
+    }
+
+    // Create floating particles for shortcut
+    createShortcutParticles(container) {
+        if (!container) return;
+
+        // Clear existing particles
+        container.innerHTML = '';
+
+        // Create 6 particles
+        for (let i = 0; i < 6; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'shortcut-particle';
+            particle.style.left = `${20 + i * 15}%`;
+            particle.style.top = `${20 + (i % 2) * 40}%`;
+            particle.style.animationDelay = `${i * 0.1}s`;
+            container.appendChild(particle);
+        }
+    }
+
+    // Create background elements
+    createShortcutsBackgroundElements() {
+        const bgContainer = document.querySelector('.shortcuts-bg-elements');
+        if (!bgContainer) return;
+
+        // Clear existing elements
+        bgContainer.innerHTML = '';
+
+        // Create 4 background circles
+        for (let i = 0; i < 4; i++) {
+            const circle = document.createElement('div');
+            circle.className = 'shortcut-bg-circle';
+            circle.style.width = `${60 + i * 10}px`;
+            circle.style.height = `${60 + i * 10}px`;
+            circle.style.left = `${20 + i * 25}%`;
+            circle.style.top = `${15 + i * 8}%`;
+            circle.style.animationDelay = `${i * 0.5}s`;
+            bgContainer.appendChild(circle);
+        }
+    }
+
+    // Handle shortcut click
+    handleShortcutClick(card, url) {
+        // Add click animation
+        const button = card.querySelector('.shortcut-button');
+        if (button) {
+            button.style.transform = 'scale(0.9)';
+            setTimeout(() => {
+                button.style.transform = '';
+            }, 150);
+        }
+
+        // Create ripple effect
+        this.createShortcutRipple(card);
+
+        // Handle different types of shortcuts
+        if (card.classList.contains('add-shortcut')) {
+            this.handleAddShortcut();
+        } else if (url) {
+            this.openShortcutUrl(url);
+        }
+    }
+
+    // Handle shortcut hover
+    handleShortcutHover(card, isHovering) {
+        const particles = card.querySelector('.shortcut-particles');
+        const glowRing = card.querySelector('.shortcut-glow-ring');
+        const iconContainer = card.querySelector('.shortcut-icon-container');
+
+        if (isHovering) {
+            // Show particles
+            if (particles) {
+                particles.style.opacity = '1';
+            }
+
+            // Show glow ring
+            if (glowRing) {
+                glowRing.style.opacity = '1';
+            }
+
+            // Rotate icon
+            if (iconContainer) {
+                iconContainer.style.transform = 'rotate(360deg) scale(1.2)';
+            }
+        } else {
+            // Hide particles
+            if (particles) {
+                particles.style.opacity = '0';
+            }
+
+            // Hide glow ring
+            if (glowRing) {
+                glowRing.style.opacity = '0';
+            }
+
+            // Reset icon
+            if (iconContainer) {
+                iconContainer.style.transform = '';
+            }
+        }
+    }
+
+    // Handle shortcut press
+    handleShortcutPress(card, isPressed) {
+        const button = card.querySelector('.shortcut-button');
+        if (button) {
+            if (isPressed) {
+                button.style.transform = 'scale(0.95)';
+            } else {
+                button.style.transform = '';
+            }
+        }
+    }
+
+    // Create ripple effect
+    createShortcutRipple(card) {
+        const ripple = card.querySelector('.shortcut-ripple');
+        if (ripple) {
+            ripple.style.opacity = '1';
+            ripple.style.transform = 'scale(2)';
+            
+            setTimeout(() => {
+                ripple.style.opacity = '0';
+                ripple.style.transform = 'scale(0)';
+            }, 400);
+        }
+    }
+
+    // Handle add shortcut
+    handleAddShortcut() {
+        // Show notification
+        this.showSearchNotification('Add Shortcut feature coming soon!', 'info');
+        
+        // In real implementation, show modal to add custom shortcuts
+        console.log('Add shortcut clicked');
+    }
+
+    // Open shortcut URL
+    openShortcutUrl(url) {
+        if (url) {
+            // Add visual feedback
+            this.showSearchNotification(`Opening ${url}`, 'success');
+            
+            // Open in new tab
+            window.open(url, '_blank', 'noopener,noreferrer');
+        }
+    }
+
+    // ==================== CRAZY LEFT PANEL BACKGROUND METHODS ====================
+
+    // Setup crazy left panel background with canvas animations and neural network
+    setupCrazyLeftPanelBackground() {
+        // Initialize canvas animation
+        this.initCanvasAnimation();
+        
+        // Create morphing shapes
+        this.createMorphingShapes();
+        
+        // Create floating tech elements
+        this.createFloatingTechElements();
+        
+        // Create SVG patterns
+        this.createSVGPatterns();
+        
+        // Create scan lines
+        this.createScanLines();
+        
+        // Setup mouse interaction
+        this.setupMouseInteraction();
+    }
+
+    // Setup crazy data visualization with real-time charts
+    setupCrazyDataVisualization() {
+        this.initDataFlowCanvas();
+        this.createMetricsCards();
+        this.startDataUpdates();
+    }
+
+    // Initialize canvas animation with particles and neural network
+    initCanvasAnimation() {
+        const canvas = document.getElementById('bgCanvas');
+        if (!canvas) return;
+
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return;
+
+        // Set canvas size
+        const resizeCanvas = () => {
+            const rect = canvas.getBoundingClientRect();
+            canvas.width = rect.width;
+            canvas.height = rect.height;
+        };
+
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        // Animation state
+        let particles = [];
+        let neuralNodes = [];
+        let mousePos = { x: 0, y: 0 };
+        let time = 0;
+        let animationId;
+
+        // Initialize particles
+        const initParticles = () => {
+            particles = [];
+            for (let i = 0; i < 150; i++) {
+                particles.push({
+                    id: i,
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    vx: (Math.random() - 0.5) * 0.5,
+                    vy: (Math.random() - 0.5) * 0.5,
+                    size: Math.max(0.5, Math.random() * 3 + 1),
+                    color: ['#3b82f6', '#60a5fa', '#1e40af', '#2563eb'][Math.floor(Math.random() * 4)],
+                    opacity: Math.random() * 0.8 + 0.2,
+                    type: ['node', 'data', 'wave'][Math.floor(Math.random() * 3)]
+                });
+            }
+        };
+
+        // Initialize neural network nodes
+        const initNeuralNodes = () => {
+            neuralNodes = [];
+            for (let i = 0; i < 25; i++) {
+                const connections = [];
+                for (let j = 0; j < Math.random() * 4 + 1; j++) {
+                    const connectedNode = Math.floor(Math.random() * 25);
+                    if (connectedNode !== i && !connections.includes(connectedNode)) {
+                        connections.push(connectedNode);
+                    }
+                }
+                
+                neuralNodes.push({
+                    id: i,
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    connections,
+                    pulse: Math.random() * Math.PI * 2,
+                    energy: Math.random()
+                });
+            }
+        };
+
+        // Animation loop
+        const animate = () => {
+            time += 0.016; // ~60fps
+            
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Calculate energy level based on time
+            const currentEnergyLevel = Math.sin(time * 0.5) * 0.5 + 0.5;
+            
+            // Draw neural network
+            neuralNodes.forEach((node, index) => {
+                // Update node pulse
+                node.pulse += 0.02;
+                node.energy = Math.max(0, Math.sin(node.pulse) * 0.5 + 0.5);
+                
+                // Draw connections
+                node.connections.forEach(connectedId => {
+                    if (connectedId < neuralNodes.length) {
+                        const connectedNode = neuralNodes[connectedId];
+                        const distance = Math.sqrt((node.x - connectedNode.x) ** 2 + (node.y - connectedNode.y) ** 2);
+                        
+                        if (distance < 200) {
+                            ctx.beginPath();
+                            ctx.moveTo(node.x, node.y);
+                            ctx.lineTo(connectedNode.x, connectedNode.y);
+                            
+                            const alpha = (1 - distance / 200) * (node.energy + connectedNode.energy) * 0.3;
+                            ctx.strokeStyle = `rgba(59, 130, 246, ${alpha})`;
+                            ctx.lineWidth = Math.max(0.5, 1 + node.energy * 2);
+                            ctx.stroke();
+                            
+                            // Draw energy pulse along connection
+                            const pulsePos = (Math.sin(time * 2 + index) + 1) / 2;
+                            const pulseX = node.x + (connectedNode.x - node.x) * pulsePos;
+                            const pulseY = node.y + (connectedNode.y - node.y) * pulsePos;
+                            
+                            ctx.beginPath();
+                            ctx.arc(pulseX, pulseY, Math.max(0.5, 2), 0, Math.PI * 2);
+                            ctx.fillStyle = `rgba(96, 165, 250, ${alpha * 2})`;
+                            ctx.fill();
+                        }
+                    }
+                });
+                
+                // Draw node
+                ctx.beginPath();
+                ctx.arc(node.x, node.y, Math.max(1, 3 + node.energy * 5), 0, Math.PI * 2);
+                const gradient = ctx.createRadialGradient(node.x, node.y, 0, node.x, node.y, 8);
+                gradient.addColorStop(0, `rgba(59, 130, 246, ${node.energy})`);
+                gradient.addColorStop(1, `rgba(30, 64, 175, ${node.energy * 0.3})`);
+                ctx.fillStyle = gradient;
+                ctx.fill();
+            });
+
+            // Draw and update particles
+            particles.forEach(particle => {
+                // Update position
+                particle.x += particle.vx;
+                particle.y += particle.vy;
+                
+                // Bounce off edges
+                if (particle.x <= 0 || particle.x >= canvas.width) particle.vx *= -1;
+                if (particle.y <= 0 || particle.y >= canvas.height) particle.vy *= -1;
+                
+                // Add mouse attraction
+                const mouseDistance = Math.sqrt((mousePos.x - particle.x) ** 2 + (mousePos.y - particle.y) ** 2);
+                if (mouseDistance < 100) {
+                    const attraction = (100 - mouseDistance) / 100 * 0.01;
+                    particle.vx += (mousePos.x - particle.x) * attraction * 0.1;
+                    particle.vy += (mousePos.y - particle.y) * attraction * 0.1;
+                }
+                
+                // Draw particle based on type
+                ctx.save();
+                ctx.globalAlpha = particle.opacity * (0.7 + currentEnergyLevel * 0.3);
+                
+                if (particle.type === 'node') {
+                    ctx.beginPath();
+                    ctx.arc(particle.x, particle.y, Math.max(0.5, particle.size), 0, Math.PI * 2);
+                    ctx.fillStyle = particle.color;
+                    ctx.fill();
+                } else if (particle.type === 'data') {
+                    ctx.fillStyle = particle.color;
+                    const size = Math.max(0.5, particle.size);
+                    ctx.fillRect(particle.x - size/2, particle.y - size/2, size, size);
+                } else if (particle.type === 'wave') {
+                    ctx.beginPath();
+                    const waveSize = Math.max(0.5, particle.size + Math.sin(time * 3 + particle.id) * 2);
+                    ctx.arc(particle.x, particle.y, waveSize, 0, Math.PI * 2);
+                    ctx.strokeStyle = particle.color;
+                    ctx.lineWidth = 1;
+                    ctx.stroke();
+                }
+                
+                ctx.restore();
+            });
+            
+            animationId = requestAnimationFrame(animate);
+        };
+
+        // Mouse tracking
+        const handleMouseMove = (e) => {
+            const rect = canvas.getBoundingClientRect();
+            mousePos.x = e.clientX - rect.left;
+            mousePos.y = e.clientY - rect.top;
+        };
+
+        canvas.addEventListener('mousemove', handleMouseMove);
+
+        // Initialize and start animation
+        initParticles();
+        initNeuralNodes();
+        animate();
+
+        // Store cleanup function
+        this.cleanupCanvas = () => {
+            if (animationId) {
+                cancelAnimationFrame(animationId);
+            }
+            canvas.removeEventListener('mousemove', handleMouseMove);
+            window.removeEventListener('resize', resizeCanvas);
+        };
+    }
+
+    // Create morphing shapes
+    createMorphingShapes() {
+        const container = document.getElementById('morphingShapes');
+        if (!container) return;
+
+        // Clear existing shapes
+        container.innerHTML = '';
+
+        // Create 8 morphing shapes
+        for (let i = 0; i < 8; i++) {
+            const shape = document.createElement('div');
+            shape.className = 'morphing-shape';
+            shape.style.left = `${20 + i * 12}%`;
+            shape.style.top = `${15 + i * 8}%`;
+            shape.style.width = `${60 + i * 10}px`;
+            shape.style.height = `${60 + i * 10}px`;
+            shape.style.animationDelay = `${i * 0.5}s`;
+            container.appendChild(shape);
+        }
+    }
+
+    // Create floating tech elements
+    createFloatingTechElements() {
+        const container = document.getElementById('floatingTechElements');
+        if (!container) return;
+
+        // Clear existing elements
+        container.innerHTML = '';
+
+        // Create holographic data streams
+        for (let i = 0; i < 12; i++) {
+            const stream = document.createElement('div');
+            stream.className = 'holographic-data-stream';
+            stream.style.left = `${i * 8}%`;
+            stream.style.top = `${Math.random() * 100}%`;
+            stream.style.animationDelay = `${i * 0.3}s`;
+            container.appendChild(stream);
+        }
+
+        // Create rotating code symbols
+        const symbols = ['{ }', '< />', '[ ]', '( )', '&&', '||', '=>', '!='];
+        symbols.forEach((symbol, i) => {
+            const symbolElement = document.createElement('div');
+            symbolElement.className = 'rotating-code-symbol';
+            symbolElement.textContent = symbol;
+            symbolElement.style.left = `${10 + i * 10}%`;
+            symbolElement.style.top = `${20 + (i % 3) * 25}%`;
+            symbolElement.style.animationDelay = `${i * 0.5}s`;
+            container.appendChild(symbolElement);
+        });
+
+        // Create pulsing circuit nodes
+        for (let i = 0; i < 15; i++) {
+            const node = document.createElement('div');
+            node.className = 'pulsing-circuit-node';
+            node.style.left = `${Math.random() * 100}%`;
+            node.style.top = `${Math.random() * 100}%`;
+            node.style.animationDelay = `${i * 0.2}s`;
+            container.appendChild(node);
+        }
+    }
+
+    // Create SVG patterns
+    createSVGPatterns() {
+        const container = document.getElementById('svgPatterns');
+        if (!container) return;
+
+        // Clear existing patterns
+        container.innerHTML = '';
+
+        const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        svg.setAttribute('class', 'w-full h-full');
+        svg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+
+        // Define patterns and gradients
+        const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+        
+        // Hex pattern
+        const hexPattern = document.createElementNS('http://www.w3.org/2000/svg', 'pattern');
+        hexPattern.setAttribute('id', 'hexPattern');
+        hexPattern.setAttribute('width', '60');
+        hexPattern.setAttribute('height', '52');
+        hexPattern.setAttribute('patternUnits', 'userSpaceOnUse');
+        
+        const hexPolygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+        hexPolygon.setAttribute('points', '30,2 52,15 52,37 30,50 8,37 8,15');
+        hexPolygon.setAttribute('fill', 'none');
+        hexPolygon.setAttribute('stroke', 'url(#hexGradient)');
+        hexPolygon.setAttribute('stroke-width', '1');
+        hexPattern.appendChild(hexPolygon);
+        
+        // Hex gradient
+        const hexGradient = document.createElementNS('http://www.w3.org/2000/svg', 'linearGradient');
+        hexGradient.setAttribute('id', 'hexGradient');
+        hexGradient.setAttribute('x1', '0%');
+        hexGradient.setAttribute('y1', '0%');
+        hexGradient.setAttribute('x2', '100%');
+        hexGradient.setAttribute('y2', '100%');
+        
+        const stop1 = document.createElementNS('http://www.w3.org/2000/svg', 'stop');
+        stop1.setAttribute('offset', '0%');
+        stop1.setAttribute('stop-color', '#3b82f6');
+        stop1.setAttribute('stop-opacity', '0.4');
+        
+        const stop2 = document.createElementNS('http://www.w3.org/2000/svg', 'stop');
+        stop2.setAttribute('offset', '50%');
+        stop2.setAttribute('stop-color', '#60a5fa');
+        stop2.setAttribute('stop-opacity', '0.2');
+        
+        const stop3 = document.createElementNS('http://www.w3.org/2000/svg', 'stop');
+        stop3.setAttribute('offset', '100%');
+        stop3.setAttribute('stop-color', '#1e40af');
+        stop3.setAttribute('stop-opacity', '0.1');
+        
+        hexGradient.appendChild(stop1);
+        hexGradient.appendChild(stop2);
+        hexGradient.appendChild(stop3);
+        
+        // Glow filter
+        const filter = document.createElementNS('http://www.w3.org/2000/svg', 'filter');
+        filter.setAttribute('id', 'glow');
+        
+        const feGaussianBlur = document.createElementNS('http://www.w3.org/2000/svg', 'feGaussianBlur');
+        feGaussianBlur.setAttribute('stdDeviation', '3');
+        feGaussianBlur.setAttribute('result', 'coloredBlur');
+        
+        const feMerge = document.createElementNS('http://www.w3.org/2000/svg', 'feMerge');
+        const feMergeNode1 = document.createElementNS('http://www.w3.org/2000/svg', 'feMergeNode');
+        feMergeNode1.setAttribute('in', 'coloredBlur');
+        const feMergeNode2 = document.createElementNS('http://www.w3.org/2000/svg', 'feMergeNode');
+        feMergeNode2.setAttribute('in', 'SourceGraphic');
+        
+        feMerge.appendChild(feMergeNode1);
+        feMerge.appendChild(feMergeNode2);
+        filter.appendChild(feGaussianBlur);
+        filter.appendChild(feMerge);
+        
+        defs.appendChild(hexPattern);
+        defs.appendChild(hexGradient);
+        defs.appendChild(filter);
+        svg.appendChild(defs);
+
+        // Background pattern
+        const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        rect.setAttribute('width', '100%');
+        rect.setAttribute('height', '100%');
+        rect.setAttribute('fill', 'url(#hexPattern)');
+        rect.setAttribute('filter', 'url(#glow)');
+        svg.appendChild(rect);
+
+        // Dynamic energy waves
+        const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        g.setAttribute('opacity', '0.4');
+        
+        const wave1 = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        wave1.setAttribute('d', 'M0,300 Q200,250 400,300 T800,300');
+        wave1.setAttribute('fill', 'none');
+        wave1.setAttribute('stroke', 'url(#hexGradient)');
+        wave1.setAttribute('stroke-width', '2');
+        wave1.setAttribute('class', 'energy-wave');
+        
+        const wave2 = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        wave2.setAttribute('d', 'M0,400 Q150,350 300,400 T600,400');
+        wave2.setAttribute('fill', 'none');
+        wave2.setAttribute('stroke', 'url(#hexGradient)');
+        wave2.setAttribute('stroke-width', '2');
+        wave2.setAttribute('class', 'energy-wave');
+        wave2.style.animationDelay = '1s';
+        
+        g.appendChild(wave1);
+        g.appendChild(wave2);
+        svg.appendChild(g);
+
+        container.appendChild(svg);
+    }
+
+    // Create scan lines
+    createScanLines() {
+        const container = document.getElementById('scanLines');
+        if (!container) return;
+
+        // Clear existing scan lines
+        container.innerHTML = '';
+
+        // Create 2 scan lines
+        for (let i = 0; i < 2; i++) {
+            const scanLine = document.createElement('div');
+            scanLine.className = 'scan-line';
+            if (i === 1) {
+                scanLine.style.animationDelay = '1.5s';
+                scanLine.style.animationDuration = '4s';
+            }
+            container.appendChild(scanLine);
+        }
+    }
+
+    // Setup mouse interaction
+    setupMouseInteraction() {
+        const leftColumn = document.querySelector('.left-column');
+        if (!leftColumn) return;
+
+        leftColumn.addEventListener('mousemove', (e) => {
+            // Update energy field based on mouse position
+            const energyField = document.getElementById('energyField');
+            if (energyField) {
+                const rect = leftColumn.getBoundingClientRect();
+                const x = ((e.clientX - rect.left) / rect.width) * 100;
+                const y = ((e.clientY - rect.top) / rect.height) * 100;
+                
+                energyField.style.background = `radial-gradient(circle at ${x}% ${y}%, rgba(59, 130, 246, 0.2) 0%, transparent 50%)`;
+            }
+        });
+    }
+
+    // Initialize data flow canvas
+    initDataFlowCanvas() {
+        const canvas = document.getElementById('dataFlowCanvas');
+        if (!canvas) return;
+
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return;
+
+        // Set canvas size
+        const resizeCanvas = () => {
+            const container = canvas.parentElement;
+            canvas.width = container.clientWidth;
+            canvas.height = container.clientHeight;
+        };
+
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        // Data flow animation
+        let animationId;
+        const dataPoints = [];
+        const maxPoints = 50;
+
+        // Initialize data points
+        for (let i = 0; i < maxPoints; i++) {
+            dataPoints.push({
+                x: (i / maxPoints) * canvas.width,
+                y: canvas.height / 2 + Math.sin(i * 0.1) * 20,
+                vx: Math.random() * 2 - 1,
+                vy: Math.random() * 2 - 1,
+                size: Math.random() * 3 + 1,
+                opacity: Math.random() * 0.5 + 0.3
+            });
+        }
+
+        const animate = () => {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Update and draw data points
+            dataPoints.forEach((point, index) => {
+                // Update position
+                point.x += point.vx;
+                point.y += point.vy;
+
+                // Bounce off edges
+                if (point.x < 0 || point.x > canvas.width) point.vx *= -1;
+                if (point.y < 0 || point.y > canvas.height) point.vy *= -1;
+
+                // Draw point
+                ctx.beginPath();
+                ctx.arc(point.x, point.y, point.size, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(96, 165, 250, ${point.opacity})`;
+                ctx.fill();
+
+                // Draw connections to nearby points
+                for (let j = index + 1; j < dataPoints.length; j++) {
+                    const other = dataPoints[j];
+                    const distance = Math.sqrt(
+                        Math.pow(point.x - other.x, 2) + Math.pow(point.y - other.y, 2)
+                    );
+
+                    if (distance < 100) {
+                        ctx.beginPath();
+                        ctx.moveTo(point.x, point.y);
+                        ctx.lineTo(other.x, other.y);
+                        ctx.strokeStyle = `rgba(96, 165, 250, ${0.1 * (1 - distance / 100)})`;
+                        ctx.lineWidth = 1;
+                        ctx.stroke();
+                    }
+                }
+            });
+
+            animationId = requestAnimationFrame(animate);
+        };
+
+        animate();
+
+        // Cleanup function
+        return () => {
+            if (animationId) {
+                cancelAnimationFrame(animationId);
+            }
+        };
+    }
+
+    // Create metrics cards
+    createMetricsCards() {
+        const metricsGrid = document.getElementById('metricsGrid');
+        if (!metricsGrid) return;
+
+        const metrics = [
+            {
+                id: 'users',
+                title: 'Active Users',
+                value: '2.4K',
+                change: 12.5,
+                icon: '👥',
+                color: 'users',
+                trend: this.generateTrendData(20, 100, 300)
+            },
+            {
+                id: 'activity',
+                title: 'Page Views',
+                value: '15.2K',
+                change: -3.2,
+                icon: '📊',
+                color: 'activity',
+                trend: this.generateTrendData(20, 200, 500)
+            },
+            {
+                id: 'views',
+                title: 'Engagement',
+                value: '89%',
+                change: 8.1,
+                icon: '💬',
+                color: 'views',
+                trend: this.generateTrendData(20, 50, 100)
+            },
+            {
+                id: 'interactions',
+                title: 'Interactions',
+                value: '1.2K',
+                change: 15.3,
+                icon: '⚡',
+                color: 'interactions',
+                trend: this.generateTrendData(20, 80, 200)
+            }
+        ];
+
+        metricsGrid.innerHTML = '';
+
+        metrics.forEach((metric, index) => {
+            const card = document.createElement('div');
+            card.className = 'metric-card';
+            card.style.animationDelay = `${index * 0.1}s`;
+
+            const changeClass = metric.change >= 0 ? 'positive' : 'negative';
+            const changeIcon = metric.change >= 0 ? '↗' : '↘';
+
+            card.innerHTML = `
+                <div class="metric-card-bg">
+                    <div class="metric-card-glow"></div>
+                    <div class="metric-header">
+                        <div class="metric-icon-container">
+                            <div class="metric-icon ${metric.color}">
+                                <span style="font-size: 16px;">${metric.icon}</span>
+                            </div>
+                            <span class="metric-title">${metric.title}</span>
+                        </div>
+                        <div class="metric-change ${changeClass}">
+                            <span>${changeIcon}</span>
+                            <span>${Math.abs(metric.change)}%</span>
+                        </div>
+                    </div>
+                    <div class="metric-value">${metric.value}</div>
+                    <div class="metric-chart">
+                        ${this.createTrendChart(metric.trend, metric.color)}
+                    </div>
+                </div>
+            `;
+
+            metricsGrid.appendChild(card);
+        });
+    }
+
+    // Generate trend data for charts
+    generateTrendData(points, min, max) {
+        const data = [];
+        for (let i = 0; i < points; i++) {
+            data.push({
+                x: i,
+                y: min + Math.random() * (max - min) + Math.sin(i * 0.3) * 20
+            });
+        }
+        return data;
+    }
+
+    // Create trend chart SVG
+    createTrendChart(data, color) {
+        if (!data || data.length === 0) return '';
+
+        const width = 200;
+        const height = 48;
+        const padding = 4;
+
+        const minY = Math.min(...data.map(d => d.y));
+        const maxY = Math.max(...data.map(d => d.y));
+        const rangeY = maxY - minY || 1;
+
+        const scaleX = (width - padding * 2) / (data.length - 1);
+        const scaleY = (height - padding * 2) / rangeY;
+
+        const points = data.map((d, i) => {
+            const x = padding + i * scaleX;
+            const y = padding + (maxY - d.y) * scaleY;
+            return `${x},${y}`;
+        }).join(' ');
+
+        const pathData = `M ${points}`;
+        const fillData = `M ${padding},${height - padding} L ${points} L ${width - padding},${height - padding} Z`;
+
+        const colors = {
+            users: '#60a5fa',
+            activity: '#10b981',
+            views: '#a855f7',
+            interactions: '#60a5fa'
+        };
+
+        return `
+            <svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">
+                <defs>
+                    <linearGradient id="gradient-${color}" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" style="stop-color:${colors[color]};stop-opacity:0.3" />
+                        <stop offset="100%" style="stop-color:${colors[color]};stop-opacity:0.1" />
+                    </linearGradient>
+                </defs>
+                <path d="${fillData}" fill="url(#gradient-${color})" class="metric-chart-fill" />
+                <path d="${pathData}" fill="none" stroke="${colors[color]}" stroke-width="2" class="metric-chart-path" />
+            </svg>
+        `;
+    }
+
+    // Start data updates
+    startDataUpdates() {
+        // Update metrics every 5 seconds
+        setInterval(() => {
+            this.updateMetrics();
+        }, 5000);
+
+        // Update activity indicator
+        this.updateActivityIndicator();
+    }
+
+    // Update metrics with new data
+    updateMetrics() {
+        const metricValues = document.querySelectorAll('.metric-value');
+        metricValues.forEach((element, index) => {
+            const currentValue = element.textContent;
+            const newValue = this.generateNewMetricValue(currentValue, index);
+            
+            // Animate value change
+            element.style.transform = 'scale(1.1)';
+            element.style.color = '#60a5fa';
+            
+            setTimeout(() => {
+                element.textContent = newValue;
+                element.style.transform = 'scale(1)';
+                element.style.color = '#ffffff';
+            }, 150);
+        });
+    }
+
+    // Generate new metric value
+    generateNewMetricValue(currentValue, index) {
+        const metrics = [
+            { base: 2400, unit: 'K', range: 200 },
+            { base: 15200, unit: 'K', range: 1000 },
+            { base: 89, unit: '%', range: 5 },
+            { base: 1200, unit: 'K', range: 100 }
+        ];
+
+        const metric = metrics[index];
+        const newValue = metric.base + (Math.random() - 0.5) * metric.range;
+        
+        if (metric.unit === '%') {
+            return Math.round(newValue) + '%';
+        } else {
+            return (newValue / 1000).toFixed(1) + 'K';
+        }
+    }
+
+    // Update activity indicator
+    updateActivityIndicator() {
+        const activityText = document.querySelector('.activity-text');
+        if (!activityText) return;
+
+        const messages = [
+            'Processing live data streams',
+            'Analyzing user interactions',
+            'Updating real-time metrics',
+            'Syncing with cloud services',
+            'Optimizing performance',
+            'Monitoring system health'
+        ];
+
+        let messageIndex = 0;
+        setInterval(() => {
+            activityText.textContent = messages[messageIndex];
+            messageIndex = (messageIndex + 1) % messages.length;
+        }, 3000);
+    }
+
+    // Setup crazy news feed with enhanced animations and interactions
+    setupCrazyNewsFeed() {
+        this.createNewsFeedParticles();
+        this.setupNewsFeedStats();
+        this.enhanceStoryInteractions();
+        this.startNewsFeedAnimations();
+    }
+
+    // Create floating particles for news feed
+    createNewsFeedParticles() {
+        const particlesContainer = document.getElementById('newsFeedParticles');
+        if (!particlesContainer) return;
+
+        const particleCount = 15;
+        
+        for (let i = 0; i < particleCount; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'news-feed-particle';
+            
+            // Random positioning
+            particle.style.left = Math.random() * 100 + '%';
+            particle.style.top = Math.random() * 100 + '%';
+            
+            // Random animation delay
+            particle.style.animationDelay = Math.random() * 8 + 's';
+            
+            // Random animation duration
+            particle.style.animationDuration = (6 + Math.random() * 4) + 's';
+            
+            particlesContainer.appendChild(particle);
+        }
+    }
+
+    // Setup news feed statistics
+    setupNewsFeedStats() {
+        this.updateNewsFeedStats();
+        
+        // Update stats every 10 seconds
+        setInterval(() => {
+            this.updateNewsFeedStats();
+        }, 10000);
+    }
+
+    // Update news feed statistics
+    updateNewsFeedStats() {
+        const storyCount = document.getElementById('storyCount');
+        const readerCount = document.getElementById('readerCount');
+        const activityLevel = document.getElementById('activityLevel');
+        
+        if (storyCount) {
+            const currentStories = document.querySelectorAll('.story').length;
+            this.animateValue(storyCount, parseInt(storyCount.textContent) || 0, currentStories, 1000);
+        }
+        
+        if (readerCount) {
+            const readers = Math.floor(Math.random() * 500) + 1200;
+            this.animateValue(readerCount, parseInt(readerCount.textContent) || 0, readers, 1000);
+        }
+        
+        if (activityLevel) {
+            const levels = ['Low', 'Medium', 'High', 'Very High'];
+            const randomLevel = levels[Math.floor(Math.random() * levels.length)];
+            activityLevel.textContent = randomLevel;
+            
+            // Add color based on activity level
+            activityLevel.className = 'stat-value';
+            switch (randomLevel) {
+                case 'Low':
+                    activityLevel.style.color = '#10b981';
+                    break;
+                case 'Medium':
+                    activityLevel.style.color = '#f59e0b';
+                    break;
+                case 'High':
+                    activityLevel.style.color = '#ef4444';
+                    break;
+                case 'Very High':
+                    activityLevel.style.color = '#dc2626';
+                    break;
+            }
+        }
+    }
+
+    // Animate value changes
+    animateValue(element, start, end, duration) {
+        const startTime = performance.now();
+        const change = end - start;
+        
+        const animate = (currentTime) => {
+            const elapsed = currentTime - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+            
+            const current = start + (change * this.easeOutCubic(progress));
+            element.textContent = Math.round(current);
+            
+            if (progress < 1) {
+                requestAnimationFrame(animate);
+            }
+        };
+        
+        requestAnimationFrame(animate);
+    }
+
+    // Easing function
+    easeOutCubic(t) {
+        return 1 - Math.pow(1 - t, 3);
+    }
+
+    // Enhance story interactions
+    enhanceStoryInteractions() {
+        // Add hover effects to story cards
+        document.addEventListener('mouseover', (e) => {
+            if (e.target.closest('.story')) {
+                const story = e.target.closest('.story');
+                this.addStoryHoverEffects(story);
+            }
+        });
+
+        document.addEventListener('mouseout', (e) => {
+            if (e.target.closest('.story')) {
+                const story = e.target.closest('.story');
+                this.removeStoryHoverEffects(story);
+            }
+        });
+
+        // Add click effects
+        document.addEventListener('click', (e) => {
+            if (e.target.closest('.story')) {
+                const story = e.target.closest('.story');
+                this.addStoryClickEffect(story);
+            }
+        });
+    }
+
+    // Add hover effects to story
+    addStoryHoverEffects(story) {
+        // Create ripple effect
+        const ripple = document.createElement('div');
+        ripple.className = 'story-ripple';
+        ripple.style.cssText = `
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(96, 165, 250, 0.3);
+            transform: scale(0);
+            animation: rippleExpand 0.6s ease-out;
+            pointer-events: none;
+            z-index: 1;
+        `;
+        
+        const rect = story.getBoundingClientRect();
+        const size = Math.max(rect.width, rect.height);
+        ripple.style.width = ripple.style.height = size + 'px';
+        ripple.style.left = (rect.width / 2 - size / 2) + 'px';
+        ripple.style.top = (rect.height / 2 - size / 2) + 'px';
+        
+        story.appendChild(ripple);
+        
+        // Remove ripple after animation
+        setTimeout(() => {
+            if (ripple.parentNode) {
+                ripple.parentNode.removeChild(ripple);
+            }
+        }, 600);
+    }
+
+    // Remove hover effects from story
+    removeStoryHoverEffects(story) {
+        // Remove any existing ripples
+        const ripples = story.querySelectorAll('.story-ripple');
+        ripples.forEach(ripple => {
+            if (ripple.parentNode) {
+                ripple.parentNode.removeChild(ripple);
+            }
+        });
+    }
+
+    // Add click effect to story
+    addStoryClickEffect(story) {
+        // Add click animation
+        story.style.transform = 'scale(0.98)';
+        story.style.transition = 'transform 0.1s ease';
+        
+        setTimeout(() => {
+            story.style.transform = 'scale(1)';
+        }, 100);
+    }
+
+    // Start news feed animations
+    startNewsFeedAnimations() {
+        // Animate story cards on load
+        this.animateStoryCards();
+        
+        // Start periodic animations
+        setInterval(() => {
+            this.animateStoryCards();
+        }, 30000);
+    }
+
+    // Animate story cards
+    animateStoryCards() {
+        const stories = document.querySelectorAll('.story');
+        stories.forEach((story, index) => {
+            // Reset animation
+            story.style.animation = 'none';
+            story.offsetHeight; // Trigger reflow
+            
+            // Add staggered animation
+            story.style.animation = `storySlideIn 0.6s ease-out ${index * 0.1}s both`;
+        });
+    }
+
+    // Setup floating AI assistant with chat interface
+    setupFloatingAIAssistant() {
+        this.setupAIAssistantToggle();
+        this.setupAIAssistantChat();
+        this.setupAIAssistantSuggestions();
+    }
+
+    // Setup AI assistant toggle button
+    setupAIAssistantToggle() {
+        const toggle = document.getElementById('aiAssistantToggle');
+        const modal = document.getElementById('aiAssistantModal');
+        
+        if (!toggle || !modal) return;
+
+        toggle.addEventListener('click', () => {
+            modal.classList.toggle('active');
+            
+            if (modal.classList.contains('active')) {
+                // Focus on input when opened
+                const input = document.getElementById('aiAssistantInput');
+                if (input) {
+                    setTimeout(() => input.focus(), 300);
+                }
+            }
+        });
+
+        // Close modal when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.floating-ai-assistant') && modal.classList.contains('active')) {
+                modal.classList.remove('active');
+            }
+        });
+    }
+
+    // Setup AI assistant chat functionality
+    setupAIAssistantChat() {
+        const input = document.getElementById('aiAssistantInput');
+        const sendBtn = document.getElementById('aiAssistantSend');
+        const chat = document.getElementById('aiAssistantChat');
+        const closeBtn = document.getElementById('aiAssistantClose');
+        const modal = document.getElementById('aiAssistantModal');
+
+        if (!input || !sendBtn || !chat) return;
+
+        // Send message on button click
+        sendBtn.addEventListener('click', () => {
+            this.sendAIMessage();
+        });
+
+        // Send message on Enter key
+        input.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                this.sendAIMessage();
+            }
+        });
+
+        // Close modal
+        if (closeBtn && modal) {
+            closeBtn.addEventListener('click', () => {
+                modal.classList.remove('active');
+            });
+        }
+    }
+
+    // Send AI message
+    sendAIMessage() {
+        const input = document.getElementById('aiAssistantInput');
+        const chat = document.getElementById('aiAssistantChat');
+        
+        if (!input || !chat) return;
+
+        const message = input.value.trim();
+        if (!message) return;
+
+        // Add user message
+        this.addChatMessage(message, 'user');
+        
+        // Clear input
+        input.value = '';
+
+        // Simulate AI response
+        setTimeout(() => {
+            const response = this.generateAIResponse(message);
+            this.addChatMessage(response, 'ai');
+        }, 1000);
+    }
+
+    // Add chat message
+    addChatMessage(message, type) {
+        const chat = document.getElementById('aiAssistantChat');
+        if (!chat) return;
+
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `ai-assistant-message ${type === 'user' ? 'user-message' : 'ai-message'}`;
+
+        const avatar = document.createElement('div');
+        avatar.className = 'message-avatar';
+        
+        if (type === 'user') {
+            avatar.innerHTML = `
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+            `;
+        } else {
+            avatar.innerHTML = `
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+                </svg>
+            `;
+        }
+
+        const content = document.createElement('div');
+        content.className = 'message-content';
+        content.innerHTML = `<p>${message}</p>`;
+
+        messageDiv.appendChild(avatar);
+        messageDiv.appendChild(content);
+        chat.appendChild(messageDiv);
+
+        // Scroll to bottom
+        chat.scrollTop = chat.scrollHeight;
+    }
+
+    // Generate AI response
+    generateAIResponse(userMessage) {
+        const responses = {
+            'ai': [
+                "AI is currently one of the hottest topics in tech! Recent developments include large language models, computer vision breakthroughs, and AI-powered automation tools.",
+                "The AI landscape is rapidly evolving with new models being released regularly. Key areas of focus include natural language processing, machine learning, and neural networks.",
+                "AI technology is transforming industries from healthcare to finance. Recent news covers everything from ChatGPT alternatives to autonomous vehicles."
+            ],
+            'trending': [
+                "Based on current tech news, trending topics include quantum computing, blockchain technology, space exploration, and cybersecurity innovations.",
+                "The tech world is buzzing about new developments in renewable energy, electric vehicles, and smart city technologies.",
+                "Recent trending stories cover everything from new programming languages to breakthrough scientific discoveries."
+            ],
+            'explain': [
+                "I'd be happy to explain any tech story you're interested in! Could you provide more details about which specific article or topic you'd like me to break down?",
+                "To give you the best explanation, please share the title or key points of the story you'd like me to analyze.",
+                "I can help explain complex tech concepts in simple terms. What specific story or technology would you like me to clarify?"
+            ],
+            'similar': [
+                "I can help you find similar articles! Let me search through the current tech news for related stories and topics.",
+                "To find similar articles, I'll look for stories with related keywords, technologies, or themes. What specific topic are you interested in?",
+                "I can suggest related articles based on the current tech news feed. What type of content are you looking for?"
+            ],
+            'default': [
+                "That's an interesting question! I'm here to help you navigate the world of tech news and answer any questions you might have.",
+                "I can help you understand tech trends, explain complex topics, or find information about specific technologies. What would you like to know?",
+                "Great question! I'm designed to help you make sense of the fast-paced world of technology. How can I assist you today?"
+            ]
+        };
+
+        const message = userMessage.toLowerCase();
+        
+        if (message.includes('ai') || message.includes('artificial intelligence')) {
+            return this.getRandomResponse(responses.ai);
+        } else if (message.includes('trending') || message.includes('popular')) {
+            return this.getRandomResponse(responses.trending);
+        } else if (message.includes('explain') || message.includes('what is') || message.includes('how does')) {
+            return this.getRandomResponse(responses.explain);
+        } else if (message.includes('similar') || message.includes('related') || message.includes('find')) {
+            return this.getRandomResponse(responses.similar);
+        } else {
+            return this.getRandomResponse(responses.default);
+        }
+    }
+
+    // Get random response from array
+    getRandomResponse(responses) {
+        return responses[Math.floor(Math.random() * responses.length)];
+    }
+
+    // Setup AI assistant suggestions
+    setupAIAssistantSuggestions() {
+        const suggestionBtns = document.querySelectorAll('.suggestion-btn');
+        const input = document.getElementById('aiAssistantInput');
+        
+        if (!input) return;
+
+        suggestionBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const suggestion = btn.getAttribute('data-suggestion');
+                if (suggestion) {
+                    input.value = suggestion;
+                    input.focus();
+                }
+            });
+        });
+    }
+
+    // Setup live activity monitor with system metrics
+    setupLiveActivityMonitor() {
+        this.createSystemMetrics();
+        this.startActivityStream();
+        this.startSystemMonitoring();
+    }
+
+    // Create system metrics
+    createSystemMetrics() {
+        const systemMetrics = document.getElementById('systemMetrics');
+        if (!systemMetrics) return;
+
+        const metrics = [
+            {
+                id: 'cpu',
+                label: 'CPU Usage',
+                value: '45%',
+                icon: '⚡',
+                type: 'cpu'
+            },
+            {
+                id: 'memory',
+                label: 'Memory',
+                value: '2.1GB',
+                icon: '💾',
+                type: 'memory'
+            },
+            {
+                id: 'network',
+                label: 'Network',
+                value: '12.5MB/s',
+                icon: '🌐',
+                type: 'network'
+            },
+            {
+                id: 'storage',
+                label: 'Storage',
+                value: '156GB',
+                icon: '💿',
+                type: 'storage'
+            }
+        ];
+
+        systemMetrics.innerHTML = '';
+
+        metrics.forEach(metric => {
+            const metricDiv = document.createElement('div');
+            metricDiv.className = 'system-metric';
+            metricDiv.innerHTML = `
+                <div class="system-metric-icon ${metric.type}">
+                    <span>${metric.icon}</span>
+                </div>
+                <div class="system-metric-info">
+                    <div class="system-metric-label">${metric.label}</div>
+                    <div class="system-metric-value">${metric.value}</div>
+                </div>
+            `;
+            systemMetrics.appendChild(metricDiv);
+        });
+    }
+
+    // Start activity stream
+    startActivityStream() {
+        const activityStream = document.getElementById('activityStream');
+        if (!activityStream) return;
+
+        // Generate initial activities
+        this.generateActivityEvents();
+
+        // Add new activities periodically
+        setInterval(() => {
+            this.addActivityEvent();
+        }, 3000);
+    }
+
+    // Generate initial activity events
+    generateActivityEvents() {
+        const activityStream = document.getElementById('activityStream');
+        if (!activityStream) return;
+
+        const initialActivities = [
+            {
+                type: 'user-join',
+                message: 'New user joined the platform',
+                time: '2 minutes ago',
+                location: 'San Francisco, CA'
+            },
+            {
+                type: 'story-read',
+                message: 'User read "AI Breakthrough in Neural Networks"',
+                time: '5 minutes ago',
+                location: 'New York, NY'
+            },
+            {
+                type: 'comment',
+                message: 'New comment on "Quantum Computing Update"',
+                time: '8 minutes ago',
+                location: 'London, UK'
+            },
+            {
+                type: 'share',
+                message: 'Story shared on social media',
+                time: '12 minutes ago',
+                location: 'Tokyo, Japan'
+            }
+        ];
+
+        initialActivities.forEach(activity => {
+            this.addActivityEvent(activity);
+        });
+    }
+
+    // Add activity event
+    addActivityEvent(activity = null) {
+        const activityStream = document.getElementById('activityStream');
+        if (!activityStream) return;
+
+        if (!activity) {
+            activity = this.generateRandomActivity();
+        }
+
+        const eventDiv = document.createElement('div');
+        eventDiv.className = 'activity-event';
+        eventDiv.innerHTML = `
+            <div class="activity-event-icon ${activity.type}">
+                <span>${this.getActivityIcon(activity.type)}</span>
+            </div>
+            <div class="activity-event-content">
+                <div class="activity-event-message">${activity.message}</div>
+                <div class="activity-event-time">${activity.time}</div>
+                ${activity.location ? `<div class="activity-event-location">${activity.location}</div>` : ''}
+            </div>
+        `;
+
+        // Add to top of stream
+        activityStream.insertBefore(eventDiv, activityStream.firstChild);
+
+        // Remove old events if too many
+        const events = activityStream.querySelectorAll('.activity-event');
+        if (events.length > 10) {
+            events[events.length - 1].remove();
+        }
+    }
+
+    // Generate random activity
+    generateRandomActivity() {
+        const activities = [
+            {
+                type: 'user-join',
+                messages: [
+                    'New user joined the platform',
+                    'User registered for tech updates',
+                    'New member joined the community'
+                ],
+                locations: ['San Francisco, CA', 'New York, NY', 'London, UK', 'Tokyo, Japan', 'Berlin, Germany']
+            },
+            {
+                type: 'story-read',
+                messages: [
+                    'User read trending tech story',
+                    'Article viewed by new reader',
+                    'Story engagement increased'
+                ],
+                locations: ['Global', 'North America', 'Europe', 'Asia']
+            },
+            {
+                type: 'comment',
+                messages: [
+                    'New comment on tech discussion',
+                    'User engaged with article',
+                    'Community discussion started'
+                ],
+                locations: ['Online', 'Community Forum', 'Discussion Board']
+            },
+            {
+                type: 'share',
+                messages: [
+                    'Story shared on social media',
+                    'Article bookmarked by user',
+                    'Content shared with network'
+                ],
+                locations: ['Twitter', 'LinkedIn', 'Facebook', 'Reddit']
+            },
+            {
+                type: 'search',
+                messages: [
+                    'User searched for tech topics',
+                    'New search query processed',
+                    'Search trend detected'
+                ],
+                locations: ['Search Engine', 'Platform Search', 'Global']
+            },
+            {
+                type: 'bookmark',
+                messages: [
+                    'Article bookmarked for later',
+                    'User saved interesting story',
+                    'Content added to reading list'
+                ],
+                locations: ['Personal Library', 'Reading List', 'Bookmarks']
+            }
+        ];
+
+        const randomActivity = activities[Math.floor(Math.random() * activities.length)];
+        const randomMessage = randomActivity.messages[Math.floor(Math.random() * randomActivity.messages.length)];
+        const randomLocation = randomActivity.locations[Math.floor(Math.random() * randomActivity.locations.length)];
+
+        return {
+            type: randomActivity.type,
+            message: randomMessage,
+            time: this.getRandomTimeAgo(),
+            location: randomLocation
+        };
+    }
+
+    // Get activity icon
+    getActivityIcon(type) {
+        const icons = {
+            'user-join': '👤',
+            'story-read': '📖',
+            'comment': '💬',
+            'share': '📤',
+            'search': '🔍',
+            'bookmark': '🔖'
+        };
+        return icons[type] || '📊';
+    }
+
+    // Get random time ago
+    getRandomTimeAgo() {
+        const times = [
+            'Just now',
+            '1 minute ago',
+            '2 minutes ago',
+            '5 minutes ago',
+            '10 minutes ago',
+            '15 minutes ago',
+            '30 minutes ago',
+            '1 hour ago'
+        ];
+        return times[Math.floor(Math.random() * times.length)];
+    }
+
+    // Start system monitoring
+    startSystemMonitoring() {
+        // Update system metrics every 5 seconds
+        setInterval(() => {
+            this.updateSystemMetrics();
+        }, 5000);
+    }
+
+    // Update system metrics
+    updateSystemMetrics() {
+        const metrics = document.querySelectorAll('.system-metric-value');
+        if (!metrics.length) return;
+
+        // Update CPU usage
+        if (metrics[0]) {
+            const cpuUsage = Math.floor(Math.random() * 30) + 20; // 20-50%
+            metrics[0].textContent = `${cpuUsage}%`;
+        }
+
+        // Update memory usage
+        if (metrics[1]) {
+            const memoryUsage = (Math.random() * 2 + 1.5).toFixed(1); // 1.5-3.5GB
+            metrics[1].textContent = `${memoryUsage}GB`;
+        }
+
+        // Update network speed
+        if (metrics[2]) {
+            const networkSpeed = (Math.random() * 20 + 5).toFixed(1); // 5-25MB/s
+            metrics[2].textContent = `${networkSpeed}MB/s`;
+        }
+
+        // Update storage
+        if (metrics[3]) {
+            const storage = Math.floor(Math.random() * 50) + 120; // 120-170GB
+            metrics[3].textContent = `${storage}GB`;
+        }
+    }
+
+    // Setup enhanced right panel with advanced features
+    setupEnhancedRightPanel() {
+        this.setupPanelHeaderEffects();
+        this.setupNewsTabs();
+        this.setupNewsSorting();
+        this.setupPanelActions();
+        this.setupNewsInteractions();
+        this.setupLoadingStates();
+    }
+
+    // Setup panel header effects
+    setupPanelHeaderEffects() {
+        this.createPanelHeaderParticles();
+        this.updatePanelStats();
+    }
+
+    // Create panel header particles
+    createPanelHeaderParticles() {
+        const particlesContainer = document.getElementById('panelHeaderParticles');
+        if (!particlesContainer) return;
+
+        const particleCount = 8;
+        
+        for (let i = 0; i < particleCount; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'panel-header-particle';
+            
+            // Random positioning
+            particle.style.left = Math.random() * 100 + '%';
+            particle.style.top = Math.random() * 100 + '%';
+            
+            // Random animation delay
+            particle.style.animationDelay = Math.random() * 6 + 's';
+            
+            // Random animation duration
+            particle.style.animationDuration = (4 + Math.random() * 4) + 's';
+            
+            particlesContainer.appendChild(particle);
+        }
+    }
+
+    // Update panel stats
+    updatePanelStats() {
+        const storyCount = document.getElementById('panelStoryCount');
+        const updateTime = document.getElementById('panelUpdateTime');
+        
+        if (storyCount) {
+            const currentStories = document.querySelectorAll('.story').length;
+            this.animateValue(storyCount, parseInt(storyCount.textContent) || 0, currentStories, 1000);
+        }
+        
+        if (updateTime) {
+            const timeAgo = this.getTimeAgo();
+            updateTime.textContent = timeAgo;
+        }
+    }
+
+    // Get time ago string
+    getTimeAgo() {
+        const now = new Date();
+        const lastUpdate = this.lastFetchTime || now;
+        const diffMs = now - lastUpdate;
+        const diffMins = Math.floor(diffMs / 60000);
+        
+        if (diffMins < 1) return 'now';
+        if (diffMins < 60) return `${diffMins}m`;
+        const diffHours = Math.floor(diffMins / 60);
+        if (diffHours < 24) return `${diffHours}h`;
+        const diffDays = Math.floor(diffHours / 24);
+        return `${diffDays}d`;
+    }
+
+    // Setup news tabs
+    setupNewsTabs() {
+        const tabs = document.querySelectorAll('.news-tab');
+        if (!tabs.length) return;
+
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                // Remove active class from all tabs
+                tabs.forEach(t => t.classList.remove('active'));
+                
+                // Add active class to clicked tab
+                tab.classList.add('active');
+                
+                // Filter stories based on category
+                const category = tab.getAttribute('data-category');
+                this.filterStoriesByCategory(category);
+            });
+        });
+    }
+
+    // Filter stories by category
+    filterStoriesByCategory(category) {
+        const stories = document.querySelectorAll('.story');
+        if (!stories.length) return;
+
+        stories.forEach(story => {
+            const storyCategory = story.getAttribute('data-category') || 'all';
+            const isTrending = story.classList.contains('trending');
+            
+            let shouldShow = false;
+            
+            switch (category) {
+                case 'all':
+                    shouldShow = true;
+                    break;
+                case 'trending':
+                    shouldShow = isTrending;
+                    break;
+                case 'ai':
+                    shouldShow = storyCategory === 'ai';
+                    break;
+                case 'tech':
+                    shouldShow = storyCategory === 'tech';
+                    break;
+                case 'startup':
+                    shouldShow = storyCategory === 'startup';
+                    break;
+                default:
+                    shouldShow = true;
+            }
+            
+            if (shouldShow) {
+                story.style.display = 'block';
+                story.style.animation = 'storySlideIn 0.5s ease-out';
+            } else {
+                story.style.display = 'none';
+            }
+        });
+    }
+
+    // Setup news sorting
+    setupNewsSorting() {
+        const sortSelect = document.getElementById('sortSelect');
+        if (!sortSelect) return;
+
+        sortSelect.addEventListener('change', (e) => {
+            const sortBy = e.target.value;
+            this.sortStories(sortBy);
+        });
+    }
+
+    // Sort stories
+    sortStories(sortBy) {
+        const storiesContainer = document.getElementById('stories');
+        if (!storiesContainer) return;
+
+        const stories = Array.from(storiesContainer.querySelectorAll('.story'));
+        
+        stories.sort((a, b) => {
+            switch (sortBy) {
+                case 'score':
+                    const scoreA = parseInt(a.getAttribute('data-score')) || 0;
+                    const scoreB = parseInt(b.getAttribute('data-score')) || 0;
+                    return scoreB - scoreA;
+                case 'time':
+                    const timeA = new Date(a.getAttribute('data-time') || 0);
+                    const timeB = new Date(b.getAttribute('data-time') || 0);
+                    return timeB - timeA;
+                case 'comments':
+                    const commentsA = parseInt(a.getAttribute('data-comments')) || 0;
+                    const commentsB = parseInt(b.getAttribute('data-comments')) || 0;
+                    return commentsB - commentsA;
+                default:
+                    return 0;
+            }
+        });
+
+        // Re-append sorted stories
+        stories.forEach((story, index) => {
+            storiesContainer.appendChild(story);
+            story.style.animation = `storySlideIn 0.5s ease-out ${index * 0.1}s both`;
+        });
+    }
+
+    // Setup panel actions
+    setupPanelActions() {
+        const refreshBtn = document.getElementById('refreshBtn');
+        const notificationsBtn = document.getElementById('notificationsBtn');
+        const filterBtn = document.getElementById('filterBtn');
+        const settingsBtn = document.getElementById('settingsBtn');
+
+        if (refreshBtn) {
+            refreshBtn.addEventListener('click', () => {
+                this.handleRefresh();
+            });
+        }
+
+        if (notificationsBtn) {
+            notificationsBtn.addEventListener('click', () => {
+                this.handleNotifications();
+            });
+        }
+
+        if (filterBtn) {
+            filterBtn.addEventListener('click', () => {
+                this.handleFilter();
+            });
+        }
+
+        if (settingsBtn) {
+            settingsBtn.addEventListener('click', () => {
+                this.handleSettings();
+            });
+        }
+    }
+
+    // Handle refresh action
+    async handleRefresh() {
+        const refreshBtn = document.getElementById('refreshBtn');
+        if (!refreshBtn) return;
+
+        // Add loading state
+        refreshBtn.classList.add('loading');
+        refreshBtn.disabled = true;
+
+        try {
+            // Force refresh stories
+            await this.loadStories();
+            this.showNotification('Stories refreshed successfully!', 'success');
+        } catch (error) {
+            this.showNotification('Failed to refresh stories', 'error');
+        } finally {
+            // Remove loading state
+            refreshBtn.classList.remove('loading');
+            refreshBtn.disabled = false;
+        }
+    }
+
+    // Handle notifications
+    handleNotifications() {
+        const badge = document.getElementById('notificationBadge');
+        if (badge) {
+            // Clear notifications
+            badge.textContent = '0';
+            badge.style.display = 'none';
+        }
+        this.showNotification('Notifications cleared', 'info');
+    }
+
+    // Handle filter
+    handleFilter() {
+        // Toggle filter panel (could be implemented as a dropdown)
+        this.showNotification('Filter options opened', 'info');
+    }
+
+    // Handle settings
+    handleSettings() {
+        // Open settings modal (could be implemented)
+        this.showNotification('Settings opened', 'info');
+    }
+
+    // Setup news interactions
+    setupNewsInteractions() {
+        // Add bookmark functionality
+        document.addEventListener('click', (e) => {
+            if (e.target.closest('.bookmark-btn')) {
+                this.handleBookmark(e.target.closest('.bookmark-btn'));
+            }
+            
+            if (e.target.closest('.share-btn')) {
+                this.handleShare(e.target.closest('.share-btn'));
+            }
+            
+            if (e.target.closest('.read-later-btn')) {
+                this.handleReadLater(e.target.closest('.read-later-btn'));
+            }
+        });
+    }
+
+    // Handle bookmark
+    handleBookmark(btn) {
+        const story = btn.closest('.story');
+        const storyId = story.getAttribute('data-id');
+        
+        if (btn.classList.contains('bookmarked')) {
+            btn.classList.remove('bookmarked');
+            btn.innerHTML = '🔖';
+            this.showNotification('Removed from bookmarks', 'info');
+        } else {
+            btn.classList.add('bookmarked');
+            btn.innerHTML = '🔖';
+            btn.style.color = '#f59e0b';
+            this.showNotification('Added to bookmarks', 'success');
+        }
+    }
+
+    // Handle share
+    handleShare(btn) {
+        const story = btn.closest('.story');
+        const title = story.querySelector('.story-title').textContent;
+        const url = story.getAttribute('data-url');
+        
+        if (navigator.share) {
+            navigator.share({
+                title: title,
+                url: url
+            });
+        } else {
+            // Fallback to clipboard
+            navigator.clipboard.writeText(url);
+            this.showNotification('Link copied to clipboard', 'success');
+        }
+    }
+
+    // Handle read later
+    handleReadLater(btn) {
+        const story = btn.closest('.story');
+        const storyId = story.getAttribute('data-id');
+        
+        if (btn.classList.contains('read-later')) {
+            btn.classList.remove('read-later');
+            btn.innerHTML = '📖';
+            this.showNotification('Removed from reading list', 'info');
+        } else {
+            btn.classList.add('read-later');
+            btn.innerHTML = '📖';
+            btn.style.color = '#10b981';
+            this.showNotification('Added to reading list', 'success');
+        }
+    }
+
+    // Setup loading states
+    setupLoadingStates() {
+        const retryBtn = document.getElementById('retryBtn');
+        if (retryBtn) {
+            retryBtn.addEventListener('click', () => {
+                this.handleRetry();
+            });
+        }
+    }
+
+    // Handle retry
+    async handleRetry() {
+        const errorState = document.getElementById('error');
+        const loadingState = document.getElementById('loading');
+        
+        if (errorState) errorState.style.display = 'none';
+        if (loadingState) loadingState.style.display = 'flex';
+        
+        try {
+            await this.loadStories();
+        } catch (error) {
+            if (errorState) errorState.style.display = 'flex';
+            if (loadingState) loadingState.style.display = 'none';
+        }
+    }
+
+    // Show notification
+    showNotification(message, type = 'info') {
+        // Create notification element
+        const notification = document.createElement('div');
+        notification.className = `notification notification-${type}`;
+        notification.innerHTML = `
+            <div class="notification-content">
+                <span class="notification-icon">${this.getNotificationIcon(type)}</span>
+                <span class="notification-message">${message}</span>
+            </div>
+        `;
+        
+        // Add styles
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(17, 24, 39, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 12px 16px;
+            color: white;
+            font-size: 14px;
+            z-index: 10000;
+            backdrop-filter: blur(12px);
+            animation: notificationSlideIn 0.3s ease-out;
+        `;
+        
+        document.body.appendChild(notification);
+        
+        // Remove after 3 seconds
+        setTimeout(() => {
+            notification.style.animation = 'notificationSlideOut 0.3s ease-out';
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.parentNode.removeChild(notification);
+                }
+            }, 300);
+        }, 3000);
+    }
+
+    // Get notification icon
+    getNotificationIcon(type) {
+        const icons = {
+            success: '✅',
+            error: '❌',
+            info: 'ℹ️',
+            warning: '⚠️'
+        };
+        return icons[type] || 'ℹ️';
     }
 }
 

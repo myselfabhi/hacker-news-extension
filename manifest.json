@@ -11,6 +11,10 @@
   ],
   "host_permissions": [
     "https://hacker-news.firebaseio.com/*",
+    "https://api.allorigins.win/*",
+    "https://cors-anywhere.herokuapp.com/*",
+    "https://thingproxy.freeboard.io/*",
+    "https://corsproxy.io/*",
     "http://localhost:3000/*"
   ],
   "background": {
