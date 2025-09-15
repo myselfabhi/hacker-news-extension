@@ -1464,6 +1464,42 @@ body {
     border: 1px solid rgba(168, 85, 247, 0.3);
 }
 
+.story-category.hacker-news {
+    background: linear-gradient(135deg, rgba(255, 102, 0, 0.2) 0%, rgba(255, 102, 0, 0.1) 100%);
+    color: #ff6600;
+    border: 1px solid rgba(255, 102, 0, 0.3);
+}
+
+.story-category.ask-hn {
+    background: linear-gradient(135deg, rgba(165, 94, 234, 0.2) 0%, rgba(165, 94, 234, 0.1) 100%);
+    color: #a55eea;
+    border: 1px solid rgba(165, 94, 234, 0.3);
+}
+
+.story-category.show-hn {
+    background: linear-gradient(135deg, rgba(38, 222, 129, 0.2) 0%, rgba(38, 222, 129, 0.1) 100%);
+    color: #26de81;
+    border: 1px solid rgba(38, 222, 129, 0.3);
+}
+
+.story-category.dev {
+    background: linear-gradient(135deg, rgba(240, 147, 43, 0.2) 0%, rgba(240, 147, 43, 0.1) 100%);
+    color: #f0932b;
+    border: 1px solid rgba(240, 147, 43, 0.3);
+}
+
+.story-category.security {
+    background: linear-gradient(135deg, rgba(255, 56, 56, 0.2) 0%, rgba(255, 56, 56, 0.1) 100%);
+    color: #ff3838;
+    border: 1px solid rgba(255, 56, 56, 0.3);
+}
+
+.story-category.science {
+    background: linear-gradient(135deg, rgba(46, 213, 115, 0.2) 0%, rgba(46, 213, 115, 0.1) 100%);
+    color: #2ed573;
+    border: 1px solid rgba(46, 213, 115, 0.3);
+}
+
 .trending-badge {
     background: linear-gradient(135deg, rgba(34, 197, 94, 0.2) 0%, rgba(16, 185, 129, 0.1) 100%);
     color: #10b981;

@@ -552,9 +552,10 @@ class NewTabHackerNewsReader {
                         console.warn(`Failed to fetch story ${storyId}:`, error.message);
                         // Continue with other stories
                     }
-            }
-            
+                }
+                
                 console.log(`Successfully fetched ${stories.length} story details`);
+                
                 return stories;
             
         } catch (error) {
@@ -576,6 +577,8 @@ class NewTabHackerNewsReader {
     async fetchStoryDetails(storyId) {
         try {
             let response;
+            let usedProxy = false;
+            
             try {
                 // Try direct fetch first
                 const controller = new AbortController();
@@ -591,8 +594,11 @@ class NewTabHackerNewsReader {
                 
                 clearTimeout(timeoutId);
             } catch (directError) {
+                usedProxy = true;
+                
                 // Try CORS proxy
                 const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(`https://hacker-news.firebaseio.com/v0/item/${storyId}.json`)}`;
+                
                 const controller = new AbortController();
                 const timeoutId = setTimeout(() => controller.abort(), 8000);
                 
@@ -616,8 +622,14 @@ class NewTabHackerNewsReader {
             
             try {
                 const data = JSON.parse(responseText);
+                
                 // Handle CORS proxy response format
-                story = data.contents ? JSON.parse(data.contents) : data;
+                if (usedProxy && data.contents) {
+                    story = JSON.parse(data.contents);
+                } else {
+                    story = data;
+                }
+                
             } catch (parseError) {
                 story = JSON.parse(responseText);
             }
@@ -628,6 +640,7 @@ class NewTabHackerNewsReader {
             }
             
             return story;
+            
         } catch (error) {
             console.warn(`Failed to fetch story ${storyId}:`, error.message);
             return null;
@@ -641,11 +654,17 @@ class NewTabHackerNewsReader {
         const loadMoreBtn = document.getElementById('loadMoreBtn');
         
         // Hide loading
-        if (loadingElement) loadingElement.style.display = 'none';
-        if (storiesContainer) storiesContainer.style.display = 'flex';
+        if (loadingElement) {
+            loadingElement.style.display = 'none';
+        }
+        if (storiesContainer) {
+            storiesContainer.style.display = 'flex';
+        }
         
         // Clear previous stories
-        if (storiesContainer) storiesContainer.innerHTML = '';
+        if (storiesContainer) {
+            storiesContainer.innerHTML = '';
+        }
         
         // Filter out any null stories (failed fetches)
         const validStories = this.stories.filter(story => story !== null);
@@ -728,13 +747,14 @@ class NewTabHackerNewsReader {
             <div class="story-engagement">
                 <div class="engagement-item">
                     <svg class="engagement-icon" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                        <path d="M21.99 4c0-1.1-.89-2-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14l4 4-.01-18zM18 14H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/>
                     </svg>
                     <span>${story.descendants || 0}</span>
                 </div>
                 <div class="engagement-item">
                     <svg class="engagement-icon" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
+                        <path d="M7 14l5-5 5 5z"/>
+                        <path d="M0 0h24v24H0z" fill="none"/>
                     </svg>
                     <span>${this.formatViewCount(story.score || 0)}</span>
                 </div>
@@ -758,17 +778,62 @@ class NewTabHackerNewsReader {
         return storyDiv;
     }
 
-    // Get story category based on URL or content
+    // Get story category based on URL, title, or content
     getStoryCategory(story) {
-        if (!story.url) return 'HN';
+        // Simple categorization - just return HACKER NEWS for all stories
+        return 'HACKER NEWS';
         
-        const url = story.url.toLowerCase();
+        /* Advanced categorization (commented out for now)
+        const title = (story.title || '').toLowerCase();
+        const url = (story.url || '').toLowerCase();
         
-        if (url.includes('github.com')) return 'GITHUB';
-        if (url.includes('ai') || url.includes('machine-learning') || url.includes('neural')) return 'AI NEWS';
-        if (url.includes('tech') || url.includes('technology')) return 'TECH';
+        // Check for Ask HN posts
+        if (title.startsWith('ask hn:') || !story.url) return 'ASK HN';
         
-        return 'HN';
+        // Check for Show HN posts
+        if (title.startsWith('show hn:')) return 'SHOW HN';
+        
+        // AI/ML related
+        if (title.includes('ai') || title.includes('artificial intelligence') || 
+            title.includes('machine learning') || title.includes('neural') ||
+            title.includes('llm') || title.includes('gpt') || title.includes('openai')) {
+            return 'AI';
+        }
+        
+        // Programming/Development
+        if (title.includes('programming') || title.includes('coding') || 
+            title.includes('developer') || title.includes('software') ||
+            title.includes('javascript') || title.includes('python') || 
+            title.includes('react') || title.includes('node') ||
+            url.includes('github.com') || url.includes('stackoverflow.com')) {
+            return 'DEV';
+        }
+        
+        // Technology
+        if (title.includes('tech') || title.includes('technology') || 
+            title.includes('startup') || title.includes('business') ||
+            title.includes('company') || title.includes('funding')) {
+            return 'TECH';
+        }
+        
+        // Security
+        if (title.includes('security') || title.includes('hack') || 
+            title.includes('vulnerability') || title.includes('breach') ||
+            title.includes('crypto') || title.includes('bitcoin') || 
+            title.includes('blockchain')) {
+            return 'SECURITY';
+        }
+        
+        // Science
+        if (title.includes('science') || title.includes('research') || 
+            title.includes('study') || title.includes('university') ||
+            title.includes('space') || title.includes('physics') ||
+            title.includes('biology') || title.includes('chemistry')) {
+            return 'SCIENCE';
+        }
+        
+        return 'HACKER NEWS';
+        */
     }
 
     // Check if story is trending (high score or recent)
@@ -777,8 +842,13 @@ class NewTabHackerNewsReader {
         const timeAgo = Date.now() / 1000 - story.time;
         const hoursAgo = timeAgo / 3600;
         
-        // Trending if high score or very recent with decent score
-        return score > 200 || (hoursAgo < 2 && score > 50);
+        // More sophisticated trending logic
+        if (score >= 500) return true; // Very high score
+        if (score >= 200 && hoursAgo < 6) return true; // High score + recent
+        if (score >= 100 && hoursAgo < 2) return true; // Good score + very recent
+        if (score >= 50 && hoursAgo < 1) return true; // Decent score + just posted
+        
+        return false;
     }
 
     // Format view count for display
@@ -3977,64 +4047,66 @@ class NewTabHackerNewsReader {
         return `${diffDays}d`;
     }
 
-    // Setup news tabs
+    // Setup news tabs (commented out since we simplified categorization)
     setupNewsTabs() {
-        const tabs = document.querySelectorAll('.news-tab');
-        if (!tabs.length) return;
+        // News tabs functionality commented out since we removed the tabs from HTML
+        // const tabs = document.querySelectorAll('.news-tab');
+        // if (!tabs.length) return;
 
-        tabs.forEach(tab => {
-            tab.addEventListener('click', () => {
-                // Remove active class from all tabs
-                tabs.forEach(t => t.classList.remove('active'));
-                
-                // Add active class to clicked tab
-                tab.classList.add('active');
-                
-                // Filter stories based on category
-                const category = tab.getAttribute('data-category');
-                this.filterStoriesByCategory(category);
-            });
-        });
+        // tabs.forEach(tab => {
+        //     tab.addEventListener('click', () => {
+        //         // Remove active class from all tabs
+        //         tabs.forEach(t => t.classList.remove('active'));
+        //         
+        //         // Add active class to clicked tab
+        //         tab.classList.add('active');
+        //         
+        //         // Filter stories based on category
+        //         const category = tab.getAttribute('data-category');
+        //         this.filterStoriesByCategory(category);
+        //     });
+        // });
     }
 
-    // Filter stories by category
+    // Filter stories by category (commented out since we simplified categorization)
     filterStoriesByCategory(category) {
-        const stories = document.querySelectorAll('.story');
-        if (!stories.length) return;
+        // Category filtering functionality commented out since we removed the tabs
+        // const stories = document.querySelectorAll('.story');
+        // if (!stories.length) return;
 
-        stories.forEach(story => {
-            const storyCategory = story.getAttribute('data-category') || 'all';
-            const isTrending = story.classList.contains('trending');
-            
-            let shouldShow = false;
-            
-            switch (category) {
-                case 'all':
-                    shouldShow = true;
-                    break;
-                case 'trending':
-                    shouldShow = isTrending;
-                    break;
-                case 'ai':
-                    shouldShow = storyCategory === 'ai';
-                    break;
-                case 'tech':
-                    shouldShow = storyCategory === 'tech';
-                    break;
-                case 'startup':
-                    shouldShow = storyCategory === 'startup';
-                    break;
-                default:
-                    shouldShow = true;
-            }
-            
-            if (shouldShow) {
-                story.style.display = 'block';
-                story.style.animation = 'storySlideIn 0.5s ease-out';
-            } else {
-                story.style.display = 'none';
-            }
-        });
+        // stories.forEach(story => {
+        //     const storyCategory = story.getAttribute('data-category') || 'all';
+        //     const isTrending = story.classList.contains('trending');
+        //     
+        //     let shouldShow = false;
+        //     
+        //     switch (category) {
+        //         case 'all':
+        //             shouldShow = true;
+        //             break;
+        //         case 'trending':
+        //             shouldShow = isTrending;
+        //             break;
+        //         case 'ai':
+        //             shouldShow = storyCategory === 'ai';
+        //             break;
+        //         case 'tech':
+        //             shouldShow = storyCategory === 'tech';
+        //             break;
+        //         case 'startup':
+        //             shouldShow = storyCategory === 'startup';
+        //             break;
+        //         default:
+        //             shouldShow = true;
+        //     }
+        //     
+        //     if (shouldShow) {
+        //         story.style.display = 'block';
+        //         story.style.animation = 'storySlideIn 0.5s ease-out';
+        //     } else {
+        //         story.style.display = 'none';
+        //     }
+        // });
     }
 
     // Setup news sorting
@@ -4162,23 +4234,45 @@ class NewTabHackerNewsReader {
     setupNewsInteractions() {
         // Add bookmark functionality
         document.addEventListener('click', (e) => {
-            if (e.target.closest('.bookmark-btn')) {
-                this.handleBookmark(e.target.closest('.bookmark-btn'));
+            const bookmarkBtn = e.target.closest('.bookmark-btn');
+            if (bookmarkBtn) {
+                e.preventDefault();
+                e.stopPropagation();
+                this.handleBookmark(bookmarkBtn);
+                return;
             }
             
-            if (e.target.closest('.share-btn')) {
-                this.handleShare(e.target.closest('.share-btn'));
+            const shareBtn = e.target.closest('.share-btn');
+            if (shareBtn) {
+                e.preventDefault();
+                e.stopPropagation();
+                this.handleShare(shareBtn);
+                return;
             }
             
-            if (e.target.closest('.read-later-btn')) {
-                this.handleReadLater(e.target.closest('.read-later-btn'));
+            const readLaterBtn = e.target.closest('.read-later-btn');
+            if (readLaterBtn) {
+                e.preventDefault();
+                e.stopPropagation();
+                this.handleReadLater(readLaterBtn);
+                return;
             }
         });
     }
 
     // Handle bookmark
     handleBookmark(btn) {
+        if (!btn || typeof btn.closest !== 'function') {
+            console.warn('Invalid button element in handleBookmark');
+            return;
+        }
+        
         const story = btn.closest('.story');
+        if (!story) {
+            console.warn('Could not find parent story element');
+            return;
+        }
+        
         const storyId = story.getAttribute('data-id');
         
         if (btn.classList.contains('bookmarked')) {
@@ -4195,9 +4289,20 @@ class NewTabHackerNewsReader {
 
     // Handle share
     handleShare(btn) {
+        if (!btn || typeof btn.closest !== 'function') {
+            console.warn('Invalid button element in handleShare');
+            return;
+        }
+        
         const story = btn.closest('.story');
-        const title = story.querySelector('.story-title').textContent;
-        const url = story.getAttribute('data-url');
+        if (!story) {
+            console.warn('Could not find parent story element');
+            return;
+        }
+        
+        const titleElement = story.querySelector('.story-title');
+        const title = titleElement ? titleElement.textContent : 'Untitled';
+        const url = story.getAttribute('data-url') || '';
         
         if (navigator.share) {
             navigator.share({
@@ -4213,7 +4318,17 @@ class NewTabHackerNewsReader {
 
     // Handle read later
     handleReadLater(btn) {
+        if (!btn || typeof btn.closest !== 'function') {
+            console.warn('Invalid button element in handleReadLater');
+            return;
+        }
+        
         const story = btn.closest('.story');
+        if (!story) {
+            console.warn('Could not find parent story element');
+            return;
+        }
+        
         const storyId = story.getAttribute('data-id');
         
         if (btn.classList.contains('read-later')) {
