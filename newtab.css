@@ -3615,6 +3615,51 @@ input[type="checkbox"] {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    position: relative;
+}
+
+/* Auth Icon Container */
+.auth-icon-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 20;
+}
+
+.auth-icon-btn {
+    background: rgba(59, 130, 246, 0.1);
+    border: 2px solid rgba(59, 130, 246, 0.3);
+    border-radius: 12px;
+    padding: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+    color: #60a5fa;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+}
+
+.auth-icon-btn:hover {
+    background: rgba(59, 130, 246, 0.2);
+    border-color: rgba(59, 130, 246, 0.5);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(59, 130, 246, 0.3);
+    color: #93c5fd;
+}
+
+.auth-icon-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.2);
+}
+
+.auth-icon-btn svg {
+    transition: transform 0.3s ease;
+}
+
+.auth-icon-btn:hover svg {
+    transform: scale(1.1);
 }
 
 .user-info {

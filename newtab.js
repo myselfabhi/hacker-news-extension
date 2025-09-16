@@ -331,6 +331,9 @@ class NewTabHackerNewsReader {
 
         // Authentication event listeners
         this.setupAuthEventListeners();
+        
+        // Auth icon event listener
+        this.setupAuthIconListener();
 
         // Setup crazy search bar
         this.setupCrazySearchBar();
@@ -1721,6 +1724,16 @@ class NewTabHackerNewsReader {
 
         // Check authentication status on load
         this.checkAuthStatus();
+    }
+
+    // Setup auth icon event listener
+    setupAuthIconListener() {
+        const authIconBtn = document.getElementById('authIconBtn');
+        if (authIconBtn) {
+            authIconBtn.addEventListener('click', () => {
+                this.showAuthModal('login');
+            });
+        }
     }
 
     // Show authentication modal
