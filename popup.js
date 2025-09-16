@@ -401,7 +401,7 @@ class HackerNewsReader {
             
             // Show success message with specific feedback
             const message = newTabEnabled 
-                ? 'New tab override enabled! New tabs will show Hacker News.'
+                ? 'New tab override enabled! New tabs will show VU tech.'
                 : 'New tab override disabled! New tabs will show Chrome default.';
             this.showSuccessMessage(message);
             

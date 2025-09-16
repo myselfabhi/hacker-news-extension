@@ -1,8 +1,8 @@
-{
+ {
   "manifest_version": 3,
   "name": "VU tech",
   "version": "1.2",
-  "description": "A modern Chrome extension to read Hacker News stories with a beautiful interface",
+  "description": "VU tech - A modern Chrome extension to read tech news stories with a beautiful interface",
   "permissions": [
     "storage",
     "activeTab",
@@ -11,11 +11,10 @@
   ],
   "host_permissions": [
     "https://hacker-news.firebaseio.com/*",
+    "http://localhost:3000/*",
     "https://api.allorigins.win/*",
-    "https://cors-anywhere.herokuapp.com/*",
     "https://thingproxy.freeboard.io/*",
-    "https://corsproxy.io/*",
-    "http://localhost:3000/*"
+    "https://cors-anywhere.herokuapp.com/*"
   ],
   "background": {
     "service_worker": "background.js"

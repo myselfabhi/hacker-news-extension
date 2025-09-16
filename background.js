@@ -270,5 +270,63 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         console.log('Force refresh requested from UI');
         refreshStoriesInBackground();
         sendResponse({ success: true });
+    } else if (message.type === 'FETCH_STORIES') {
+        console.log('Fetch stories requested from UI');
+        handleFetchStories(sendResponse);
+        return true; // Keep the message channel open for async response
     }
 });
+
+// Handle fetch stories request
+async function handleFetchStories(sendResponse) {
+    try {
+        // First check if we have fresh cache
+        const cached = await hnCache.getCachedStories();
+        if (cached && hnCache.isCacheFresh(cached.timestamp)) {
+            console.log('Returning fresh cached stories');
+            sendResponse({ 
+                success: true, 
+                stories: cached.stories,
+                fromCache: true 
+            });
+            return;
+        }
+        
+        // Cache is stale or empty, fetch fresh data
+        console.log('Cache is stale/empty, fetching fresh stories...');
+        const stories = await fetchStoriesFromAPI();
+        
+        if (stories && stories.length > 0) {
+            // Save to cache
+            await hnCache.saveStoriesToCache(stories);
+            console.log('Fresh stories fetched and cached');
+            sendResponse({ 
+                success: true, 
+                stories: stories,
+                fromCache: false 
+            });
+        } else {
+            throw new Error('No stories received from API');
+        }
+        
+    } catch (error) {
+        console.error('Failed to fetch stories:', error);
+        
+        // Try to return stale cache as fallback
+        const cached = await hnCache.getCachedStories();
+        if (cached && cached.stories && cached.stories.length > 0) {
+            console.log('API failed, returning stale cached stories');
+            sendResponse({ 
+                success: true, 
+                stories: cached.stories,
+                fromCache: true,
+                stale: true 
+            });
+        } else {
+            sendResponse({ 
+                success: false, 
+                error: error.message 
+            });
+        }
+    }
+}

@@ -155,7 +155,7 @@ class HackerNewsCache {
 // Create a global instance
 const hnCache = new HackerNewsCache();
 
-// New Tab Hacker News Reader
+// New Tab VU tech Reader
 class NewTabHackerNewsReader {
     constructor() {
         this.stories = [];
@@ -198,14 +198,11 @@ class NewTabHackerNewsReader {
                         case 0: // Refresh button
                             this.forceRefresh();
                             break;
-                        case 1: // Notifications button
-                            // Add notification functionality here
-                            break;
-                        case 2: // Theme button
+                        case 1: // Theme button
                             // Add theme toggle functionality here
                             break;
-                        case 3: // Settings button
-            this.openSettings();
+                        case 2: // Settings button
+                            this.openSettings();
                             break;
                     }
                 });
@@ -215,47 +212,47 @@ class NewTabHackerNewsReader {
         // Close modal
         const closeModal = document.getElementById('closeModal');
         if (closeModal) {
-        closeModal.addEventListener('click', () => {
-            this.closeSettings();
-        });
+            closeModal.addEventListener('click', () => {
+                this.closeSettings();
+            });
         }
 
         // Save settings
         const saveSettings = document.getElementById('saveSettings');
         if (saveSettings) {
-        saveSettings.addEventListener('click', () => {
-            this.saveSettings();
-        });
+            saveSettings.addEventListener('click', () => {
+                this.saveSettings();
+            });
         }
 
         // Close modal when clicking outside
         const modal = document.getElementById('settingsModal');
         if (modal) {
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) {
-                this.closeSettings();
-            }
-        });
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    this.closeSettings();
+                }
+            });
         }
 
         // Close add shortcut modal when clicking outside
         const addShortcutModal = document.getElementById('addShortcutModal');
         if (addShortcutModal) {
-        addShortcutModal.addEventListener('click', (e) => {
-            if (e.target === addShortcutModal) {
-                this.closeAddShortcutModal();
-            }
-        });
+            addShortcutModal.addEventListener('click', (e) => {
+                if (e.target === addShortcutModal) {
+                    this.closeAddShortcutModal();
+                }
+            });
         }
 
         // Close custom URL modal when clicking outside
         const customUrlModal = document.getElementById('customUrlModal');
         if (customUrlModal) {
-        customUrlModal.addEventListener('click', (e) => {
-            if (e.target === customUrlModal) {
-                this.closeCustomUrlModal();
-            }
-        });
+            customUrlModal.addEventListener('click', (e) => {
+                if (e.target === customUrlModal) {
+                    this.closeCustomUrlModal();
+                }
+            });
         }
 
         // Close modal with Escape key
@@ -270,17 +267,17 @@ class NewTabHackerNewsReader {
         // Add shortcut button
         const addShortcutBtn = document.getElementById('addShortcutBtn');
         if (addShortcutBtn) {
-        addShortcutBtn.addEventListener('click', () => {
-            this.openAddShortcutModal();
-        });
+            addShortcutBtn.addEventListener('click', () => {
+                this.openAddShortcutModal();
+            });
         }
 
         // Add shortcut modal close buttons
         const closeAddShortcutModal = document.getElementById('closeAddShortcutModal');
         if (closeAddShortcutModal) {
-        closeAddShortcutModal.addEventListener('click', () => {
-            this.closeAddShortcutModal();
-        });
+            closeAddShortcutModal.addEventListener('click', () => {
+                this.closeAddShortcutModal();
+            });
         }
 
         // Quick shortcut buttons
@@ -296,32 +293,32 @@ class NewTabHackerNewsReader {
         // Custom URL button
         const addCustomUrlBtn = document.getElementById('addCustomUrlBtn');
         if (addCustomUrlBtn) {
-        addCustomUrlBtn.addEventListener('click', () => {
-            this.openCustomUrlModal();
-        });
+            addCustomUrlBtn.addEventListener('click', () => {
+                this.openCustomUrlModal();
+            });
         }
 
         // Custom URL modal close buttons
         const closeCustomUrlModal = document.getElementById('closeCustomUrlModal');
         if (closeCustomUrlModal) {
-        closeCustomUrlModal.addEventListener('click', () => {
-            this.closeCustomUrlModal();
-        });
+            closeCustomUrlModal.addEventListener('click', () => {
+                this.closeCustomUrlModal();
+            });
         }
 
         const cancelCustomUrl = document.getElementById('cancelCustomUrl');
         if (cancelCustomUrl) {
-        cancelCustomUrl.addEventListener('click', () => {
-            this.closeCustomUrlModal();
-        });
+            cancelCustomUrl.addEventListener('click', () => {
+                this.closeCustomUrlModal();
+            });
         }
 
         // Save shortcut
         const saveShortcut = document.getElementById('saveShortcut');
         if (saveShortcut) {
-        saveShortcut.addEventListener('click', () => {
-            this.saveCustomShortcut();
-        });
+            saveShortcut.addEventListener('click', () => {
+                this.saveCustomShortcut();
+            });
         }
 
         // Load more stories button
@@ -383,8 +380,27 @@ class NewTabHackerNewsReader {
             this.showLoading();
             this.hideError();
 
-            // Step 3: Try to fetch from API with timeout and retry
-            const stories = await this.fetchStoriesWithRetry();
+            // Step 3: Try to fetch from API with multiple fallback methods
+            let stories = null;
+            
+            try {
+                // Method 1: Try background script
+                stories = await this.fetchStoriesWithRetry();
+            } catch (error) {
+                console.log('Background script method failed, trying direct fetch...');
+                try {
+                    // Method 2: Try direct fetch with CORS proxy
+                    stories = await this.fetchStoriesWithProxy();
+                } catch (proxyError) {
+                    console.log('CORS proxy method failed, trying alternative proxy...');
+                    try {
+                        // Method 3: Try alternative CORS proxy
+                        stories = await this.fetchStoriesWithAlternativeProxy();
+                    } catch (altError) {
+                        throw new Error(`All fetch methods failed. Last error: ${altError.message}`);
+                    }
+                }
+            }
             
             if (stories && stories.length > 0) {
                 console.log(`Successfully loaded ${stories.length} stories`);
@@ -392,14 +408,14 @@ class NewTabHackerNewsReader {
                 await hnCache.saveStoriesToCache(this.stories);
                 this.displayStories();
             } else {
-                throw new Error('No stories received from API - empty response');
+                throw new Error('No stories received from any method - empty response');
             }
             
         } catch (error) {
             console.error('Failed to load stories:', error);
             
-            // Step 4: If API fails, try to show stale cache
-            console.log('API failed, checking for stale cache...');
+            // Step 4: If all methods fail, try to show stale cache
+            console.log('All fetch methods failed, checking for stale cache...');
             const cached = await hnCache.getCachedStories();
             if (cached && cached.stories && cached.stories.length > 0) {
                 console.log('Showing stale cached stories');
@@ -480,85 +496,16 @@ class NewTabHackerNewsReader {
             try {
                 console.log(`Fetch attempt ${attempt} for Hacker News stories...`);
                 
-                // Try direct fetch first
-                let response;
-                try {
-                    const controller = new AbortController();
-                    const timeoutId = setTimeout(() => controller.abort(), 10000);
-                    
-                    response = await fetch('https://hacker-news.firebaseio.com/v0/topstories.json', {
-                        signal: controller.signal,
-                        method: 'GET',
-                        headers: {
-                            'Accept': 'application/json'
-                        }
-                    });
-                    
-                    clearTimeout(timeoutId);
-                } catch (directError) {
-                    console.log('Direct fetch failed, trying CORS proxy...');
-                    
-                    // Try CORS proxy
-                    const proxyUrl = 'https://api.allorigins.win/get?url=' + encodeURIComponent('https://hacker-news.firebaseio.com/v0/topstories.json');
-                    const controller = new AbortController();
-                    const timeoutId = setTimeout(() => controller.abort(), 15000);
-                    
-                    response = await fetch(proxyUrl, {
-                        signal: controller.signal,
-                        method: 'GET',
-                        headers: {
-                            'Accept': 'application/json'
-                        }
-                    });
-                    
-                    clearTimeout(timeoutId);
-                }
-            
-            if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status} - ${response.statusText}`);
+                // Use background script to handle API calls
+                const stories = await this.fetchStoriesViaBackground();
+                if (stories && stories.length > 0) {
+                    console.log(`Successfully fetched ${stories.length} story details`);
+                    return stories;
                 }
                 
-                let storyIds;
-                const responseText = await response.text();
+                throw new Error('No stories received from background script');
                 
-                try {
-                    const data = JSON.parse(responseText);
-                    // Handle CORS proxy response format
-                    storyIds = data.contents ? JSON.parse(data.contents) : data;
-                } catch (parseError) {
-                    storyIds = JSON.parse(responseText);
-                }
-                
-                if (!Array.isArray(storyIds)) {
-                    throw new Error('Invalid response format - expected array of story IDs');
-                }
-                
-                console.log(`Successfully fetched ${storyIds.length} story IDs`);
-                
-                // Get details for the first 20 stories
-            const topStoryIds = storyIds.slice(0, 20);
-                const stories = [];
-            
-            for (let i = 0; i < topStoryIds.length; i++) {
-                const storyId = topStoryIds[i];
-                    try {
-                const story = await this.fetchStoryDetails(storyId);
-                        if (story && story.title) {
-                            stories.push(story);
-                }
-                        // Small delay between requests to avoid rate limiting
-                await new Promise(resolve => setTimeout(resolve, 100));
-                    } catch (error) {
-                        console.warn(`Failed to fetch story ${storyId}:`, error.message);
-                        // Continue with other stories
-                    }
-                }
-                
-                console.log(`Successfully fetched ${stories.length} story details`);
-                
-                return stories;
-            
-        } catch (error) {
+            } catch (error) {
                 console.error(`Fetch attempt ${attempt} failed:`, error);
                 
                 if (attempt === maxRetries) {
@@ -570,6 +517,208 @@ class NewTabHackerNewsReader {
                 console.log(`Waiting ${delay}ms before retry...`);
                 await new Promise(resolve => setTimeout(resolve, delay));
             }
+        }
+    }
+
+    // Fetch stories via background script to avoid CORS issues
+    async fetchStoriesViaBackground() {
+        return new Promise((resolve, reject) => {
+            // Set timeout for the message
+            const timeout = setTimeout(() => {
+                reject(new Error('Background script timeout'));
+            }, 20000);
+
+            // Send message to background script
+            chrome.runtime.sendMessage({ type: 'FETCH_STORIES' }, (response) => {
+                clearTimeout(timeout);
+                
+                if (chrome.runtime.lastError) {
+                    reject(new Error(`Background script error: ${chrome.runtime.lastError.message}`));
+                    return;
+                }
+                
+                if (response && response.success) {
+                    resolve(response.stories);
+                } else {
+                    reject(new Error(response?.error || 'Unknown error from background script'));
+                }
+            });
+        });
+    }
+
+    // Fallback method using CORS proxy
+    async fetchStoriesWithProxy() {
+        try {
+            console.log('Trying CORS proxy method...');
+            
+            // Use a more reliable CORS proxy
+            const proxyUrl = 'https://api.allorigins.win/get?url=' + encodeURIComponent('https://hacker-news.firebaseio.com/v0/topstories.json');
+            
+                const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 15000);
+                
+            const response = await fetch(proxyUrl, {
+                    signal: controller.signal,
+                    method: 'GET',
+                    headers: {
+                    'Accept': 'application/json'
+                    }
+                });
+                
+                clearTimeout(timeoutId);
+                
+                if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status} - ${response.statusText}`);
+            }
+            
+            const responseText = await response.text();
+            let storyIds;
+            
+            try {
+                const data = JSON.parse(responseText);
+                // Handle CORS proxy response format
+                storyIds = data.contents ? JSON.parse(data.contents) : data;
+            } catch (parseError) {
+                storyIds = JSON.parse(responseText);
+            }
+                
+                if (!Array.isArray(storyIds)) {
+                throw new Error('Invalid response format - expected array of story IDs');
+                }
+            
+            console.log(`Successfully fetched ${storyIds.length} story IDs via proxy`);
+                
+                // Get details for the first 20 stories
+                const topStoryIds = storyIds.slice(0, 20);
+                const stories = [];
+                
+                for (let i = 0; i < topStoryIds.length; i++) {
+                    const storyId = topStoryIds[i];
+                    try {
+                    const story = await this.fetchStoryDetailsWithProxy(storyId);
+                    if (story && story.title) {
+                            stories.push(story);
+                        }
+                    // Small delay between requests to avoid rate limiting
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                    } catch (error) {
+                    console.warn(`Failed to fetch story ${storyId}:`, error.message);
+                        // Continue with other stories
+                    }
+                }
+                
+            console.log(`Successfully fetched ${stories.length} story details via proxy`);
+                return stories;
+                
+            } catch (error) {
+            console.error('CORS proxy method failed:', error);
+            throw error;
+        }
+    }
+
+    // Alternative CORS proxy method
+    async fetchStoriesWithAlternativeProxy() {
+        try {
+            console.log('Trying alternative CORS proxy method...');
+            
+            // Use a different CORS proxy
+            const proxyUrl = 'https://thingproxy.freeboard.io/fetch/https://hacker-news.firebaseio.com/v0/topstories.json';
+            
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 15000);
+            
+            const response = await fetch(proxyUrl, {
+                signal: controller.signal,
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json'
+                }
+            });
+            
+            clearTimeout(timeoutId);
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status} - ${response.statusText}`);
+            }
+            
+            const storyIds = await response.json();
+            
+            if (!Array.isArray(storyIds)) {
+                throw new Error('Invalid response format - expected array of story IDs');
+            }
+            
+            console.log(`Successfully fetched ${storyIds.length} story IDs via alternative proxy`);
+            
+            // Get details for the first 20 stories
+            const topStoryIds = storyIds.slice(0, 20);
+            const stories = [];
+            
+            for (let i = 0; i < topStoryIds.length; i++) {
+                const storyId = topStoryIds[i];
+                try {
+                    const story = await this.fetchStoryDetailsWithProxy(storyId);
+                    if (story && story.title) {
+                        stories.push(story);
+                    }
+                    // Small delay between requests to avoid rate limiting
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                } catch (error) {
+                    console.warn(`Failed to fetch story ${storyId}:`, error.message);
+                    // Continue with other stories
+                }
+            }
+            
+            console.log(`Successfully fetched ${stories.length} story details via alternative proxy`);
+            return stories;
+            
+        } catch (error) {
+            console.error('Alternative CORS proxy method failed:', error);
+                    throw error;
+        }
+    }
+
+    // Fetch story details with CORS proxy
+    async fetchStoryDetailsWithProxy(storyId) {
+        try {
+            const proxyUrl = 'https://api.allorigins.win/get?url=' + encodeURIComponent(`https://hacker-news.firebaseio.com/v0/item/${storyId}.json`);
+            
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 5000);
+            
+            const response = await fetch(proxyUrl, {
+                signal: controller.signal,
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json'
+                }
+            });
+            
+            clearTimeout(timeoutId);
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status} - ${response.statusText}`);
+            }
+            
+            const responseText = await response.text();
+            let story;
+            
+            try {
+                const data = JSON.parse(responseText);
+                // Handle CORS proxy response format
+                story = data.contents ? JSON.parse(data.contents) : data;
+            } catch (parseError) {
+                story = JSON.parse(responseText);
+            }
+            
+            if (!story || !story.title) {
+                throw new Error('Invalid story data received');
+            }
+            
+            return story;
+            
+        } catch (error) {
+            console.error(`Failed to fetch story ${storyId} via proxy:`, error);
+            throw error;
         }
     }
 
@@ -913,7 +1062,7 @@ class NewTabHackerNewsReader {
             
             // Show success message with specific feedback
             const message = newTabEnabled 
-                ? 'New tab override enabled! New tabs will show Hacker News.'
+                ? 'New tab override enabled! New tabs will show VU tech.'
                 : 'New tab override disabled! New tabs will show Chrome default.';
             this.showSuccessMessage(message);
             
@@ -1070,14 +1219,14 @@ class NewTabHackerNewsReader {
         if (panel.classList.contains('minimized')) {
             panel.classList.remove('minimized');
             if (toggleBtn) {
-            toggleBtn.textContent = '−';
-            toggleBtn.title = 'Minimize';
+                toggleBtn.textContent = '−';
+                toggleBtn.title = 'Minimize';
             }
         } else {
             panel.classList.add('minimized');
             if (toggleBtn) {
-            toggleBtn.textContent = '+';
-            toggleBtn.title = 'Expand';
+                toggleBtn.textContent = '+';
+                toggleBtn.title = 'Expand';
             }
         }
     }
@@ -4156,8 +4305,6 @@ class NewTabHackerNewsReader {
     // Setup panel actions
     setupPanelActions() {
         const refreshBtn = document.getElementById('refreshBtn');
-        const notificationsBtn = document.getElementById('notificationsBtn');
-        const filterBtn = document.getElementById('filterBtn');
         const settingsBtn = document.getElementById('settingsBtn');
 
         if (refreshBtn) {
@@ -4166,17 +4313,6 @@ class NewTabHackerNewsReader {
             });
         }
 
-        if (notificationsBtn) {
-            notificationsBtn.addEventListener('click', () => {
-                this.handleNotifications();
-            });
-        }
-
-        if (filterBtn) {
-            filterBtn.addEventListener('click', () => {
-                this.handleFilter();
-            });
-        }
 
         if (settingsBtn) {
             settingsBtn.addEventListener('click', () => {
@@ -4207,22 +4343,6 @@ class NewTabHackerNewsReader {
         }
     }
 
-    // Handle notifications
-    handleNotifications() {
-        const badge = document.getElementById('notificationBadge');
-        if (badge) {
-            // Clear notifications
-            badge.textContent = '0';
-            badge.style.display = 'none';
-        }
-        this.showNotification('Notifications cleared', 'info');
-    }
-
-    // Handle filter
-    handleFilter() {
-        // Toggle filter panel (could be implemented as a dropdown)
-        this.showNotification('Filter options opened', 'info');
-    }
 
     // Handle settings
     handleSettings() {
