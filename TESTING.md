@@ -10,7 +10,7 @@
 5. The extension should appear in your extensions list
 
 ### 2. Test the New Tab Page
-1. Open a new tab (Ctrl/Cmd + T)
+1. Open a new tab (Ctrl/Cmd + T).
 2. You should see the VU tech logo above the search bar
 3. The page should show either:
    - Live Hacker News stories (if internet is working)
