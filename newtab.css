@@ -2387,7 +2387,7 @@ body {
 /* Right Column - VU tech Panel (1/4 width) */
 .right-column {
     width: 25%;
-    padding: 24px 16px;
+    padding: 6px;
     background: linear-gradient(135deg, #0f0f10 0%, #1a1a1d 100%);
     border-left: 1px solid rgba(255, 255, 255, 0.1);
     overflow-y: auto;
@@ -2504,11 +2504,11 @@ body {
 
 .panel-main-title {
     margin: 0;
-    font-size: 20px;
+    font-size: 40px;
     font-weight: 700;
     display: flex;
-    align-items: center;
-    gap: 8px;
+    align-items: flex-end;
+    gap: 4px;
 }
 
 .title-text {
@@ -2523,12 +2523,15 @@ body {
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
-    font-size: 16px;
-    font-weight: 600;
-    padding: 2px 6px;
-    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+    padding-bottom: 5px;
+    border-radius: 3px;
     background-color: rgba(59, 130, 246, 0.1);
     animation: accentPulse 2s ease-in-out infinite;
+    vertical-align: sub;
+    line-height: 1;
+    margin-bottom: -2px;
 }
 
 @keyframes accentPulse {
@@ -2818,25 +2821,31 @@ body {
 }
 
 .sort-select {
-    background: rgba(30, 30, 34, 0.8);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 8px;
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(96, 165, 250, 0.1) 100%);
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    border-radius: 12px;
     color: #ffffff;
-    padding: 6px 12px;
-    font-size: 11px;
+    padding: 8px 16px;
+    font-size: 12px;
+    font-weight: 500;
     cursor: pointer;
     transition: all 0.3s ease;
+    backdrop-filter: blur(8px);
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.1);
 }
 
 .sort-select:hover {
-    border-color: rgba(59, 130, 246, 0.3);
-    background: rgba(59, 130, 246, 0.1);
+    border-color: rgba(59, 130, 246, 0.5);
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(96, 165, 250, 0.2) 100%);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+    transform: translateY(-1px);
 }
 
 .sort-select:focus {
     outline: none;
-    border-color: rgba(59, 130, 246, 0.5);
-    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+    border-color: rgba(59, 130, 246, 0.6);
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(96, 165, 250, 0.2) 100%);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2), 0 4px 12px rgba(59, 130, 246, 0.2);
 }
 
 /* Loading States */
@@ -3082,7 +3091,6 @@ body {
     display: flex;
     align-items: center;
     gap: 12px;
-    margin-bottom: 20px;
 }
 
 .live-badge {
@@ -3971,7 +3979,7 @@ input[type="checkbox"] {
     
     .right-column {
         width: 100%;
-        padding: 16px;
+        padding: 6px;
         border-left: none;
         border-top: 1px solid rgba(255, 255, 255, 0.1);
     }
