@@ -2353,6 +2353,9 @@ class NewTabHackerNewsReader {
             const value = e.target.value;
             isTyping = true;
             
+            // Toggle Enter button based on input
+            this.toggleEnterButton(value);
+            
             // Show typing indicator
             if (typingIndicator) {
                 typingIndicator.classList.add('active');
@@ -2424,12 +2427,77 @@ class NewTabHackerNewsReader {
             });
         }
 
-        // Search on Enter
+        // Create and setup Enter button
+        this.createEnterButton();
+        
+        // Search on Enter key (but only if Enter button is visible)
         searchInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
-                this.performSearch(searchInput.value);
+                e.preventDefault();
+                this.handleEnterSearch();
             }
         });
+    }
+
+    // Create Enter button
+    createEnterButton() {
+        const searchActionButtons = document.querySelector('.search-action-buttons');
+        if (!searchActionButtons) return;
+
+        // Check if Enter button already exists
+        if (document.getElementById('enterBtn')) return;
+
+        const enterBtn = document.createElement('button');
+        enterBtn.id = 'enterBtn';
+        enterBtn.className = 'search-action-btn enter-btn';
+        enterBtn.title = 'Search';
+        enterBtn.style.display = 'none'; // Hidden by default
+        
+        enterBtn.innerHTML = `
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path d="M5 12h14M12 5l7 7-7 7"/>
+            </svg>
+            <div class="btn-glow"></div>
+        `;
+
+        // Add click handler
+        enterBtn.addEventListener('click', () => {
+            this.handleEnterSearch();
+        });
+
+        // Insert Enter button as the last button
+        searchActionButtons.appendChild(enterBtn);
+    }
+
+    // Toggle Enter button visibility
+    toggleEnterButton(inputValue) {
+        const enterBtn = document.getElementById('enterBtn');
+        if (!enterBtn) return;
+
+        if (inputValue && inputValue.trim().length > 0) {
+            enterBtn.style.display = 'flex';
+            enterBtn.style.animation = 'enterButtonSlideIn 0.3s ease-out';
+        } else {
+            enterBtn.style.animation = 'enterButtonSlideOut 0.3s ease-in';
+            setTimeout(() => {
+                enterBtn.style.display = 'none';
+            }, 300);
+        }
+    }
+
+    // Handle Enter search
+    handleEnterSearch() {
+        const searchInput = document.getElementById('searchInput');
+        if (!searchInput || !searchInput.value.trim()) return;
+
+        const query = searchInput.value.trim();
+        this.performSearch(query);
+        
+        // Clear input after search
+        setTimeout(() => {
+            searchInput.value = '';
+            this.toggleEnterButton('');
+        }, 1000);
     }
 
     // Create floating particles around search bar
@@ -2519,39 +2587,160 @@ class NewTabHackerNewsReader {
 
     // Handle voice search
     handleVoiceSearch() {
-        // Add visual feedback
         const voiceBtn = document.getElementById('voiceBtn');
-        if (voiceBtn) {
-            voiceBtn.style.background = 'rgba(59, 130, 246, 0.3)';
-            setTimeout(() => {
-                voiceBtn.style.background = 'transparent';
-            }, 2000);
+        const searchInput = document.getElementById('searchInput');
+        
+        // Check if browser supports speech recognition
+        if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+            this.showNotification('Voice search not supported in this browser', 'error');
+            return;
         }
 
-        // Simulate voice search (in real implementation, use Web Speech API)
-        setTimeout(() => {
-            const searchInput = document.getElementById('searchInput');
+        // Create speech recognition instance
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        const recognition = new SpeechRecognition();
+        
+        recognition.continuous = false;
+        recognition.interimResults = false;
+        recognition.lang = 'en-US';
+
+        // Add visual feedback - listening state
+        if (voiceBtn) {
+            voiceBtn.style.background = 'rgba(239, 68, 68, 0.2)';
+            voiceBtn.style.animation = 'voicePulse 1s ease-in-out infinite';
+        }
+
+        // Show listening notification
+        this.showNotification('🎤 Listening... Speak now!', 'info');
+
+        recognition.onresult = (event) => {
+            const transcript = event.results[0][0].transcript;
             if (searchInput) {
-                searchInput.value = "What are the latest AI developments?";
-                this.performSearch(searchInput.value);
+                searchInput.value = transcript;
+                this.toggleEnterButton(transcript); // Show Enter button
             }
-        }, 1500);
+            this.showNotification(`🎤 Heard: "${transcript}" - Click Enter to search!`, 'success');
+        };
+
+        recognition.onerror = (event) => {
+            this.showNotification('Voice search failed. Please try again.', 'error');
+            console.error('Speech recognition error:', event.error);
+        };
+
+        recognition.onend = () => {
+            // Reset button state
+            if (voiceBtn) {
+                voiceBtn.style.background = 'transparent';
+                voiceBtn.style.animation = 'none';
+            }
+        };
+
+        // Start listening
+        try {
+            recognition.start();
+        } catch (error) {
+            this.showNotification('Could not start voice search', 'error');
+            if (voiceBtn) {
+                voiceBtn.style.background = 'transparent';
+                voiceBtn.style.animation = 'none';
+            }
+        }
     }
 
     // Handle camera search
     handleCameraSearch() {
-        // Add visual feedback
+        // Commented out for now - image upload functionality disabled
+        /*
         const cameraBtn = document.getElementById('cameraBtn');
+        
+        // Add visual feedback - active state
         if (cameraBtn) {
-            cameraBtn.style.background = 'rgba(59, 130, 246, 0.3)';
-            setTimeout(() => {
-                cameraBtn.style.background = 'transparent';
-            }, 1000);
+            cameraBtn.style.background = 'rgba(34, 197, 94, 0.2)';
+            cameraBtn.style.animation = 'cameraPulse 1s ease-in-out infinite';
         }
 
-        // In real implementation, access camera and process image
-        console.log('Camera search activated');
+        // Create file input for image upload
+        const fileInput = document.createElement('input');
+        fileInput.type = 'file';
+        fileInput.accept = 'image/*';
+        fileInput.style.display = 'none';
+
+        fileInput.onchange = (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                this.processImageSearch(file);
+            }
+            
+            // Reset button state
+            if (cameraBtn) {
+                cameraBtn.style.background = 'transparent';
+                cameraBtn.style.animation = 'none';
+            }
+        };
+
+        // Trigger file selection
+        document.body.appendChild(fileInput);
+        fileInput.click();
+        document.body.removeChild(fileInput);
+
+        // Show instruction notification
+        this.showNotification('📷 Select an image to search', 'info');
+        */
+        
+        // Temporary message
+        this.showNotification('📷 Image search coming soon!', 'info');
     }
+
+    // Process image search - Commented out for now
+    /*
+    async processImageSearch(file) {
+        try {
+            this.showNotification('🔍 Analyzing image...', 'info');
+            
+            // Create a preview of the image
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const imageData = e.target.result;
+                
+                // For now, simulate image analysis and extract text/context
+                // In a real implementation, you could use:
+                // - Google Vision API for OCR
+                // - AI services for image recognition
+                // - Local OCR libraries
+                
+                setTimeout(() => {
+                    // Simulate extracted text or recognized objects
+                    const simulatedResults = [
+                        "artificial intelligence",
+                        "machine learning", 
+                        "neural networks",
+                        "computer vision",
+                        "deep learning",
+                        "programming",
+                        "software development",
+                        "tech innovation"
+                    ];
+                    
+                    const randomResult = simulatedResults[Math.floor(Math.random() * simulatedResults.length)];
+                    const searchInput = document.getElementById('searchInput');
+                    
+                    if (searchInput) {
+                        searchInput.value = randomResult;
+                        this.toggleEnterButton(randomResult); // Show Enter button
+                    }
+                    
+                    this.showNotification(`📷 Image analyzed! Found: "${randomResult}" - Click Enter to search!`, 'success');
+                }, 2000);
+            };
+            
+            reader.readAsDataURL(file);
+            
+        } catch (error) {
+            this.showNotification('Failed to process image', 'error');
+            console.error('Image processing error:', error);
+        }
+    }
+    */
 
     // Handle AI search
     handleAISearch() {
@@ -2587,11 +2776,41 @@ class NewTabHackerNewsReader {
             }, 150);
         }
 
-        // In real implementation, perform actual search
-        console.log('Searching for:', query);
+        console.log('Performing search for:', query);
         
-        // For now, just show a message
-        this.showSearchNotification(`Searching for: ${query}`, 'info');
+        // Show searching notification
+        this.showSearchNotification(`🔍 Searching for: ${query}`, 'info');
+        
+        // Construct search URL based on query type
+        let searchUrl;
+        
+        // Check if it's a URL
+        if (query.startsWith('http://') || query.startsWith('https://') || query.includes('.com') || query.includes('.org')) {
+            searchUrl = query.startsWith('http') ? query : `https://${query}`;
+        }
+        // Check for specific sites
+        else if (query.toLowerCase().includes('github')) {
+            searchUrl = `https://github.com/search?q=${encodeURIComponent(query)}`;
+        }
+        else if (query.toLowerCase().includes('stackoverflow') || query.toLowerCase().includes('stack overflow')) {
+            searchUrl = `https://stackoverflow.com/search?q=${encodeURIComponent(query)}`;
+        }
+        else if (query.toLowerCase().includes('youtube')) {
+            searchUrl = `https://www.youtube.com/results?search_query=${encodeURIComponent(query)}`;
+        }
+        else if (query.toLowerCase().includes('reddit')) {
+            searchUrl = `https://www.reddit.com/search/?q=${encodeURIComponent(query)}`;
+        }
+        // Default to Google search
+        else {
+            searchUrl = `https://www.google.com/search?q=${encodeURIComponent(query)}`;
+        }
+        
+        // Open search in new tab
+        setTimeout(() => {
+            window.open(searchUrl, '_blank', 'noopener,noreferrer');
+            this.showSearchNotification(`🚀 Opened search results for: ${query}`, 'success');
+        }, 500);
     }
 
     // Show search notification
