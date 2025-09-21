@@ -873,6 +873,11 @@ class NewTabHackerNewsReader {
         const storyDiv = document.createElement('div');
         storyDiv.className = 'story';
         
+        // Set data attributes for sorting
+        storyDiv.setAttribute('data-score', story.score || 0);
+        storyDiv.setAttribute('data-time', story.time ? new Date(story.time * 1000).toISOString() : new Date().toISOString());
+        storyDiv.setAttribute('data-comments', story.descendants || 0);
+        
         // Format the time
         const timeAgo = this.formatTimeAgo(story.time);
         
