@@ -471,25 +471,41 @@ class NewTabHackerNewsReader {
     // Show offline message
     showOfflineMessage() {
         const messageDiv = document.createElement('div');
+        const leftPanel = document.querySelector('.left-column');
+        
         messageDiv.style.cssText = `
-            position: fixed;
+            position: absolute;
             top: 20px;
             right: 20px;
             background: linear-gradient(135deg, #ffa500 0%, #ff8c00 100%);
             color: white;
             padding: 12px 20px;
-            border-radius: 8px;
+            border-radius: 12px;
             font-size: 14px;
             font-weight: 600;
             z-index: 10000;
-            box-shadow: 0 4px 16px rgba(255, 165, 0, 0.3);
-            max-width: 300px;
+            box-shadow: 0 8px 24px rgba(255, 165, 0, 0.3);
+            max-width: 280px;
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            animation: slideInFromRight 0.4s ease-out;
         `;
         messageDiv.textContent = '⚠️ Offline mode - showing sample stories';
-        document.body.appendChild(messageDiv);
+        
+        // Append to left panel instead of body
+        if (leftPanel) {
+            leftPanel.appendChild(messageDiv);
+        } else {
+            document.body.appendChild(messageDiv);
+        }
         
         setTimeout(() => {
-            messageDiv.remove();
+            messageDiv.style.animation = 'slideOutToRight 0.3s ease-in forwards';
+            setTimeout(() => {
+                if (messageDiv.parentNode) {
+                    messageDiv.remove();
+                }
+            }, 300);
         }, 5000);
     }
 
@@ -885,7 +901,7 @@ class NewTabHackerNewsReader {
         const category = this.getStoryCategory(story);
         const isTrending = this.isStoryTrending(story);
         
-        // Create the HTML structure
+        // Create the HTML structure - always show both Save and Read Later buttons
         storyDiv.innerHTML = `
             <div class="story-header">
                 <span class="story-category ${category.toLowerCase()}">${category}</span>
@@ -917,12 +933,6 @@ class NewTabHackerNewsReader {
                 </div>
             </div>
             <div class="story-actions" data-story-id="${story.id}">
-                <button class="action-btn save-btn" data-action="save" title="Save article">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M17 3H7c-1.1 0-1.99.9-1.99 2L5 21l7-3 7 3V5c0-1.1-.9-2-2-2z"/>
-                    </svg>
-                    <span>Save</span>
-                </button>
                 <button class="action-btn read-later-btn" data-action="read-later" title="Read later">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
@@ -1112,9 +1122,41 @@ class NewTabHackerNewsReader {
 
     // UI state management
     showLoading() {
-        document.getElementById('loading').style.display = 'block';
-        document.getElementById('stories').style.display = 'none';
-        document.getElementById('error').style.display = 'none';
+        const loadingElement = document.getElementById('loading');
+        const storiesElement = document.getElementById('stories');
+        const errorElement = document.getElementById('error');
+        
+        if (loadingElement) {
+            loadingElement.style.display = 'block';
+            this.createCrazyLoadingEffects();
+        }
+        if (storiesElement) storiesElement.style.display = 'none';
+        if (errorElement) errorElement.style.display = 'none';
+    }
+
+    // Create crazy loading effects
+    createCrazyLoadingEffects() {
+        const loadingElement = document.getElementById('loading');
+        if (!loadingElement) return;
+
+        // Add particles container if it doesn't exist
+        if (!loadingElement.querySelector('.loading-particles')) {
+            const particlesContainer = document.createElement('div');
+            particlesContainer.className = 'loading-particles';
+            
+            // Create floating particles
+            for (let i = 0; i < 6; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'loading-particle';
+                particle.style.top = Math.random() * 80 + 10 + '%';
+                particle.style.left = Math.random() * 80 + 10 + '%';
+                particle.style.animationDelay = Math.random() * 3 + 's';
+                particle.style.animationDuration = (2 + Math.random() * 2) + 's';
+                particlesContainer.appendChild(particle);
+            }
+            
+            loadingElement.appendChild(particlesContainer);
+        }
     }
 
     showError(errorMessage = 'Failed to load stories. Please check your internet connection and try again.') {
@@ -1514,25 +1556,41 @@ class NewTabHackerNewsReader {
     showStaleDataWarning() {
         // Create a temporary warning message
         const warningDiv = document.createElement('div');
+        const leftPanel = document.querySelector('.left-column');
+        
         warningDiv.style.cssText = `
-            position: fixed;
+            position: absolute;
             top: 20px;
             right: 20px;
             background: linear-gradient(135deg, #ffa500 0%, #ff8c00 100%);
             color: white;
             padding: 12px 20px;
-            border-radius: 8px;
+            border-radius: 12px;
             font-size: 14px;
             font-weight: 600;
             z-index: 10000;
-            box-shadow: 0 4px 16px rgba(255, 165, 0, 0.3);
-            max-width: 300px;
+            box-shadow: 0 8px 24px rgba(255, 165, 0, 0.3);
+            max-width: 280px;
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            animation: slideInFromRight 0.4s ease-out;
         `;
         warningDiv.textContent = '⚠️ Showing cached data (offline mode)';
-        document.body.appendChild(warningDiv);
+        
+        // Append to left panel instead of body
+        if (leftPanel) {
+            leftPanel.appendChild(warningDiv);
+        } else {
+            document.body.appendChild(warningDiv);
+        }
         
         setTimeout(() => {
-            warningDiv.remove();
+            warningDiv.style.animation = 'slideOutToRight 0.3s ease-in forwards';
+            setTimeout(() => {
+                if (warningDiv.parentNode) {
+                    warningDiv.remove();
+                }
+            }, 300);
         }, 5000);
     }
 
@@ -1557,25 +1615,41 @@ class NewTabHackerNewsReader {
     // Show update notification
     showUpdateNotification() {
         const notificationDiv = document.createElement('div');
+        const leftPanel = document.querySelector('.left-column');
+        
         notificationDiv.style.cssText = `
-            position: fixed;
+            position: absolute;
             top: 20px;
             right: 20px;
-            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
             color: white;
             padding: 12px 20px;
-            border-radius: 8px;
+            border-radius: 12px;
             font-size: 14px;
             font-weight: 600;
             z-index: 10000;
-            box-shadow: 0 4px 16px rgba(40, 167, 69, 0.3);
-            max-width: 300px;
+            box-shadow: 0 8px 24px rgba(16, 185, 129, 0.3);
+            max-width: 280px;
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            animation: slideInFromRight 0.4s ease-out;
         `;
         notificationDiv.textContent = '✅ Stories updated in background';
-        document.body.appendChild(notificationDiv);
+        
+        // Append to left panel instead of body
+        if (leftPanel) {
+            leftPanel.appendChild(notificationDiv);
+        } else {
+            document.body.appendChild(notificationDiv);
+        }
         
         setTimeout(() => {
-            notificationDiv.remove();
+            notificationDiv.style.animation = 'slideOutToRight 0.3s ease-in forwards';
+            setTimeout(() => {
+                if (notificationDiv.parentNode) {
+                    notificationDiv.remove();
+                }
+            }, 300);
         }, 3000);
     }
 
@@ -1718,9 +1792,7 @@ class NewTabHackerNewsReader {
                 const story = this.stories.find(s => s.id.toString() === storyId);
                 
                 if (story) {
-                    if (action === 'save') {
-                        this.handleSaveArticle(story);
-                    } else if (action === 'read-later') {
+                    if (action === 'read-later') {
                         this.handleReadLater(story);
                     }
                 }
@@ -1971,6 +2043,17 @@ class NewTabHackerNewsReader {
         }
     }
 
+    // Helper function to check if user is logged in
+    async isUserLoggedIn() {
+        try {
+            const result = await chrome.storage.local.get(['userToken']);
+            return !!result.userToken;
+        } catch (error) {
+            console.error('Error checking login status:', error);
+            return false;
+        }
+    }
+
     // Verify token with backend
     async verifyToken(token) {
         try {
@@ -2180,7 +2263,17 @@ class NewTabHackerNewsReader {
 
     // Show notification
     showNotification(message, type = 'info') {
+        // Prevent duplicate notifications
+        const existingNotifications = document.querySelectorAll('.notification-toast');
+        existingNotifications.forEach(notification => {
+            if (notification.textContent === message) {
+                return; // Don't show duplicate
+            }
+        });
+
         const notificationDiv = document.createElement('div');
+        notificationDiv.className = 'notification-toast';
+        const leftPanel = document.querySelector('.left-column');
         const colors = {
             success: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
             error: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
@@ -2188,25 +2281,38 @@ class NewTabHackerNewsReader {
         };
 
         notificationDiv.style.cssText = `
-            position: fixed;
+            position: absolute;
             top: 20px;
             right: 20px;
             background: ${colors[type] || colors.info};
             color: white;
             padding: 12px 20px;
-            border-radius: 8px;
+            border-radius: 12px;
             font-size: 14px;
             font-weight: 600;
             z-index: 10000;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
-            max-width: 300px;
-            animation: slideIn 0.3s ease;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+            max-width: 280px;
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            animation: slideInFromRight 0.4s ease-out;
         `;
         notificationDiv.textContent = message;
-        document.body.appendChild(notificationDiv);
+        
+        // Append to left panel instead of body
+        if (leftPanel) {
+            leftPanel.appendChild(notificationDiv);
+        } else {
+            document.body.appendChild(notificationDiv);
+        }
         
         setTimeout(() => {
-            notificationDiv.remove();
+            notificationDiv.style.animation = 'slideOutToRight 0.3s ease-in forwards';
+            setTimeout(() => {
+                if (notificationDiv.parentNode) {
+                    notificationDiv.remove();
+                }
+            }, 300);
         }, 3000);
     }
 
@@ -2492,25 +2598,35 @@ class NewTabHackerNewsReader {
     showSearchNotification(message, type = 'info') {
         // Create notification element
         const notification = document.createElement('div');
+        const leftPanel = document.querySelector('.left-column');
         notification.className = `notification notification-${type}`;
         notification.textContent = message;
         notification.style.cssText = `
-            position: fixed;
+            position: absolute;
             top: 20px;
             right: 20px;
-            background: rgba(30, 30, 34, 0.9);
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.9) 0%, rgba(37, 99, 235, 0.9) 100%);
             color: white;
             padding: 12px 20px;
-            border-radius: 8px;
+            border-radius: 12px;
             border: 1px solid rgba(59, 130, 246, 0.3);
             backdrop-filter: blur(12px);
-            z-index: 1000;
+            z-index: 10000;
             opacity: 0;
             transform: translateX(100px);
             transition: all 0.3s ease;
+            font-size: 14px;
+            font-weight: 600;
+            max-width: 280px;
+            box-shadow: 0 8px 24px rgba(59, 130, 246, 0.3);
         `;
 
-        document.body.appendChild(notification);
+        // Append to left panel instead of body
+        if (leftPanel) {
+            leftPanel.appendChild(notification);
+        } else {
+            document.body.appendChild(notification);
+        }
 
         // Animate in
         setTimeout(() => {
@@ -4344,20 +4460,52 @@ class NewTabHackerNewsReader {
         const refreshBtn = document.getElementById('refreshBtn');
         if (!refreshBtn) return;
 
-        // Add loading state
+        // Add loading state to button
         refreshBtn.classList.add('loading');
         refreshBtn.disabled = true;
+        
+        // Add visual feedback to button
+        const originalHTML = refreshBtn.innerHTML;
+        refreshBtn.style.opacity = '0.7';
 
         try {
-            // Force refresh stories
-            await this.loadStories();
-            this.showNotification('Stories refreshed successfully!', 'success');
+            console.log('Refresh button clicked - forcing fresh data fetch...');
+            
+            // Show loading state in main UI
+            this.showLoading();
+            this.hideError();
+            
+            // Show immediate feedback
+            this.showNotification('Refreshing stories...', 'info');
+            
+            // Clear cache to force fresh fetch
+            await hnCache.clearCache();
+            console.log('Cache cleared, fetching fresh data...');
+            
+            // Add small delay to show loading state
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            // Force fresh API call
+            const stories = await this.fetchStoriesWithRetry();
+            if (stories && stories.length > 0) {
+                await hnCache.saveStoriesToCache(stories);
+                this.stories = stories.slice(0, 20);
+                this.displayStories();
+                this.showNotification('Stories refreshed successfully!', 'success');
+                console.log('Stories refreshed successfully');
+            } else {
+                throw new Error('No stories received from API');
+            }
         } catch (error) {
-            this.showNotification('Failed to refresh stories', 'error');
+            console.error('Refresh failed:', error);
+            this.showNotification('Failed to refresh stories. Please try again.', 'error');
+            this.showError('Failed to refresh stories. Please check your connection.');
         } finally {
-            // Remove loading state
+            // Remove loading state from button
             refreshBtn.classList.remove('loading');
             refreshBtn.disabled = false;
+            refreshBtn.style.opacity = '1';
+            refreshBtn.innerHTML = originalHTML;
         }
     }
 
@@ -4388,13 +4536,6 @@ class NewTabHackerNewsReader {
                 return;
             }
             
-            const readLaterBtn = e.target.closest('.read-later-btn');
-            if (readLaterBtn) {
-                e.preventDefault();
-                e.stopPropagation();
-                this.handleReadLater(readLaterBtn);
-                return;
-            }
         });
     }
 
@@ -4454,32 +4595,6 @@ class NewTabHackerNewsReader {
         }
     }
 
-    // Handle read later
-    handleReadLater(btn) {
-        if (!btn || typeof btn.closest !== 'function') {
-            console.warn('Invalid button element in handleReadLater');
-            return;
-        }
-        
-        const story = btn.closest('.story');
-        if (!story) {
-            console.warn('Could not find parent story element');
-            return;
-        }
-        
-        const storyId = story.getAttribute('data-id');
-        
-        if (btn.classList.contains('read-later')) {
-            btn.classList.remove('read-later');
-            btn.innerHTML = '📖';
-            this.showNotification('Removed from reading list', 'info');
-        } else {
-            btn.classList.add('read-later');
-            btn.innerHTML = '📖';
-            btn.style.color = '#10b981';
-            this.showNotification('Added to reading list', 'success');
-        }
-    }
 
     // Setup loading states
     setupLoadingStates() {
