@@ -1819,8 +1819,16 @@ class NewTabHackerNewsReader {
     setupAuthIconListener() {
         const authIconBtn = document.getElementById('authIconBtn');
         if (authIconBtn) {
-            authIconBtn.addEventListener('click', () => {
-                this.showAuthModal('login');
+            authIconBtn.addEventListener('click', async () => {
+                // Check if user is logged in
+                const result = await chrome.storage.local.get(['userToken']);
+                if (result.userToken) {
+                    // User is logged in - show profile modal
+                    this.showProfileModal();
+                } else {
+                    // User is not logged in - show auth modal
+                    this.showAuthModal('login');
+                }
             });
         }
     }
@@ -2090,15 +2098,53 @@ class NewTabHackerNewsReader {
         const userEmail = document.getElementById('userEmail');
         const userInitials = document.getElementById('userInitials');
 
+        // Profile modal elements
+        const profileName = document.getElementById('profileName');
+        const profileEmail = document.getElementById('profileEmail');
+        const profileInitials = document.getElementById('profileInitials');
+        const profileJoined = document.getElementById('profileJoined');
+        const profileLastLogin = document.getElementById('profileLastLogin');
+
         if (user) {
             // User is logged in
             if (userInfo) userInfo.style.display = 'flex';
             if (authActions) authActions.style.display = 'none';
+            
+            // Update header elements
             if (userName) userName.textContent = user.name;
             if (userEmail) userEmail.textContent = user.email;
             if (userInitials) {
                 const initials = user.name.split(' ').map(n => n[0]).join('').toUpperCase();
                 userInitials.textContent = initials;
+            }
+
+            // Update profile modal elements
+            if (profileName) profileName.textContent = user.name;
+            if (profileEmail) profileEmail.textContent = user.email;
+            if (profileInitials) {
+                const initials = user.name.split(' ').map(n => n[0]).join('').toUpperCase();
+                profileInitials.textContent = initials;
+            }
+
+            // Update profile meta information
+            if (profileJoined && user.createdAt) {
+                const joinedDate = new Date(user.createdAt).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+                profileJoined.textContent = joinedDate;
+            }
+
+            if (profileLastLogin && user.lastLogin) {
+                const lastLoginDate = new Date(user.lastLogin).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+                profileLastLogin.textContent = lastLoginDate;
             }
         } else {
             // User is not logged in
