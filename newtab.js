@@ -537,6 +537,9 @@ class NewTabHackerNewsReader {
                 await new Promise(resolve => setTimeout(resolve, delay));
             }
         }
+        
+        // This should never be reached, but just in case
+        throw new Error('All retry attempts exhausted');
     }
 
     // Fetch stories via background script to avoid CORS issues
@@ -1813,6 +1816,9 @@ class NewTabHackerNewsReader {
 
         // Check authentication status on load
         this.checkAuthStatus();
+
+        // Set up session persistence handlers
+        this.setupSessionPersistence();
     }
 
     // Setup auth icon event listener
@@ -2046,20 +2052,32 @@ class NewTabHackerNewsReader {
     // Check authentication status
     async checkAuthStatus() {
         try {
+            console.log('Checking authentication status...');
             const result = await chrome.storage.local.get(['userToken', 'userData']);
             
             if (result.userToken && result.userData) {
+                console.log('Found stored user data, verifying token...');
                 // Verify token is still valid
                 const isValid = await this.verifyToken(result.userToken);
                 if (isValid) {
+                    console.log('Token is valid, user is logged in');
                     this.updateUserInterface(result.userData);
+                    // Optionally refresh user data from server
+                    await this.refreshUserData();
                 } else {
+                    console.log('Token expired or invalid, clearing stored data');
                     // Token expired, clear data
                     await chrome.storage.local.remove(['userToken', 'userData']);
+                    this.updateUserInterface(null);
                 }
+            } else {
+                console.log('No stored user data found');
+                this.updateUserInterface(null);
             }
         } catch (error) {
             console.error('Auth check error:', error);
+            // On error, assume not logged in
+            this.updateUserInterface(null);
         }
     }
 
@@ -2086,8 +2104,74 @@ class NewTabHackerNewsReader {
 
             return response.ok;
         } catch (error) {
-            return false;
+            console.log('Token verification failed (server might be unavailable):', error.message);
+            // If server is unavailable, assume token is still valid for offline use
+            // This prevents users from being logged out when server is temporarily down
+            return true;
         }
+    }
+
+    // Refresh user data from server
+    async refreshUserData() {
+        try {
+            const result = await chrome.storage.local.get(['userToken']);
+            if (!result.userToken) return;
+
+            const response = await fetch('http://localhost:3000/api/auth/me', {
+                headers: {
+                    'Authorization': `Bearer ${result.userToken}`
+                },
+                mode: 'cors'
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                if (data.success && data.data.user) {
+                    // Update stored user data with fresh data from server
+                    await chrome.storage.local.set({
+                        userData: data.data.user
+                    });
+                    // Update UI with fresh data
+                    this.updateUserInterface(data.data.user);
+                    console.log('User data refreshed from server');
+                }
+            }
+        } catch (error) {
+            console.error('Error refreshing user data:', error);
+        }
+    }
+
+    // Setup session persistence handlers
+    setupSessionPersistence() {
+        // Listen for storage changes (when user logs in/out in another tab)
+        chrome.storage.onChanged.addListener((changes, namespace) => {
+            if (namespace === 'local') {
+                if (changes.userToken || changes.userData) {
+                    console.log('User authentication state changed, updating UI...');
+                    this.checkAuthStatus();
+                }
+            }
+        });
+
+        // Listen for page visibility changes (when user returns to tab)
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden) {
+                console.log('Page became visible, checking auth status...');
+                this.checkAuthStatus();
+            }
+        });
+
+        // Listen for focus events (when user returns to browser)
+        window.addEventListener('focus', () => {
+            console.log('Window focused, checking auth status...');
+            this.checkAuthStatus();
+        });
+
+        // Periodic auth check (every 5 minutes) to ensure session stays fresh
+        setInterval(() => {
+            console.log('Periodic auth check...');
+            this.checkAuthStatus();
+        }, 5 * 60 * 1000); // 5 minutes
     }
 
     // Update user interface based on auth status
