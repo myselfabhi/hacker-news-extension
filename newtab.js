@@ -1134,29 +1134,41 @@ class NewTabHackerNewsReader {
         if (errorElement) errorElement.style.display = 'none';
     }
 
-    // Create crazy loading effects
+    // Create professional loading effects
     createCrazyLoadingEffects() {
         const loadingElement = document.getElementById('loading');
         if (!loadingElement) return;
 
-        // Add particles container if it doesn't exist
-        if (!loadingElement.querySelector('.loading-particles')) {
-            const particlesContainer = document.createElement('div');
-            particlesContainer.className = 'loading-particles';
-            
-            // Create floating particles
-            for (let i = 0; i < 6; i++) {
-                const particle = document.createElement('div');
-                particle.className = 'loading-particle';
-                particle.style.top = Math.random() * 80 + 10 + '%';
-                particle.style.left = Math.random() * 80 + 10 + '%';
-                particle.style.animationDelay = Math.random() * 3 + 's';
-                particle.style.animationDuration = (2 + Math.random() * 2) + 's';
-                particlesContainer.appendChild(particle);
-            }
-            
-            loadingElement.appendChild(particlesContainer);
+        // Clear any existing loading content
+        loadingElement.innerHTML = '';
+
+        // Create professional loading container
+        const loadingContainer = document.createElement('div');
+        loadingContainer.className = 'professional-loader';
+        
+        // Create main spinner
+        const spinner = document.createElement('div');
+        spinner.className = 'professional-spinner';
+        
+        // Create loading text
+        const loadingText = document.createElement('div');
+        loadingText.className = 'loading-text';
+        loadingText.textContent = 'Loading latest news...';
+        
+        // Create progress dots
+        const progressDots = document.createElement('div');
+        progressDots.className = 'progress-dots';
+        for (let i = 0; i < 3; i++) {
+            const dot = document.createElement('div');
+            dot.className = 'progress-dot';
+            dot.style.animationDelay = `${i * 0.2}s`;
+            progressDots.appendChild(dot);
         }
+        
+        loadingContainer.appendChild(spinner);
+        loadingContainer.appendChild(loadingText);
+        loadingContainer.appendChild(progressDots);
+        loadingElement.appendChild(loadingContainer);
     }
 
     showError(errorMessage = 'Failed to load stories. Please check your internet connection and try again.') {
@@ -3902,21 +3914,6 @@ class NewTabHackerNewsReader {
 
     // Enhance story interactions
     enhanceStoryInteractions() {
-        // Add hover effects to story cards
-        document.addEventListener('mouseover', (e) => {
-            if (e.target.closest('.story')) {
-                const story = e.target.closest('.story');
-                this.addStoryHoverEffects(story);
-            }
-        });
-
-        document.addEventListener('mouseout', (e) => {
-            if (e.target.closest('.story')) {
-                const story = e.target.closest('.story');
-                this.removeStoryHoverEffects(story);
-            }
-        });
-
         // Add click effects
         document.addEventListener('click', (e) => {
             if (e.target.closest('.story')) {
@@ -3926,47 +3923,7 @@ class NewTabHackerNewsReader {
         });
     }
 
-    // Add hover effects to story
-    addStoryHoverEffects(story) {
-        // Create ripple effect
-        const ripple = document.createElement('div');
-        ripple.className = 'story-ripple';
-        ripple.style.cssText = `
-            position: absolute;
-            border-radius: 50%;
-            background: rgba(96, 165, 250, 0.3);
-            transform: scale(0);
-            animation: rippleExpand 0.6s ease-out;
-            pointer-events: none;
-            z-index: 1;
-        `;
-        
-        const rect = story.getBoundingClientRect();
-        const size = Math.max(rect.width, rect.height);
-        ripple.style.width = ripple.style.height = size + 'px';
-        ripple.style.left = (rect.width / 2 - size / 2) + 'px';
-        ripple.style.top = (rect.height / 2 - size / 2) + 'px';
-        
-        story.appendChild(ripple);
-        
-        // Remove ripple after animation
-        setTimeout(() => {
-            if (ripple.parentNode) {
-                ripple.parentNode.removeChild(ripple);
-            }
-        }, 600);
-    }
-
-    // Remove hover effects from story
-    removeStoryHoverEffects(story) {
-        // Remove any existing ripples
-        const ripples = story.querySelectorAll('.story-ripple');
-        ripples.forEach(ripple => {
-            if (ripple.parentNode) {
-                ripple.parentNode.removeChild(ripple);
-            }
-        });
-    }
+    // Hover effects removed - only CSS hover effects remain
 
     // Add click effect to story
     addStoryClickEffect(story) {

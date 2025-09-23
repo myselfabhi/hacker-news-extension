@@ -1680,16 +1680,7 @@ body {
     }
 }
 
-@keyframes rippleExpand {
-    0% {
-        transform: scale(0);
-        opacity: 1;
-    }
-    100% {
-        transform: scale(1);
-        opacity: 0;
-    }
-}
+/* Ripple animation removed */
 
 /* Floating AI Assistant */
 .floating-ai-assistant {
@@ -2856,7 +2847,7 @@ body {
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2), 0 4px 12px rgba(59, 130, 246, 0.2);
 }
 
-/* CRAZY Loading States */
+/* Professional Loading States */
 .loading-state {
     display: flex;
     flex-direction: column;
@@ -2865,35 +2856,90 @@ body {
     padding: 60px 20px;
     text-align: center;
     position: relative;
-    overflow: hidden;
-    background: linear-gradient(135deg, rgba(59, 130, 246, 0.03) 0%, rgba(96, 165, 250, 0.03) 100%);
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.02) 0%, rgba(96, 165, 250, 0.02) 100%);
     border-radius: 20px;
     margin: 20px;
+    border: 1px solid rgba(59, 130, 246, 0.1);
+    backdrop-filter: blur(10px);
 }
 
-/* Crazy Loading Background Effects */
-.loading-state::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: conic-gradient(from 0deg, transparent, rgba(59, 130, 246, 0.1), transparent, rgba(96, 165, 250, 0.1), transparent);
-    animation: crazyRotate 4s linear infinite;
-    z-index: -1;
+/* Professional Loader Components */
+.professional-loader {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
 }
 
-.loading-state::after {
+.professional-spinner {
+    width: 50px;
+    height: 50px;
+    border: 3px solid rgba(59, 130, 246, 0.2);
+    border-top: 3px solid #3b82f6;
+    border-radius: 50%;
+    animation: professionalSpin 1s linear infinite;
+    position: relative;
+}
+
+.professional-spinner::after {
     content: '';
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: radial-gradient(circle at center, rgba(59, 130, 246, 0.05) 0%, transparent 70%);
-    animation: crazyPulse 2s ease-in-out infinite;
-    z-index: -1;
+    top: -3px;
+    left: -3px;
+    right: -3px;
+    bottom: -3px;
+    border: 2px solid transparent;
+    border-top: 2px solid rgba(96, 165, 250, 0.6);
+    border-radius: 50%;
+    animation: professionalSpin 1.5s linear infinite reverse;
+}
+
+.loading-text {
+    font-size: 16px;
+    font-weight: 500;
+    color: #60a5fa;
+    margin: 0;
+    animation: professionalFade 2s ease-in-out infinite;
+}
+
+.progress-dots {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.progress-dot {
+    width: 8px;
+    height: 8px;
+    background: #3b82f6;
+    border-radius: 50%;
+    animation: professionalBounce 1.4s ease-in-out infinite both;
+}
+
+.progress-dot:nth-child(1) { animation-delay: -0.32s; }
+.progress-dot:nth-child(2) { animation-delay: -0.16s; }
+.progress-dot:nth-child(3) { animation-delay: 0s; }
+
+/* Professional Animations */
+@keyframes professionalSpin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@keyframes professionalFade {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 1; }
+}
+
+@keyframes professionalBounce {
+    0%, 80%, 100% {
+        transform: scale(0.8);
+        opacity: 0.5;
+    }
+    40% {
+        transform: scale(1.2);
+        opacity: 1;
+    }
 }
 
 /* Crazy Multi-Layer Spinner */
