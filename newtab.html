@@ -754,6 +754,52 @@
         </div>
     </div>
 
+    <!-- Saved/Read Later Articles Modal -->
+    <div class="modal" id="articlesModal" style="display: none;">
+        <div class="modal-content articles-modal">
+            <div class="modal-header">
+                <h2 id="articlesModalTitle">My Articles</h2>
+                <button class="close-btn" id="closeArticlesModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <!-- Filter Tabs -->
+                <div class="articles-tabs">
+                    <button class="articles-tab active" data-type="read-later">Read Later</button>
+                    <button class="articles-tab" data-type="saved">Saved</button>
+                </div>
+                
+                <!-- Articles Container -->
+                <div class="articles-container" id="articlesContainer">
+                    <div class="articles-loading" id="articlesLoading">
+                        <div class="loading-spinner">
+                            <div class="spinner-ring"></div>
+                            <div class="spinner-ring"></div>
+                            <div class="spinner-ring"></div>
+                        </div>
+                        <p>Loading articles...</p>
+                    </div>
+                    
+                    <div class="articles-list" id="articlesList" style="display: none;">
+                        <!-- Articles will be populated here -->
+                    </div>
+                    
+                    <div class="articles-empty" id="articlesEmpty" style="display: none;">
+                        <div class="empty-icon">📰</div>
+                        <h3>No articles yet</h3>
+                        <p id="emptyMessage">You haven't saved any articles for later reading.</p>
+                    </div>
+                    
+                    <div class="articles-error" id="articlesError" style="display: none;">
+                        <div class="error-icon">⚠️</div>
+                        <h3>Failed to load articles</h3>
+                        <p>Please try again later.</p>
+                        <button class="retry-btn" id="retryLoadArticles">Retry</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Floating AI Assistant Modal -->
     <div class="floating-ai-assistant" id="floatingAIAssistant">
         <!-- AI Assistant Toggle Button -->

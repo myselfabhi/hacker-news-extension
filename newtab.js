@@ -1798,6 +1798,58 @@ class NewTabHackerNewsReader {
             viewReadLaterBtn.addEventListener('click', () => this.viewReadLaterArticles());
         }
 
+        // Articles modal buttons
+        const closeArticlesModal = document.getElementById('closeArticlesModal');
+        const retryLoadArticles = document.getElementById('retryLoadArticles');
+        const articlesTabs = document.querySelectorAll('.articles-tab');
+        
+        if (closeArticlesModal) {
+            closeArticlesModal.addEventListener('click', () => {
+                const modal = document.getElementById('articlesModal');
+                if (modal) modal.style.display = 'none';
+            });
+        }
+        
+        // Close modal when clicking outside
+        const articlesModal = document.getElementById('articlesModal');
+        if (articlesModal) {
+            articlesModal.addEventListener('click', (e) => {
+                if (e.target === articlesModal) {
+                    articlesModal.style.display = 'none';
+                }
+            });
+        }
+        
+        // Tab switching
+        articlesTabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                const type = tab.getAttribute('data-type');
+                if (type) {
+                    // Update active tab
+                    articlesTabs.forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    
+                    // Update modal title
+                    const title = document.getElementById('articlesModalTitle');
+                    if (title) {
+                        title.textContent = type === 'saved' ? 'Saved Articles' : 'Read Later';
+                    }
+                    
+                    // Load articles for this type
+                    this.loadArticles(type);
+                }
+            });
+        });
+        
+        // Retry button
+        if (retryLoadArticles) {
+            retryLoadArticles.addEventListener('click', () => {
+                const activeTab = document.querySelector('.articles-tab.active');
+                const type = activeTab?.getAttribute('data-type') || 'read-later';
+                this.loadArticles(type);
+            });
+        }
+
         // Story action buttons
         document.addEventListener('click', (e) => {
             if (e.target.closest('.story-actions .action-btn')) {
@@ -2395,12 +2447,266 @@ class NewTabHackerNewsReader {
 
     // View saved articles
     viewSavedArticles() {
-        this.showNotification('Saved articles feature coming soon!', 'info');
+        this.showArticlesModal('saved');
     }
 
     // View read later articles
     viewReadLaterArticles() {
-        this.showNotification('Read later feature coming soon!', 'info');
+        this.showArticlesModal('read-later');
+    }
+
+    // Show articles modal with specified type
+    async showArticlesModal(type = 'read-later') {
+        const modal = document.getElementById('articlesModal');
+        const title = document.getElementById('articlesModalTitle');
+        const tabs = document.querySelectorAll('.articles-tab');
+        
+        if (!modal) return;
+        
+        // Update modal title
+        title.textContent = type === 'saved' ? 'Saved Articles' : 'Read Later';
+        
+        // Update active tab
+        tabs.forEach(tab => {
+            if (tab.getAttribute('data-type') === type) {
+                tab.classList.add('active');
+            } else {
+                tab.classList.remove('active');
+            }
+        });
+        
+        // Show modal
+        modal.style.display = 'flex';
+        
+        // Close profile modal if open
+        this.hideProfileModal();
+        
+        // Load articles
+        await this.loadArticles(type);
+    }
+
+    // Load articles from backend
+    async loadArticles(type) {
+        const loadingEl = document.getElementById('articlesLoading');
+        const listEl = document.getElementById('articlesList');
+        const emptyEl = document.getElementById('articlesEmpty');
+        const errorEl = document.getElementById('articlesError');
+        const emptyMessage = document.getElementById('emptyMessage');
+        
+        // Show loading, hide others
+        loadingEl.style.display = 'flex';
+        listEl.style.display = 'none';
+        emptyEl.style.display = 'none';
+        errorEl.style.display = 'none';
+        
+        try {
+            const result = await chrome.storage.local.get(['userToken']);
+            if (!result.userToken) {
+                throw new Error('Not authenticated');
+            }
+            
+            const endpoint = type === 'saved' ? 'saved' : 'read-later';
+            const response = await fetch(`http://localhost:3000/api/articles/${endpoint}`, {
+                headers: {
+                    'Authorization': `Bearer ${result.userToken}`
+                }
+            });
+            
+            if (!response.ok) {
+                throw new Error('Failed to fetch articles');
+            }
+            
+            const data = await response.json();
+            const articles = data.data?.articles || [];
+            
+            // Hide loading
+            loadingEl.style.display = 'none';
+            
+            if (articles.length === 0) {
+                // Show empty state
+                emptyEl.style.display = 'flex';
+                emptyMessage.textContent = type === 'saved' 
+                    ? 'You haven\'t saved any articles yet.' 
+                    : 'You haven\'t added any articles to read later.';
+            } else {
+                // Show articles list
+                listEl.style.display = 'flex';
+                this.renderArticlesList(articles, type);
+            }
+            
+        } catch (error) {
+            console.error('Failed to load articles:', error);
+            loadingEl.style.display = 'none';
+            errorEl.style.display = 'flex';
+        }
+    }
+
+    // Render articles list
+    renderArticlesList(articles, type) {
+        const listEl = document.getElementById('articlesList');
+        listEl.innerHTML = '';
+        
+        articles.forEach(article => {
+            const articleEl = document.createElement('div');
+            articleEl.className = 'article-item';
+            articleEl.setAttribute('data-article-id', article._id);
+            
+            // Calculate time ago
+            const timeAgo = this.getTimeAgo(article.savedAt);
+            
+            articleEl.innerHTML = `
+                <div class="article-header">
+                    <h3 class="article-title">
+                        <a href="${article.url}" target="_blank" rel="noopener noreferrer">
+                            ${this.escapeHtml(article.title)}
+                        </a>
+                    </h3>
+                    <div class="article-actions">
+                        <button class="article-action-btn open" data-url="${article.url}">
+                            Open
+                        </button>
+                        <button class="article-action-btn delete" data-id="${article._id}">
+                            Remove
+                        </button>
+                    </div>
+                </div>
+                <div class="article-meta">
+                    ${article.score ? `
+                        <div class="article-meta-item">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>
+                            </svg>
+                            <span>${article.score} points</span>
+                        </div>
+                    ` : ''}
+                    ${article.author ? `
+                        <div class="article-meta-item">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                            </svg>
+                            <span>${this.escapeHtml(article.author)}</span>
+                        </div>
+                    ` : ''}
+                    ${article.comments ? `
+                        <div class="article-meta-item">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"></path>
+                            </svg>
+                            <span>${article.comments} comments</span>
+                        </div>
+                    ` : ''}
+                </div>
+                <div class="article-saved-time">Saved ${timeAgo}</div>
+            `;
+            
+            listEl.appendChild(articleEl);
+        });
+        
+        // Add event listeners for article actions
+        this.attachArticleActionListeners();
+    }
+
+    // Attach event listeners for article actions
+    attachArticleActionListeners() {
+        const listEl = document.getElementById('articlesList');
+        
+        listEl.addEventListener('click', async (e) => {
+            if (e.target.closest('.article-action-btn.open')) {
+                const url = e.target.closest('.article-action-btn.open').getAttribute('data-url');
+                if (url) {
+                    window.open(url, '_blank', 'noopener,noreferrer');
+                }
+            } else if (e.target.closest('.article-action-btn.delete')) {
+                const btn = e.target.closest('.article-action-btn.delete');
+                const articleId = btn.getAttribute('data-id');
+                await this.deleteArticle(articleId);
+            }
+        });
+    }
+
+    // Delete article
+    async deleteArticle(articleId) {
+        try {
+            const result = await chrome.storage.local.get(['userToken']);
+            if (!result.userToken) {
+                this.showNotification('Please login first', 'error');
+                return;
+            }
+            
+            const response = await fetch(`http://localhost:3000/api/articles/${articleId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${result.userToken}`
+                }
+            });
+            
+            if (!response.ok) {
+                throw new Error('Failed to delete article');
+            }
+            
+            // Remove article from DOM
+            const articleEl = document.querySelector(`[data-article-id="${articleId}"]`);
+            if (articleEl) {
+                articleEl.style.opacity = '0';
+                articleEl.style.transform = 'translateX(-20px)';
+                setTimeout(() => {
+                    articleEl.remove();
+                    
+                    // Check if list is empty
+                    const listEl = document.getElementById('articlesList');
+                    if (listEl.children.length === 0) {
+                        const emptyEl = document.getElementById('articlesEmpty');
+                        const emptyMessage = document.getElementById('emptyMessage');
+                        const activeTab = document.querySelector('.articles-tab.active');
+                        const type = activeTab?.getAttribute('data-type') || 'read-later';
+                        
+                        listEl.style.display = 'none';
+                        emptyEl.style.display = 'flex';
+                        emptyMessage.textContent = type === 'saved' 
+                            ? 'You haven\'t saved any articles yet.' 
+                            : 'You haven\'t added any articles to read later.';
+                    }
+                }, 300);
+            }
+            
+            this.showNotification('Article removed successfully', 'success');
+            
+            // Update user profile counts
+            await this.updateUserProfile();
+            
+        } catch (error) {
+            console.error('Failed to delete article:', error);
+            this.showNotification('Failed to remove article', 'error');
+        }
+    }
+
+    // Get time ago string
+    getTimeAgo(dateString) {
+        const now = new Date();
+        const past = new Date(dateString);
+        const diffInMinutes = Math.floor((now - past) / (1000 * 60));
+        
+        if (diffInMinutes < 1) return 'just now';
+        if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
+        
+        const diffInHours = Math.floor(diffInMinutes / 60);
+        if (diffInHours < 24) return `${diffInHours}h ago`;
+        
+        const diffInDays = Math.floor(diffInHours / 24);
+        if (diffInDays < 30) return `${diffInDays}d ago`;
+        
+        const diffInMonths = Math.floor(diffInDays / 30);
+        if (diffInMonths < 12) return `${diffInMonths}mo ago`;
+        
+        const diffInYears = Math.floor(diffInMonths / 12);
+        return `${diffInYears}y ago`;
+    }
+
+    // Escape HTML to prevent XSS
+    escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
     }
 
     // Show notification
