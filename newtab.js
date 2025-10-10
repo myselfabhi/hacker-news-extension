@@ -381,8 +381,6 @@ class NewTabHackerNewsReader {
         // Setup crazy news feed
         this.setupCrazyNewsFeed();
         
-        // Setup floating AI assistant
-        this.setupFloatingAIAssistant();
         
         // Setup live activity monitor
         this.setupLiveActivityMonitor();
@@ -2959,8 +2957,6 @@ class NewTabHackerNewsReader {
         const searchParticles = document.getElementById('searchParticles');
         const searchEnergyRipples = document.getElementById('searchEnergyRipples');
         const voiceBtn = document.getElementById('voiceBtn');
-        const cameraBtn = document.getElementById('cameraBtn');
-        const aiBtn = document.getElementById('aiBtn');
 
         if (!searchInput) return;
 
@@ -3044,18 +3040,6 @@ class NewTabHackerNewsReader {
         if (voiceBtn) {
             voiceBtn.addEventListener('click', () => {
                 this.handleVoiceSearch();
-            });
-        }
-
-        if (cameraBtn) {
-            cameraBtn.addEventListener('click', () => {
-                this.handleCameraSearch();
-            });
-        }
-
-        if (aiBtn) {
-            aiBtn.addEventListener('click', () => {
-                this.handleAISearch();
             });
         }
 
@@ -3319,80 +3303,8 @@ class NewTabHackerNewsReader {
         this.showNotification('📷 Select an image to search', 'info');
         */
         
-        // Temporary message
-        this.showNotification('📷 Image search coming soon!', 'info');
-    }
-
-    // Process image search - Commented out for now
-    /*
-    async processImageSearch(file) {
-        try {
-            this.showNotification('🔍 Analyzing image...', 'info');
-            
-            // Create a preview of the image
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                const imageData = e.target.result;
-                
-                // For now, simulate image analysis and extract text/context
-                // In a real implementation, you could use:
-                // - Google Vision API for OCR
-                // - AI services for image recognition
-                // - Local OCR libraries
-                
-                setTimeout(() => {
-                    // Simulate extracted text or recognized objects
-                    const simulatedResults = [
-                        "artificial intelligence",
-                        "machine learning", 
-                        "neural networks",
-                        "computer vision",
-                        "deep learning",
-                        "programming",
-                        "software development",
-                        "tech innovation"
-                    ];
-                    
-                    const randomResult = simulatedResults[Math.floor(Math.random() * simulatedResults.length)];
-                    const searchInput = document.getElementById('searchInput');
-                    
-                    if (searchInput) {
-                        searchInput.value = randomResult;
-                        this.toggleEnterButton(randomResult); // Show Enter button
-                    }
-                    
-                    this.showNotification(`📷 Image analyzed! Found: "${randomResult}" - Click Enter to search!`, 'success');
-                }, 2000);
-            };
-            
-            reader.readAsDataURL(file);
-            
-        } catch (error) {
-            this.showNotification('Failed to process image', 'error');
-            console.error('Image processing error:', error);
-        }
-    }
-    */
-
-    // Handle AI search
-    handleAISearch() {
-        // Add visual feedback
-        const aiBtn = document.getElementById('aiBtn');
-        if (aiBtn) {
-            aiBtn.style.background = 'rgba(59, 130, 246, 0.3)';
-            setTimeout(() => {
-                aiBtn.style.background = 'transparent';
-            }, 1000);
-        }
-
-        // Simulate AI search
-        setTimeout(() => {
-            const searchInput = document.getElementById('searchInput');
-            if (searchInput) {
-                searchInput.value = "AI-powered tech news summary";
-                this.performSearch(searchInput.value);
-            }
-        }, 1000);
+        // Image search functionality removed
+        this.showNotification('📷 Image search feature coming soon!', 'info');
     }
 
     // Perform search
@@ -4577,199 +4489,6 @@ class NewTabHackerNewsReader {
             
             // Add staggered animation
             story.style.animation = `storySlideIn 0.6s ease-out ${index * 0.1}s both`;
-        });
-    }
-
-    // Setup floating AI assistant with chat interface
-    setupFloatingAIAssistant() {
-        this.setupAIAssistantToggle();
-        this.setupAIAssistantChat();
-        this.setupAIAssistantSuggestions();
-    }
-
-    // Setup AI assistant toggle button
-    setupAIAssistantToggle() {
-        const toggle = document.getElementById('aiAssistantToggle');
-        const modal = document.getElementById('aiAssistantModal');
-        
-        if (!toggle || !modal) return;
-
-        toggle.addEventListener('click', () => {
-            modal.classList.toggle('active');
-            
-            if (modal.classList.contains('active')) {
-                // Focus on input when opened
-                const input = document.getElementById('aiAssistantInput');
-                if (input) {
-                    setTimeout(() => input.focus(), 300);
-                }
-            }
-        });
-
-        // Close modal when clicking outside
-        document.addEventListener('click', (e) => {
-            if (!e.target.closest('.floating-ai-assistant') && modal.classList.contains('active')) {
-                modal.classList.remove('active');
-            }
-        });
-    }
-
-    // Setup AI assistant chat functionality
-    setupAIAssistantChat() {
-        const input = document.getElementById('aiAssistantInput');
-        const sendBtn = document.getElementById('aiAssistantSend');
-        const chat = document.getElementById('aiAssistantChat');
-        const closeBtn = document.getElementById('aiAssistantClose');
-        const modal = document.getElementById('aiAssistantModal');
-
-        if (!input || !sendBtn || !chat) return;
-
-        // Send message on button click
-        sendBtn.addEventListener('click', () => {
-            this.sendAIMessage();
-        });
-
-        // Send message on Enter key
-        input.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                this.sendAIMessage();
-            }
-        });
-
-        // Close modal
-        if (closeBtn && modal) {
-            closeBtn.addEventListener('click', () => {
-                modal.classList.remove('active');
-            });
-        }
-    }
-
-    // Send AI message
-    sendAIMessage() {
-        const input = document.getElementById('aiAssistantInput');
-        const chat = document.getElementById('aiAssistantChat');
-        
-        if (!input || !chat) return;
-
-        const message = input.value.trim();
-        if (!message) return;
-
-        // Add user message
-        this.addChatMessage(message, 'user');
-        
-        // Clear input
-        input.value = '';
-
-        // Simulate AI response
-        setTimeout(() => {
-            const response = this.generateAIResponse(message);
-            this.addChatMessage(response, 'ai');
-        }, 1000);
-    }
-
-    // Add chat message
-    addChatMessage(message, type) {
-        const chat = document.getElementById('aiAssistantChat');
-        if (!chat) return;
-
-        const messageDiv = document.createElement('div');
-        messageDiv.className = `ai-assistant-message ${type === 'user' ? 'user-message' : 'ai-message'}`;
-
-        const avatar = document.createElement('div');
-        avatar.className = 'message-avatar';
-        
-        if (type === 'user') {
-            avatar.innerHTML = `
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                    <circle cx="12" cy="7" r="4"></circle>
-                </svg>
-            `;
-        } else {
-            avatar.innerHTML = `
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
-                </svg>
-            `;
-        }
-
-        const content = document.createElement('div');
-        content.className = 'message-content';
-        content.innerHTML = `<p>${message}</p>`;
-
-        messageDiv.appendChild(avatar);
-        messageDiv.appendChild(content);
-        chat.appendChild(messageDiv);
-
-        // Scroll to bottom
-        chat.scrollTop = chat.scrollHeight;
-    }
-
-    // Generate AI response
-    generateAIResponse(userMessage) {
-        const responses = {
-            'ai': [
-                "AI is currently one of the hottest topics in tech! Recent developments include large language models, computer vision breakthroughs, and AI-powered automation tools.",
-                "The AI landscape is rapidly evolving with new models being released regularly. Key areas of focus include natural language processing, machine learning, and neural networks.",
-                "AI technology is transforming industries from healthcare to finance. Recent news covers everything from ChatGPT alternatives to autonomous vehicles."
-            ],
-            'trending': [
-                "Based on current tech news, trending topics include quantum computing, blockchain technology, space exploration, and cybersecurity innovations.",
-                "The tech world is buzzing about new developments in renewable energy, electric vehicles, and smart city technologies.",
-                "Recent trending stories cover everything from new programming languages to breakthrough scientific discoveries."
-            ],
-            'explain': [
-                "I'd be happy to explain any tech story you're interested in! Could you provide more details about which specific article or topic you'd like me to break down?",
-                "To give you the best explanation, please share the title or key points of the story you'd like me to analyze.",
-                "I can help explain complex tech concepts in simple terms. What specific story or technology would you like me to clarify?"
-            ],
-            'similar': [
-                "I can help you find similar articles! Let me search through the current tech news for related stories and topics.",
-                "To find similar articles, I'll look for stories with related keywords, technologies, or themes. What specific topic are you interested in?",
-                "I can suggest related articles based on the current tech news feed. What type of content are you looking for?"
-            ],
-            'default': [
-                "That's an interesting question! I'm here to help you navigate the world of tech news and answer any questions you might have.",
-                "I can help you understand tech trends, explain complex topics, or find information about specific technologies. What would you like to know?",
-                "Great question! I'm designed to help you make sense of the fast-paced world of technology. How can I assist you today?"
-            ]
-        };
-
-        const message = userMessage.toLowerCase();
-        
-        if (message.includes('ai') || message.includes('artificial intelligence')) {
-            return this.getRandomResponse(responses.ai);
-        } else if (message.includes('trending') || message.includes('popular')) {
-            return this.getRandomResponse(responses.trending);
-        } else if (message.includes('explain') || message.includes('what is') || message.includes('how does')) {
-            return this.getRandomResponse(responses.explain);
-        } else if (message.includes('similar') || message.includes('related') || message.includes('find')) {
-            return this.getRandomResponse(responses.similar);
-        } else {
-            return this.getRandomResponse(responses.default);
-        }
-    }
-
-    // Get random response from array
-    getRandomResponse(responses) {
-        return responses[Math.floor(Math.random() * responses.length)];
-    }
-
-    // Setup AI assistant suggestions
-    setupAIAssistantSuggestions() {
-        const suggestionBtns = document.querySelectorAll('.suggestion-btn');
-        const input = document.getElementById('aiAssistantInput');
-        
-        if (!input) return;
-
-        suggestionBtns.forEach(btn => {
-            btn.addEventListener('click', () => {
-                const suggestion = btn.getAttribute('data-suggestion');
-                if (suggestion) {
-                    input.value = suggestion;
-                    input.focus();
-                }
-            });
         });
     }
 

@@ -138,25 +138,6 @@
                                     </svg>
                                     <div class="btn-glow"></div>
                                 </button>
-
-                                <!-- Camera Button -->
-                                <button class="search-action-btn camera-btn" id="cameraBtn" title="Camera search">
-                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
-                                        <circle cx="12" cy="13" r="4"></circle>
-                                    </svg>
-                                    <div class="btn-glow"></div>
-                                </button>
-
-                                <!-- AI Assistant Button -->
-                                <button class="search-action-btn ai-btn" id="aiBtn" title="AI Assistant">
-                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1 .34-4.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 1.98-3A2.5 2.5 0 0 1 9.5 2Z"></path>
-                                        <path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0-.34-4.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-1.98-3A2.5 2.5 0 0 0 14.5 2Z"></path>
-                                </svg>
-                                    <div class="ai-status-indicator"></div>
-                                    <div class="btn-glow"></div>
-                                </button>
                             </div>
                         </div>
 
@@ -230,20 +211,21 @@
                         <div class="shortcut-label">YouTube</div>
                     </div>
 
-                    <div class="crazy-shortcut-card" data-url="https://code.visualstudio.com">
+                    <div class="crazy-shortcut-card" data-url="https://www.instagram.com">
                         <div class="shortcut-particles"></div>
                         <div class="shortcut-glow-ring"></div>
                         <div class="shortcut-button">
                             <div class="shortcut-bg-pattern"></div>
                             <div class="shortcut-icon-container">
                                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <polyline points="16,18 22,12 16,6"></polyline>
-                                    <polyline points="8,6 2,12 8,18"></polyline>
+                                    <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                                    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                                    <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
                                 </svg>
                             </div>
                             <div class="shortcut-ripple"></div>
                         </div>
-                        <div class="shortcut-label">VS Code</div>
+                        <div class="shortcut-label">Instagram</div>
                     </div>
 
                     <div class="crazy-shortcut-card" data-url="https://github.com">
@@ -821,72 +803,6 @@
                         <p>Please try again later.</p>
                         <button class="retry-btn" id="retryLoadArticles">Retry</button>
                     </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Floating AI Assistant Modal -->
-    <div class="floating-ai-assistant" id="floatingAIAssistant">
-        <!-- AI Assistant Toggle Button -->
-        <button class="ai-assistant-toggle" id="aiAssistantToggle">
-            <div class="ai-assistant-icon">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
-                </svg>
-            </div>
-            <div class="ai-assistant-pulse"></div>
-        </button>
-
-        <!-- AI Assistant Chat Modal -->
-        <div class="ai-assistant-modal" id="aiAssistantModal">
-            <div class="ai-assistant-header">
-                <div class="ai-assistant-title">
-                    <div class="ai-assistant-avatar">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
-                        </svg>
-                    </div>
-                    <div class="ai-assistant-info">
-                        <h3>AI Assistant</h3>
-                        <p>Ask me anything about tech news</p>
-                    </div>
-                </div>
-                <button class="ai-assistant-close" id="aiAssistantClose">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <line x1="18" y1="6" x2="6" y2="18"></line>
-                        <line x1="6" y1="6" x2="18" y2="18"></line>
-                    </svg>
-                </button>
-            </div>
-
-            <div class="ai-assistant-chat" id="aiAssistantChat">
-                <div class="ai-assistant-message ai-message">
-                    <div class="message-avatar">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
-                        </svg>
-                    </div>
-                    <div class="message-content">
-                        <p>Hello! I'm your AI assistant. I can help you find tech news, explain trending topics, or answer questions about the stories you're reading. What would you like to know?</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="ai-assistant-input">
-                <div class="input-container">
-                    <input type="text" id="aiAssistantInput" placeholder="Ask me anything about tech news..." />
-                    <button class="ai-assistant-send" id="aiAssistantSend">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <line x1="22" y1="2" x2="11" y2="13"></line>
-                            <polygon points="22,2 15,22 11,13 2,9 22,2"></polygon>
-                        </svg>
-                    </button>
-                </div>
-                <div class="ai-assistant-suggestions">
-                    <button class="suggestion-btn" data-suggestion="What's trending in AI?">What's trending in AI?</button>
-                    <button class="suggestion-btn" data-suggestion="Explain this story">Explain this story</button>
-                    <button class="suggestion-btn" data-suggestion="Find similar articles">Find similar articles</button>
                 </div>
             </div>
         </div>
