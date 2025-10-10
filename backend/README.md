@@ -152,6 +152,17 @@ curl -X POST http://localhost:3000/api/articles/save \
 }
 ```
 
+## 🧹 Automatic Article Cleanup
+
+The backend includes an automatic cleanup service that removes old articles:
+
+- **Read Later articles:** Deleted after 15 days
+- **Saved articles:** Deleted after 1 year (365 days)
+- **Schedule:** Runs daily at 2:00 AM
+- **User notification:** Retention policy displayed in the articles modal
+
+For more details, see [ARTICLE_RETENTION_POLICY.md](../ARTICLE_RETENTION_POLICY.md)
+
 ## 🔒 Security Features
 
 - JWT authentication

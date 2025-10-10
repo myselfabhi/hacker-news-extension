@@ -7,6 +7,7 @@ require('dotenv').config({ path: './config.env' });
 
 const authRoutes = require('./routes/auth');
 const articleRoutes = require('./routes/articles');
+const cleanupService = require('./services/cleanupService');
 
 const app = express();
 
@@ -41,6 +42,9 @@ mongoose.connect(process.env.MONGODB_URI, {
 })
 .then(() => {
   console.log('✅ Connected to MongoDB');
+  
+  // Start automatic cleanup service
+  cleanupService.startScheduledCleanup();
 })
 .catch((error) => {
   console.error('❌ MongoDB connection error:', error);
