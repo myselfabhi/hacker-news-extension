@@ -2550,9 +2550,15 @@ class NewTabHackerNewsReader {
             const articleEl = document.createElement('div');
             articleEl.className = 'article-item';
             articleEl.setAttribute('data-article-id', article._id);
+            articleEl.setAttribute('data-article-type', article.type || type);
             
             // Calculate time ago
             const timeAgo = this.getTimeAgo(article.savedAt);
+            
+            // Determine save button text based on current type
+            const currentType = article.type || type;
+            const saveButtonText = currentType === 'read-later' ? 'Save' : 'Read Later';
+            const saveButtonAction = currentType === 'read-later' ? 'saved' : 'read-later';
             
             articleEl.innerHTML = `
                 <div class="article-header">
@@ -2564,6 +2570,9 @@ class NewTabHackerNewsReader {
                     <div class="article-actions">
                         <button class="article-action-btn open" data-url="${article.url}">
                             Open
+                        </button>
+                        <button class="article-action-btn save" data-id="${article._id}" data-target-type="${saveButtonAction}" data-story-id="${article.storyId}" data-title="${this.escapeHtml(article.title)}" data-url="${article.url}" data-score="${article.score || 0}" data-author="${this.escapeHtml(article.author || 'unknown')}" data-comments="${article.comments || 0}">
+                            ${saveButtonText}
                         </button>
                         <button class="article-action-btn delete" data-id="${article._id}">
                             Remove
@@ -2616,6 +2625,25 @@ class NewTabHackerNewsReader {
                 if (url) {
                     window.open(url, '_blank', 'noopener,noreferrer');
                 }
+            } else if (e.target.closest('.article-action-btn.save')) {
+                const btn = e.target.closest('.article-action-btn.save');
+                const articleId = btn.getAttribute('data-id');
+                const targetType = btn.getAttribute('data-target-type');
+                const storyId = btn.getAttribute('data-story-id');
+                const title = btn.getAttribute('data-title');
+                const url = btn.getAttribute('data-url');
+                const score = parseInt(btn.getAttribute('data-score')) || 0;
+                const author = btn.getAttribute('data-author');
+                const comments = parseInt(btn.getAttribute('data-comments')) || 0;
+                
+                await this.toggleArticleType(articleId, targetType, {
+                    storyId,
+                    title,
+                    url,
+                    score,
+                    author,
+                    comments
+                });
             } else if (e.target.closest('.article-action-btn.delete')) {
                 const btn = e.target.closest('.article-action-btn.delete');
                 const articleId = btn.getAttribute('data-id');
@@ -2677,6 +2705,89 @@ class NewTabHackerNewsReader {
         } catch (error) {
             console.error('Failed to delete article:', error);
             this.showNotification('Failed to remove article', 'error');
+        }
+    }
+
+    // Toggle article type (between saved and read-later)
+    async toggleArticleType(articleId, targetType, articleData) {
+        try {
+            const result = await chrome.storage.local.get(['userToken']);
+            if (!result.userToken) {
+                this.showNotification('Please login first', 'error');
+                return;
+            }
+            
+            // First, delete the old article
+            const deleteResponse = await fetch(`http://localhost:3000/api/articles/${articleId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${result.userToken}`
+                }
+            });
+            
+            if (!deleteResponse.ok) {
+                throw new Error('Failed to update article');
+            }
+            
+            // Then, save it with the new type
+            const saveResponse = await fetch('http://localhost:3000/api/articles/save', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${result.userToken}`
+                },
+                body: JSON.stringify({
+                    storyId: articleData.storyId,
+                    title: articleData.title,
+                    url: articleData.url,
+                    type: targetType,
+                    score: articleData.score,
+                    author: articleData.author,
+                    comments: articleData.comments
+                }),
+                mode: 'cors'
+            });
+            
+            const saveData = await saveResponse.json();
+            
+            if (saveData.success) {
+                // Remove article from DOM with animation
+                const articleEl = document.querySelector(`[data-article-id="${articleId}"]`);
+                if (articleEl) {
+                    articleEl.style.opacity = '0';
+                    articleEl.style.transform = 'translateX(-20px)';
+                    setTimeout(() => {
+                        articleEl.remove();
+                        
+                        // Check if list is empty
+                        const listEl = document.getElementById('articlesList');
+                        if (listEl.children.length === 0) {
+                            const emptyEl = document.getElementById('articlesEmpty');
+                            const emptyMessage = document.getElementById('emptyMessage');
+                            const activeTab = document.querySelector('.articles-tab.active');
+                            const type = activeTab?.getAttribute('data-type') || 'read-later';
+                            
+                            listEl.style.display = 'none';
+                            emptyEl.style.display = 'flex';
+                            emptyMessage.textContent = type === 'saved' 
+                                ? 'You haven\'t saved any articles yet.' 
+                                : 'You haven\'t added any articles to read later.';
+                        }
+                    }, 300);
+                }
+                
+                const actionText = targetType === 'saved' ? 'saved' : 'moved to read later';
+                this.showNotification(`Article ${actionText} successfully`, 'success');
+                
+                // Update user profile counts
+                await this.updateUserProfile();
+            } else {
+                throw new Error('Failed to save article');
+            }
+            
+        } catch (error) {
+            console.error('Failed to toggle article type:', error);
+            this.showNotification('Failed to update article', 'error');
         }
     }
 
