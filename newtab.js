@@ -160,6 +160,36 @@ class NewTabHackerNewsReader {
     constructor() {
         this.stories = [];
         this.remainingStories = [];
+        
+        // Dynamic greeting messages
+        this.greetingMessages = [
+            "what's cooking in your mind?",
+            "ready to explore something new?",
+            "what tech story catches your eye today?",
+            "let's dive into some innovation!",
+            "time to feed your curiosity!",
+            "what's sparking your interest today?",
+            "ready for some tech inspiration?",
+            "let's discover something amazing!",
+            "what innovation are you hunting for?",
+            "feeling curious about tech today?",
+            "what's on your tech radar?",
+            "ready to level up your knowledge?",
+            "time to explore the tech universe!",
+            "what brilliant ideas are you chasing?",
+            "let's find your next breakthrough!",
+            "what's fueling your passion today?",
+            "ready to unlock new insights?",
+            "time for some mind-expanding reads!",
+            "what innovations are calling you?",
+            "let's make today legendary!",
+            "what tech magic will you discover?",
+            "ready to geek out on some stories?",
+            "time to satisfy that tech hunger!",
+            "what's your learning quest today?",
+            "let's turn curiosity into knowledge!"
+        ];
+        
         this.init();
     }
 
@@ -171,6 +201,7 @@ class NewTabHackerNewsReader {
         this.loadCustomShortcuts();
         this.initChromeFunctionality();
         this.startLiveUpdates();
+        this.updateGreeting(); // Initialize greeting on page load
     }
 
     // Set up event listeners
@@ -510,30 +541,30 @@ class NewTabHackerNewsReader {
     }
 
     // Fetch stories with retry mechanism and timeout
-    async fetchStoriesWithRetry(maxRetries = 3) {
+    async fetchStoriesWithRetry(maxRetries = 2) {
         for (let attempt = 1; attempt <= maxRetries; attempt++) {
             try {
-                console.log(`Fetch attempt ${attempt} for Hacker News stories...`);
+                console.log(`Fetch attempt ${attempt}/${maxRetries} for Hacker News stories...`);
                 
                 // Use background script to handle API calls
                 const stories = await this.fetchStoriesViaBackground();
                 if (stories && stories.length > 0) {
-                    console.log(`Successfully fetched ${stories.length} story details`);
+                    console.log(`✅ Successfully fetched ${stories.length} story details`);
                     return stories;
                 }
                 
                 throw new Error('No stories received from background script');
                 
             } catch (error) {
-                console.error(`Fetch attempt ${attempt} failed:`, error);
+                console.error(`❌ Fetch attempt ${attempt} failed:`, error.message);
                 
                 if (attempt === maxRetries) {
                     throw new Error(`Failed to fetch stories after ${maxRetries} attempts. Last error: ${error.message}`);
                 }
                 
-                // Wait before retry (exponential backoff)
-                const delay = Math.pow(2, attempt) * 1000;
-                console.log(`Waiting ${delay}ms before retry...`);
+                // Wait before retry (shorter delay for faster fallback)
+                const delay = 2000; // Fixed 2 second delay
+                console.log(`⏳ Waiting ${delay}ms before retry...`);
                 await new Promise(resolve => setTimeout(resolve, delay));
             }
         }
@@ -545,10 +576,10 @@ class NewTabHackerNewsReader {
     // Fetch stories via background script to avoid CORS issues
     async fetchStoriesViaBackground() {
         return new Promise((resolve, reject) => {
-            // Set timeout for the message
+            // Set timeout for the message (increased to 30 seconds)
             const timeout = setTimeout(() => {
-                reject(new Error('Background script timeout'));
-            }, 20000);
+                reject(new Error('Background script timeout - stories took too long to fetch'));
+            }, 30000);
 
             // Send message to background script
             chrome.runtime.sendMessage({ type: 'FETCH_STORIES' }, (response) => {
@@ -560,6 +591,7 @@ class NewTabHackerNewsReader {
                 }
                 
                 if (response && response.success) {
+                    console.log(`Received ${response.stories?.length || 0} stories from background script`);
                     resolve(response.stories);
                 } else {
                     reject(new Error(response?.error || 'Unknown error from background script'));
@@ -2026,13 +2058,25 @@ class NewTabHackerNewsReader {
 
     // Handle register
     async handleRegister() {
-        const name = document.getElementById('registerName').value;
-        const email = document.getElementById('registerEmail').value;
+        const username = document.getElementById('registerUsername').value.trim();
+        const name = document.getElementById('registerName').value.trim();
+        const email = document.getElementById('registerEmail').value.trim();
         const password = document.getElementById('registerPassword').value;
         const confirmPassword = document.getElementById('confirmPassword').value;
 
-        if (!name || !email || !password || !confirmPassword) {
+        if (!username || !name || !email || !password || !confirmPassword) {
             this.showAuthError('Please fill in all fields');
+            return;
+        }
+
+        // Validate username format
+        if (username.length < 3 || username.length > 20) {
+            this.showAuthError('Username must be between 3 and 20 characters');
+            return;
+        }
+
+        if (!/^[a-zA-Z0-9_]+$/.test(username)) {
+            this.showAuthError('Username can only contain letters, numbers, and underscores');
             return;
         }
 
@@ -2055,7 +2099,7 @@ class NewTabHackerNewsReader {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ name, email, password }),
+                body: JSON.stringify({ username, name, email, password }),
                 mode: 'cors'
             });
 
@@ -2070,8 +2114,9 @@ class NewTabHackerNewsReader {
 
                 this.updateUserInterface(data.data.user);
                 this.hideAuthModal();
-                this.showNotification('Account created successfully!', 'success');
+                this.showNotification(`Welcome, ${username}! Account created successfully!`, 'success');
             } else {
+                // Show specific error for duplicate username
                 this.showAuthError(data.message || 'Registration failed');
             }
         } catch (error) {
@@ -2226,6 +2271,28 @@ class NewTabHackerNewsReader {
         }, 5 * 60 * 1000); // 5 minutes
     }
 
+    // Update dynamic greeting with user name
+    updateGreeting(userName = null) {
+        const greetingNameEl = document.getElementById('greetingName');
+        const greetingMessageEl = document.getElementById('greetingMessage');
+        
+        if (!greetingNameEl || !greetingMessageEl) return;
+        
+        // Set user name or default
+        if (userName) {
+            // Extract first name from full name
+            const firstName = userName.split(' ')[0];
+            greetingNameEl.textContent = firstName;
+        } else {
+            greetingNameEl.textContent = 'there';
+        }
+        
+        // Select random greeting message
+        const randomIndex = Math.floor(Math.random() * this.greetingMessages.length);
+        const message = this.greetingMessages[randomIndex];
+        greetingMessageEl.textContent = message;
+    }
+
     // Update user interface based on auth status
     updateUserInterface(user) {
         const userInfo = document.getElementById('userInfo');
@@ -2253,6 +2320,9 @@ class NewTabHackerNewsReader {
                 const initials = user.name.split(' ').map(n => n[0]).join('').toUpperCase();
                 userInitials.textContent = initials;
             }
+            
+            // Update greeting with user name
+            this.updateGreeting(user.name);
 
             // Update profile modal elements
             if (profileName) profileName.textContent = user.name;
@@ -2286,6 +2356,9 @@ class NewTabHackerNewsReader {
             // User is not logged in
             if (userInfo) userInfo.style.display = 'none';
             if (authActions) authActions.style.display = 'flex';
+            
+            // Update greeting with default name
+            this.updateGreeting(null);
         }
     }
 

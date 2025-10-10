@@ -8,13 +8,28 @@ const router = express.Router();
 // Register
 router.post('/register', async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { username, name, email, password } = req.body;
 
     // Validation
-    if (!name || !email || !password) {
+    if (!username || !name || !email || !password) {
       return res.status(400).json({
         success: false,
-        message: 'Please provide name, email, and password'
+        message: 'Please provide username, name, email, and password'
+      });
+    }
+
+    // Validate username format
+    if (username.length < 3 || username.length > 20) {
+      return res.status(400).json({
+        success: false,
+        message: 'Username must be between 3 and 20 characters'
+      });
+    }
+
+    if (!/^[a-zA-Z0-9_]+$/.test(username)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Username can only contain letters, numbers, and underscores'
       });
     }
 
@@ -25,9 +40,18 @@ router.post('/register', async (req, res) => {
       });
     }
 
-    // Check if user exists
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
+    // Check if username already exists
+    const existingUsername = await User.findOne({ username: username.toLowerCase() });
+    if (existingUsername) {
+      return res.status(400).json({
+        success: false,
+        message: 'Username already exists. Please try a different username.'
+      });
+    }
+
+    // Check if email exists
+    const existingEmail = await User.findOne({ email });
+    if (existingEmail) {
       return res.status(400).json({
         success: false,
         message: 'User already exists with this email'
@@ -35,7 +59,7 @@ router.post('/register', async (req, res) => {
     }
 
     // Create user
-    const user = new User({ name, email, password });
+    const user = new User({ username, name, email, password });
     await user.save();
 
     // Generate JWT
@@ -52,6 +76,7 @@ router.post('/register', async (req, res) => {
         token,
         user: {
           id: user._id,
+          username: user.username,
           name: user.name,
           email: user.email,
           createdAt: user.createdAt

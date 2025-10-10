@@ -75,6 +75,17 @@
                 <img src="icons/image.png" alt="VU tech" class="logo">
             </div>
 
+            <!-- Dynamic Greeting Section -->
+            <div class="greeting-section" id="greetingSection">
+                <h1 class="greeting-user">
+                    <span class="greeting-hi">Hi</span>
+                    <span class="greeting-name" id="greetingName">there</span>
+                </h1>
+                <div class="greeting-message-box">
+                    <p class="greeting-message" id="greetingMessage">what's cooking in your mind?</p>
+                </div>
+            </div>
+
             <!-- Search Section -->
             <div class="search-section">
                 <div class="search-container">
@@ -541,6 +552,11 @@
 
                 <!-- Register Form -->
                 <div class="auth-form" id="registerForm" style="display: none;">
+                    <div class="form-group">
+                        <label for="registerUsername">Username</label>
+                        <input type="text" id="registerUsername" placeholder="Choose a unique username" required minlength="3" maxlength="20" pattern="[a-zA-Z0-9_]+">
+                        <small class="form-hint">3-20 characters. Letters, numbers, and underscores only.</small>
+                    </div>
                     <div class="form-group">
                         <label for="registerName">Full Name</label>
                         <input type="text" id="registerName" placeholder="Enter your full name" required>

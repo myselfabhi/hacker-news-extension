@@ -305,7 +305,7 @@ body {
 .logo-section {
     width: 100%;
     max-width: 600px;
-    margin-bottom: 40px;
+    margin-bottom: 20px;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -321,6 +321,113 @@ body {
 .logo:hover {
     transform: scale(1.05);
     filter: drop-shadow(0 6px 20px rgba(0, 150, 255, 0.5));
+}
+
+/* Greeting Section */
+.greeting-section {
+    width: 100%;
+    max-width: 800px;
+    margin-bottom: 30px;
+    padding: 0 20px;
+    z-index: 2;
+    position: relative;
+    text-align: center;
+}
+
+.greeting-user {
+    font-size: 48px;
+    font-weight: 700;
+    margin: 0 0 15px 0;
+    line-height: 1.2;
+    animation: fadeInDown 0.6s ease-out;
+}
+
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.greeting-hi {
+    background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-right: 10px;
+}
+
+.greeting-name {
+    background: linear-gradient(135deg, #f59e0b 0%, #f97316 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-weight: 800;
+}
+
+.greeting-message-box {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(147, 51, 234, 0.1) 100%);
+    border: 1px solid rgba(59, 130, 246, 0.2);
+    border-radius: 16px;
+    padding: 16px 24px;
+    backdrop-filter: blur(10px);
+    animation: fadeInUp 0.6s ease-out 0.2s backwards;
+    display: inline-block;
+    min-width: 300px;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.greeting-message {
+    font-size: 18px;
+    color: rgba(255, 255, 255, 0.9);
+    font-weight: 500;
+    margin: 0;
+    font-style: italic;
+}
+
+/* Responsive Greeting */
+@media (max-width: 768px) {
+    .greeting-user {
+        font-size: 36px;
+    }
+    
+    .greeting-message-box {
+        padding: 14px 20px;
+        min-width: 250px;
+    }
+    
+    .greeting-message {
+        font-size: 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    .greeting-user {
+        font-size: 28px;
+    }
+    
+    .greeting-message-box {
+        padding: 12px 18px;
+        min-width: 200px;
+    }
+    
+    .greeting-message {
+        font-size: 14px;
+    }
 }
 
 /* Search Section */
@@ -4388,6 +4495,14 @@ input[type="checkbox"] {
 .form-group input::placeholder {
     color: rgba(255, 255, 255, 0.4);
     font-weight: 400;
+}
+
+.form-hint {
+    display: block;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 12px;
+    margin-top: 6px;
+    font-style: italic;
 }
 
 .auth-switch {

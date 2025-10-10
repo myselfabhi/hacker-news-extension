@@ -180,33 +180,60 @@ async function fetchStoriesFromAPI() {
         
         const storyIds = await response.json();
         
-        // Get details for the first 20 stories
-        const topStoryIds = storyIds.slice(0, 20);
+        // Get details for the first 30 stories (fetch more to ensure we have 20 valid ones)
+        const topStoryIds = storyIds.slice(0, 30);
+        
+        // Fetch stories in parallel batches of 5 to speed things up
+        const batchSize = 5;
         const stories = [];
         
-        // Fetch stories one by one to avoid rate limiting
-        for (let i = 0; i < topStoryIds.length; i++) {
-            const storyId = topStoryIds[i];
-            try {
-                const storyResponse = await fetch(`https://hacker-news.firebaseio.com/v0/item/${storyId}.json`);
-                
-                if (storyResponse.ok) {
-                    const story = await storyResponse.json();
-                    if (story) {
-                        stories.push(story);
+        for (let i = 0; i < topStoryIds.length; i += batchSize) {
+            const batch = topStoryIds.slice(i, i + batchSize);
+            
+            // Fetch each batch in parallel
+            const batchPromises = batch.map(async (storyId) => {
+                try {
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout per story
+                    
+                    const storyResponse = await fetch(
+                        `https://hacker-news.firebaseio.com/v0/item/${storyId}.json`,
+                        { signal: controller.signal }
+                    );
+                    
+                    clearTimeout(timeoutId);
+                    
+                    if (storyResponse.ok) {
+                        const story = await storyResponse.json();
+                        return story;
                     }
+                    return null;
+                } catch (error) {
+                    console.warn(`Failed to fetch story ${storyId}:`, error.message);
+                    return null;
                 }
-                
-                // Small delay between requests
-                await new Promise(resolve => setTimeout(resolve, 100));
-            } catch (error) {
-                console.warn(`Failed to fetch story ${storyId}:`, error);
-                // Continue with other stories even if one fails
+            });
+            
+            // Wait for all stories in this batch
+            const batchResults = await Promise.all(batchPromises);
+            
+            // Add valid stories to our collection
+            const validStories = batchResults.filter(story => story !== null);
+            stories.push(...validStories);
+            
+            // Stop if we have enough stories
+            if (stories.length >= 20) {
+                break;
+            }
+            
+            // Small delay between batches to avoid overwhelming the API
+            if (i + batchSize < topStoryIds.length) {
+                await new Promise(resolve => setTimeout(resolve, 200));
             }
         }
         
         console.log(`Successfully fetched ${stories.length} stories`);
-        return stories;
+        return stories.slice(0, 20); // Return exactly 20 stories
         
     } catch (error) {
         console.error('Failed to fetch stories from API:', error);
