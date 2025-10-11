@@ -522,7 +522,7 @@ If you find this extension helpful, please consider giving it a ⭐ on GitHub!
 
 ---
 
-**Made with ❤️ by [Your Name]**
+**Made with ❤️ by Abhinav Verma**
 
 **Happy Reading! 📰✨**
 
